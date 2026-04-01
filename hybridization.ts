@@ -62,6 +62,36 @@ scene.add(dirLight);
 // Axes
 scene.add(new THREE.AxesHelper(3));
 
+// Axis labels
+function makeAxisLabel(text: string, color: string): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = color;
+    ctx.font = 'bold 80px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 64, 64);
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(0.8, 0.8, 0.8);
+    return sprite;
+}
+
+const labelX = makeAxisLabel('X', '#ff4444');
+labelX.position.set(3.8, 0, 0);
+scene.add(labelX);
+
+const labelY = makeAxisLabel('Y', '#44ff44');
+labelY.position.set(0, 3.8, 0);
+scene.add(labelY);
+
+const labelZ = makeAxisLabel('Z', '#4488ff');
+labelZ.position.set(0, 0, 3.8);
+scene.add(labelZ);
+
 // ─── State ───────────────────────────────────────────────────────────────────
 let vizMode: 'scatter' | 'surface' = 'surface';
 let points: THREE.Points | null = null;
