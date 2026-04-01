@@ -1,21 +1,18 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
+import katex from 'katex';
+import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import {
     getHybridOrbitalSet,
-    hybridOrbitalDensity,
-    sOrbital,
-    pxOrbital,
-    pyOrbital,
-    pzOrbital,
+    hybridOrbitalWavefunction,
     getHybridEquation,
     getOrbitalComposition,
     HybridOrbital
 } from './hybridization-math';
-import katex from 'katex';
-import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
 
-/**
- * Re-renders math equations on the page using KaTeX auto-render
- */
+// ─── KaTeX ───────────────────────────────────────────────────────────────────
 function refreshMath() {
     (window as any).katex = katex;
     renderMathInElement(document.body, {
@@ -29,228 +26,282 @@ function refreshMath() {
     });
 }
 
-// DOM Elements
-const hybridizationSelect = document.getElementById('hybridization-type') as HTMLSelectElement;
-const hybridOrbitalSelect = document.getElementById('hybrid-orbital-select') as HTMLSelectElement;
-const containerOrbital = document.getElementById('orbital-container')!;
-const containerAtomic = document.getElementById('atomic-container')!;
-const equationDisplay = document.getElementById('equation-display')!;
-const compositionDisplay = document.getElementById('composition-display')!;
-const atomicOrbitalSelect = document.getElementById('atomic-orbital-type') as HTMLSelectElement;
-const zoomSlider = document.getElementById('zoom-slider') as HTMLInputElement;
-const contourSlider = document.getElementById('contour-slider') as HTMLInputElement;
+// ─── DOM ─────────────────────────────────────────────────────────────────────
+const container       = document.getElementById('three-container')!;
+const loadingOverlay  = document.getElementById('loading-overlay')!;
+const hybridTypeEl    = document.getElementById('hybridization-type') as HTMLSelectElement;
+const orbitalIndexEl  = document.getElementById('hybrid-orbital-select') as HTMLSelectElement;
+const btnScatter      = document.getElementById('toggle-scatter') as HTMLButtonElement;
+const btnSurface      = document.getElementById('toggle-surface') as HTMLButtonElement;
+const resetBtn        = document.getElementById('reset-camera') as HTMLButtonElement;
+const equationEl      = document.getElementById('equation-display')!;
+const compositionEl   = document.getElementById('composition-display')!;
+const orbitalLabelEl  = document.getElementById('orbital-label')!;
 
-// Canvas elements
-const canvasHybrid = document.createElement('canvas');
-const canvasAtomic = document.createElement('canvas');
+// ─── Three.js ────────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a1a);
 
-// Set canvas sizes
-canvasHybrid.width = 400;
-canvasHybrid.height = 400;
-canvasAtomic.width = 400;
-canvasAtomic.height = 400;
+const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.01, 200);
+camera.position.set(6, 5, 8);
 
-containerOrbital.appendChild(canvasHybrid);
-containerAtomic.appendChild(canvasAtomic);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
 
-const ctxHybrid = canvasHybrid.getContext('2d')!;
-const ctxAtomic = canvasAtomic.getContext('2d')!;
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
 
-// Visualization parameters
-let currentZoom = 1.0;
-let currentContourLevel = 0.3;
+// Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+dirLight.position.set(8, 12, 8);
+scene.add(dirLight);
 
-/**
- * Draw 2D orbital cross-section on canvas
- */
-function drawOrbitalContour(
-    ctx: CanvasRenderingContext2D,
-    canvas: HTMLCanvasElement,
-    evaluator: (x: number, y: number) => number,
-    zeta: number = 1.0
-) {
-    const width = canvas.width;
-    const height = canvas.height;
-    const imageData = ctx.createImageData(width, height);
-    const data = imageData.data;
+// Axes
+scene.add(new THREE.AxesHelper(3));
 
-    const range = 4 / currentZoom;
-    const maxDensity = 0.8;
+// ─── State ───────────────────────────────────────────────────────────────────
+let vizMode: 'scatter' | 'surface' = 'scatter';
+let points: THREE.Points | null = null;
+let surfaceGroup: THREE.Group | null = null;
 
-    for (let py = 0; py < height; py++) {
-        for (let px = 0; px < width; px++) {
-            // Convert pixel coordinates to orbital coordinates
-            const x = (px / width - 0.5) * range;
-            const z = (py / height - 0.5) * range;
-            const y = 0; // XZ plane cross-section
+const EXTENT    = 3.5;   // world units covering the orbital cloud
+const GRID_RES  = 52;    // marching-cubes grid resolution
+const MAX_PTS   = 30000;
 
-            // Calculate probability density
-            const density = Math.abs(evaluator(x, y, z));
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-            // Map to color
-            let r = 0, g = 0, b = 0, a = 255;
-
-            if (density > currentContourLevel) {
-                // Positive phase (blue)
-                const normalizedDensity = Math.min(density / maxDensity, 1);
-                b = Math.round(255 * normalizedDensity);
-                g = Math.round(100 * normalizedDensity);
-                r = Math.round(50 * normalizedDensity);
-                a = Math.round(150 + 105 * normalizedDensity);
-            } else if (density > 0.01) {
-                // Faint background
-                r = 100;
-                g = 100;
-                b = 120;
-                a = Math.round(50 * (density / currentContourLevel));
+/** Remove old geometry from scene and dispose GPU resources */
+function clearScene() {
+    if (points) {
+        scene.remove(points);
+        points.geometry.dispose();
+        (points.material as THREE.Material).dispose();
+        points = null;
+    }
+    if (surfaceGroup) {
+        surfaceGroup.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+                child.geometry.dispose();
+                (child.material as THREE.Material).dispose();
             }
+        });
+        scene.remove(surfaceGroup);
+        surfaceGroup = null;
+    }
+}
 
-            const index = (py * width + px) * 4;
-            data[index] = r;
-            data[index + 1] = g;
-            data[index + 2] = b;
-            data[index + 3] = a;
+/** Sample the wavefunction to find an adaptive scatter threshold */
+function findScatterThreshold(hybrid: HybridOrbital): number {
+    const densities: number[] = [];
+    const step = EXTENT * 2 / 20;
+    for (let x = -EXTENT; x < EXTENT; x += step)
+        for (let y = -EXTENT; y < EXTENT; y += step)
+            for (let z = -EXTENT; z < EXTENT; z += step) {
+                const psi = hybridOrbitalWavefunction(x, y, z, hybrid);
+                densities.push(psi * psi);
+            }
+    densities.sort((a, b) => b - a);
+    return densities[Math.floor(densities.length * 0.005)] || 0.0001;
+}
+
+/** Find isosurface threshold enclosing ~90 % of the probability density */
+function findSurfaceThreshold(hybrid: HybridOrbital): number {
+    const densities: number[] = [];
+    const step = EXTENT * 2 / 28;
+    for (let x = -EXTENT; x < EXTENT; x += step)
+        for (let y = -EXTENT; y < EXTENT; y += step)
+            for (let z = -EXTENT; z < EXTENT; z += step)
+                densities.push(Math.abs(hybridOrbitalWavefunction(x, y, z, hybrid)));
+    densities.sort((a, b) => b - a);
+    const total = densities.reduce((a, b) => a + b, 0);
+    let cumul = 0;
+    for (const d of densities) {
+        cumul += d;
+        if (cumul >= total * 0.90) return d;
+    }
+    return densities[densities.length - 1];
+}
+
+// ─── Scatter rendering ────────────────────────────────────────────────────────
+function buildScatter(hybrid: HybridOrbital) {
+    const threshold = findScatterThreshold(hybrid);
+    const positions = new Float32Array(MAX_PTS * 3);
+    const colorsArr = new Float32Array(MAX_PTS * 3);
+
+    let count = 0, attempts = 0;
+    while (count < MAX_PTS && attempts < MAX_PTS * 20) {
+        attempts++;
+        const x = (Math.random() - 0.5) * EXTENT * 2;
+        const y = (Math.random() - 0.5) * EXTENT * 2;
+        const z = (Math.random() - 0.5) * EXTENT * 2;
+        const psi = hybridOrbitalWavefunction(x, y, z, hybrid);
+        const density = psi * psi;
+
+        if (Math.random() < density / threshold) {
+            positions[count * 3]     = x;
+            positions[count * 3 + 1] = y;
+            positions[count * 3 + 2] = z;
+            // blue = positive phase, red = negative phase
+            if (psi >= 0) {
+                colorsArr[count * 3] = 0.4; colorsArr[count * 3 + 1] = 0.6; colorsArr[count * 3 + 2] = 1.0;
+            } else {
+                colorsArr[count * 3] = 1.0; colorsArr[count * 3 + 1] = 0.4; colorsArr[count * 3 + 2] = 0.4;
+            }
+            count++;
         }
     }
 
-    ctx.putImageData(imageData, 0, 0);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions.slice(0, count * 3), 3));
+    geo.setAttribute('color',    new THREE.BufferAttribute(colorsArr.slice(0,  count * 3), 3));
 
-    // Draw axes
-    ctx.strokeStyle = '#999';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(width / 2, 0);
-    ctx.lineTo(width / 2, height);
-    ctx.moveTo(0, height / 2);
-    ctx.lineTo(width, height / 2);
-    ctx.stroke();
-
-    // Draw labels
-    ctx.fillStyle = '#ddd';
-    ctx.font = '12px monospace';
-    ctx.fillText('X', width - 20, height - 5);
-    ctx.fillText('Z', 5, 15);
+    const mat = new THREE.PointsMaterial({
+        size: 0.06, vertexColors: true, transparent: true, opacity: 0.85, sizeAttenuation: true
+    });
+    points = new THREE.Points(geo, mat);
+    scene.add(points);
 }
 
-/**
- * Update hybrid orbital visualization
- */
-function updateHybridOrbital() {
-    const hybridType = hybridizationSelect.value as 'sp' | 'sp2' | 'sp3';
-    const hybridIndex = parseInt(hybridOrbitalSelect.value);
+// ─── Surface (MarchingCubes) rendering ───────────────────────────────────────
+function buildSurface(hybrid: HybridOrbital) {
+    const isoVal = findSurfaceThreshold(hybrid);
+    surfaceGroup = new THREE.Group();
 
-    const orbitals = getHybridOrbitalSet(hybridType);
-    const hybrid = orbitals[hybridIndex];
-
-    // Update equation display
-    const equation = getHybridEquation(hybrid);
-    equationDisplay.innerHTML = `\\[|\\psi_{hybrid}\\rangle = ${equation}\\]`;
-
-    // Update composition
-    const composition = getOrbitalComposition(hybrid);
-    compositionDisplay.innerHTML = `
-        <div class="composition-info">
-            <p><strong>Orbital Composition:</strong></p>
-            <p>s-orbital character: ${composition.s}%</p>
-            <p>p-orbital character: ${composition.p}%</p>
-            <p><strong>Geometry:</strong> ${hybrid.geometry}</p>
-            <p><strong>Bond Angle:</strong> ${hybrid.angle.toFixed(1)}°</p>
-        </div>
-    `;
-
-    // Draw the hybrid orbital
-    drawOrbitalContour(ctxHybrid, canvasHybrid, (x, y, z) => {
-        return hybridOrbitalDensity(x, y, z, hybrid);
+    const matPos = new THREE.MeshPhongMaterial({
+        color: 0x6699ff, transparent: true, opacity: 0.72,
+        side: THREE.DoubleSide, shininess: 40
+    });
+    const matNeg = new THREE.MeshPhongMaterial({
+        color: 0xff6644, transparent: true, opacity: 0.72,
+        side: THREE.DoubleSide, shininess: 40
     });
 
-    refreshMath();
-}
+    const mcPos = new MarchingCubes(GRID_RES, matPos, true, true, 100000);
+    const mcNeg = new MarchingCubes(GRID_RES, matNeg, true, true, 100000);
+    mcPos.scale.set(EXTENT, EXTENT, EXTENT);
+    mcNeg.scale.set(EXTENT, EXTENT, EXTENT);
 
-/**
- * Update atomic orbital visualization
- */
-function updateAtomicOrbital() {
-    const orbitalType = atomicOrbitalSelect.value;
+    // @ts-ignore
+    const fieldPos: Float32Array = mcPos.field;
+    // @ts-ignore
+    const fieldNeg: Float32Array = mcNeg.field;
+    fieldPos.fill(0);
+    fieldNeg.fill(0);
 
-    let evaluator: (x: number, y: number, z: number) => number;
-    let title = '';
-
-    switch (orbitalType) {
-        case 's':
-            evaluator = (x, y, z) => sOrbital(x, y, z) ** 2;
-            title = 's orbital: $\\psi_{1s} = (\\pi)^{-3/4}e^{-r^2}$';
-            break;
-        case 'px':
-            evaluator = (x, y, z) => pxOrbital(x, y, z) ** 2;
-            title = 'p<sub>x</sub> orbital: $\\psi_{2p_x} = (\\pi)^{-3/4}\\sqrt{3}x e^{-r^2}$';
-            break;
-        case 'py':
-            evaluator = (x, y, z) => pyOrbital(x, y, z) ** 2;
-            title = 'p<sub>y</sub> orbital: $\\psi_{2p_y} = (\\pi)^{-3/4}\\sqrt{3}y e^{-r^2}$';
-            break;
-        case 'pz':
-            evaluator = (x, y, z) => pzOrbital(x, y, z) ** 2;
-            title = 'p<sub>z</sub> orbital: $\\psi_{2p_z} = (\\pi)^{-3/4}\\sqrt{3}z e^{-r^2}$';
-            break;
-        default:
-            evaluator = (x, y, z) => sOrbital(x, y, z) ** 2;
-            title = 's orbital';
+    for (let i = 0; i < GRID_RES; i++) {
+        for (let j = 0; j < GRID_RES; j++) {
+            for (let k = 0; k < GRID_RES; k++) {
+                const x = ((i / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
+                const y = ((j / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
+                const z = ((k / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
+                const psi = hybridOrbitalWavefunction(x, y, z, hybrid);
+                const idx = i + j * GRID_RES + k * GRID_RES * GRID_RES;
+                fieldPos[idx] =  psi;
+                fieldNeg[idx] = -psi;
+            }
+        }
     }
 
-    // Update atomic orbital info
-    const atomicInfo = document.getElementById('atomic-info')!;
-    atomicInfo.innerHTML = title;
+    mcPos.isolation = isoVal;
+    mcNeg.isolation = isoVal;
+    mcPos.update();
+    mcNeg.update();
 
-    // Draw the atomic orbital
-    drawOrbitalContour(ctxAtomic, canvasAtomic, evaluator);
-
-    refreshMath();
+    surfaceGroup.add(mcPos);
+    surfaceGroup.add(mcNeg);
+    scene.add(surfaceGroup);
 }
 
-/**
- * Update hybrid orbital options based on hybridization type
- */
-function updateHybridOptions() {
-    const hybridType = hybridizationSelect.value as 'sp' | 'sp2' | 'sp3';
-    const orbitals = getHybridOrbitalSet(hybridType);
+// ─── Main update ─────────────────────────────────────────────────────────────
+function updateViz() {
+    loadingOverlay.style.display = 'flex';
+    setTimeout(() => {
+        try {
+            const hybridType = hybridTypeEl.value as 'sp' | 'sp2' | 'sp3';
+            const idx        = parseInt(orbitalIndexEl.value);
+            const orbitals   = getHybridOrbitalSet(hybridType);
+            const hybrid     = orbitals[idx];
 
-    hybridOrbitalSelect.innerHTML = '';
-    orbitals.forEach((orbital, index) => {
-        const option = document.createElement('option');
-        option.value = index.toString();
-        option.textContent = orbital.name;
-        hybridOrbitalSelect.appendChild(option);
+            clearScene();
+
+            if (vizMode === 'scatter') buildScatter(hybrid);
+            else                       buildSurface(hybrid);
+
+            // Update sidebar info
+            const eq   = getHybridEquation(hybrid);
+            const comp = getOrbitalComposition(hybrid);
+
+            equationEl.innerHTML = `\\[|\\psi_{\\text{hybrid}}\\rangle = ${eq}\\]`;
+
+            orbitalLabelEl.textContent = hybrid.name;
+
+            compositionEl.innerHTML = `
+                <div class="stat-item"><span class="stat-label">Geometry</span>
+                    <span class="stat-value">${hybrid.geometry}</span></div>
+                <div class="stat-item"><span class="stat-label">Bond Angle</span>
+                    <span class="stat-value">${hybrid.angle.toFixed(2)}°</span></div>
+                <div class="stat-item"><span class="stat-label">s character</span>
+                    <span class="stat-value">${comp.s}%</span></div>
+                <div class="stat-item"><span class="stat-label">p character</span>
+                    <span class="stat-value">${comp.p}%</span></div>`;
+        } catch (e) {
+            console.error('Hybridization render error:', e);
+        } finally {
+            loadingOverlay.style.display = 'none';
+            refreshMath();
+        }
+    }, 80);
+}
+
+// ─── Orbital selector population ─────────────────────────────────────────────
+function populateOrbitalSelector() {
+    const hybridType = hybridTypeEl.value as 'sp' | 'sp2' | 'sp3';
+    const orbitals   = getHybridOrbitalSet(hybridType);
+    orbitalIndexEl.innerHTML = '';
+    orbitals.forEach((o, i) => {
+        const opt = document.createElement('option');
+        opt.value = i.toString();
+        opt.textContent = o.name;
+        orbitalIndexEl.appendChild(opt);
     });
-
-    updateHybridOrbital();
+    updateViz();
 }
 
-/**
- * Event Listeners
- */
-hybridizationSelect.addEventListener('change', updateHybridOptions);
-hybridOrbitalSelect.addEventListener('change', updateHybridOrbital);
-atomicOrbitalSelect.addEventListener('change', updateAtomicOrbital);
+// ─── Event listeners ─────────────────────────────────────────────────────────
+hybridTypeEl.addEventListener('change', populateOrbitalSelector);
+orbitalIndexEl.addEventListener('change', updateViz);
 
-zoomSlider.addEventListener('input', (e) => {
-    currentZoom = parseFloat((e.target as HTMLInputElement).value);
-    updateHybridOrbital();
-    updateAtomicOrbital();
-});
+btnScatter.onclick = () => {
+    vizMode = 'scatter';
+    btnScatter.classList.add('active');
+    btnSurface.classList.remove('active');
+    updateViz();
+};
+btnSurface.onclick = () => {
+    vizMode = 'surface';
+    btnSurface.classList.add('active');
+    btnScatter.classList.remove('active');
+    updateViz();
+};
 
-contourSlider.addEventListener('input', (e) => {
-    currentContourLevel = parseFloat((e.target as HTMLInputElement).value);
-    updateHybridOrbital();
-    updateAtomicOrbital();
-});
+resetBtn.onclick = () => controls.reset();
 
-// Handle window resize
 window.addEventListener('resize', () => {
-    updateHybridOrbital();
-    updateAtomicOrbital();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
 });
 
-// Initial setup
-console.log('Hybridization Visualizer Loaded');
-updateHybridOptions();
-updateAtomicOrbital();
+// ─── Render loop ─────────────────────────────────────────────────────────────
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+// ─── Boot ────────────────────────────────────────────────────────────────────
+populateOrbitalSelector();
+animate();
