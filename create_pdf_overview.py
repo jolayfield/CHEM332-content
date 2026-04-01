@@ -83,7 +83,6 @@ story.append(Paragraph("Interactive Learning Platform", subtitle_style))
 story.append(Spacer(1, 0.3*inch))
 story.append(Paragraph("Quantum Mechanics Simulations & Educational Tools", normal_style))
 story.append(Spacer(1, 0.3*inch))
-story.append(Paragraph(f"<b>University of St. Thomas</b>", normal_style))
 story.append(Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%B %d, %Y')}", normal_style))
 story.append(PageBreak())
 
@@ -101,9 +100,9 @@ story.append(PageBreak())
 story.append(Paragraph("1. Project Overview", heading1_style))
 story.append(Paragraph(
     "QuantumChem is an interactive web-based educational platform designed to help students "
-    "and educators explore fundamental concepts in quantum mechanics and chemistry. Hosted by the "
-    "University of St. Thomas, the platform provides a collection of physics simulations and "
-    "visualizations that bring theoretical concepts to life through interactive experimentation.",
+    "and educators explore fundamental concepts in quantum mechanics and chemistry. The platform "
+    "provides a collection of physics simulations and visualizations that bring theoretical concepts "
+    "to life through interactive experimentation.",
     normal_style
 ))
 story.append(Spacer(1, 0.15*inch))
@@ -120,8 +119,8 @@ story.append(Spacer(1, 0.15*inch))
 
 story.append(Paragraph("Target Audience:", heading2_style))
 story.append(Paragraph(
-    "Physics and chemistry students at the undergraduate and graduate levels, as well as "
-    "educators seeking interactive teaching materials for quantum mechanics courses.",
+    "Physics and chemistry students at all levels, as well as educators and learners seeking "
+    "interactive teaching and learning materials for quantum mechanics and chemistry courses.",
     normal_style
 ))
 story.append(Spacer(1, 0.2*inch))
@@ -249,8 +248,8 @@ story.append(Spacer(1, 0.15*inch))
 story.append(Paragraph("Styling & UX:", heading2_style))
 story.append(Paragraph(
     "The platform uses a modern glass-morphism design with CSS animations and responsive layouts. "
-    "The University of St. Thomas branding is integrated throughout with consistent typography "
-    "(Merriweather font) and color schemes.",
+    "Consistent typography (Merriweather font) and color schemes are used throughout for a cohesive "
+    "user experience.",
     normal_style
 ))
 story.append(Spacer(1, 0.2*inch))
@@ -345,12 +344,13 @@ story.append(Spacer(1, 0.3*inch))
 
 # Footer
 story.append(Paragraph(
-    "For more information, visit the University of St. Thomas Physics Department website.",
+    "QuantumChem is an open-source educational project designed to democratize access to "
+    "physics and chemistry simulations.",
     normal_style
 ))
 story.append(Spacer(1, 0.1*inch))
 story.append(Paragraph(
-    "QuantumChem Project | © 2026 University of St. Thomas",
+    "QuantumChem Project | © 2026",
     normal_style
 ))
 
