@@ -144,7 +144,7 @@ tech_data = [
     ['Node.js', 'Latest', 'Runtime environment and package management'],
 ]
 
-tech_table = Table(tech_data, colWidths=[1.4*inch, 0.9*inch, 3.2*inch])
+tech_table = Table(tech_data, colWidths=[1.3*inch, 0.85*inch, 3.55*inch])
 tech_table.setStyle(TableStyle([
     ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
     ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -159,7 +159,7 @@ tech_table.setStyle(TableStyle([
     ('RIGHTPADDING', (0, 0), (-1, -1), 6),
     ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
     ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ('FONTSIZE', (0, 1), (-1, -1), 8),
+    ('FONTSIZE', (0, 1), (-1, -1), 7.5),
     ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
 ]))
 story.append(tech_table)
