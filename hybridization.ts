@@ -43,7 +43,9 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a1a);
 
 const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.01, 200);
-camera.position.set(6, 5, 8);
+// X out of plane (Three.js +Z), Y horizontal (Three.js +X), Z vertical (Three.js +Y)
+// Start looking from slightly along Three.js +Z (chemistry X) with slight elevation
+camera.position.set(1.5, 3, 10);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -80,16 +82,19 @@ function makeAxisLabel(text: string, color: string): THREE.Sprite {
     return sprite;
 }
 
-const labelX = makeAxisLabel('X', '#ff4444');
-labelX.position.set(3.8, 0, 0);
+// Chemistry convention: X = out of plane (Three.js +Z, blue axis)
+//                       Y = horizontal    (Three.js +X, red axis)
+//                       Z = vertical      (Three.js +Y, green axis)
+const labelX = makeAxisLabel('X', '#4488ff');
+labelX.position.set(0, 0, 3.8);   // Three.js +Z
 scene.add(labelX);
 
-const labelY = makeAxisLabel('Y', '#44ff44');
-labelY.position.set(0, 3.8, 0);
+const labelY = makeAxisLabel('Y', '#ff4444');
+labelY.position.set(3.8, 0, 0);   // Three.js +X
 scene.add(labelY);
 
-const labelZ = makeAxisLabel('Z', '#4488ff');
-labelZ.position.set(0, 0, 3.8);
+const labelZ = makeAxisLabel('Z', '#44cc44');
+labelZ.position.set(0, 3.8, 0);   // Three.js +Y
 scene.add(labelZ);
 
 // ─── State ───────────────────────────────────────────────────────────────────
