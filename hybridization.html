@@ -10,10 +10,88 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
         rel="stylesheet">
+    <script type="module" src="/hybridization.ts"></script>
+    <style>
+        /* Override #app to allow scrollable content below the dashboard */
+        #app {
+            height: auto !important;
+            min-height: 100vh;
+        }
+
+        /* Override dashboard: no graph row, just controls + simulation side by side */
+        .dashboard {
+            grid-template-rows: 1fr !important;
+            grid-template-areas: "controls simulation" !important;
+            min-height: 580px;
+        }
+
+        /* Ensure the Three.js container fills the simulation area */
+        #three-container {
+            width: 100%;
+            height: 100%;
+            min-height: 560px;
+        }
+
+        /* Info panel below the dashboard */
+        .info-panel {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            padding: 1.5rem;
+        }
+
+        .info-card h3 {
+            font-family: var(--font-head);
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .info-card p,
+        .info-card li {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .info-card ul {
+            padding-left: 1.2rem;
+        }
+
+        .math-block {
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin: 0.75rem 0;
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        .equation-box {
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            overflow-x: auto;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 900px) {
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div id="app">
+        <!-- Nav -->
         <nav class="main-nav glass-panel">
             <div class="nav-brand">Interactive Physics Simulations</div>
             <ul class="nav-links">
@@ -23,27 +101,32 @@
             </ul>
         </nav>
 
+        <!-- Breadcrumb -->
         <div class="breadcrumb">
             <a href="./">Home</a> &rsaquo;
-            <a href="simulations.html">Simulations</a> <span>/</span>
+            <a href="simulations.html">Simulations</a>
+            <span>/</span>
             <span>Orbital Hybridization</span>
         </div>
 
+        <!-- Page header -->
         <header class="page-header">
             <h1>3D Orbital Hybridization</h1>
-            <p style="color: var(--text-dim); max-width: 800px; margin: 0.5rem auto;">
-                Visualize hybrid orbitals as 3D structures formed by linear combinations of atomic $s$ and $p$
-                orbitals. Rotate, zoom, and switch between scatter and isosurface views.
+            <p style="color:var(--text-dim); margin-top:0.4rem;">
+                Hybrid orbitals as 3D structures formed by linear combinations of atomic $s$ and $p$ orbitals.
+                Drag to rotate · scroll to zoom · right-drag to pan.
             </p>
         </header>
 
+        <!-- Dashboard (controls + simulation) -->
         <main class="dashboard">
-            <!-- ── Controls ────────────────────────────────────────────── -->
+
+            <!-- ── Controls sidebar ─────────────────────────────────── -->
             <aside class="controls-panel glass-panel">
 
                 <div class="control-group">
                     <label>Hybridization Type</label>
-                    <select id="hybridization-type" class="glass-select">
+                    <select id="hybridization-type">
                         <option value="sp">sp — Linear</option>
                         <option value="sp2">sp² — Trigonal Planar</option>
                         <option value="sp3" selected>sp³ — Tetrahedral</option>
@@ -52,150 +135,129 @@
 
                 <div class="control-group">
                     <label>Hybrid Orbital</label>
-                    <select id="hybrid-orbital-select" class="glass-select"></select>
+                    <select id="hybrid-orbital-select"></select>
                 </div>
 
                 <div class="control-group">
                     <label>Visualization Mode</label>
-                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                        <button id="toggle-scatter" class="glass-btn active" style="flex:1; font-size:0.8em;">
+                    <div style="display:flex; gap:0.5rem; margin-top:0.4rem;">
+                        <button id="toggle-scatter" class="glass-btn active" style="flex:1; font-size:0.78em;">
                             Scatter
                         </button>
-                        <button id="toggle-surface" class="glass-btn" style="flex:1; font-size:0.8em;">
+                        <button id="toggle-surface" class="glass-btn" style="flex:1; font-size:0.78em;">
                             90% Surface
                         </button>
                     </div>
                 </div>
 
-                <!-- Current orbital info -->
+                <!-- Stats -->
                 <div class="stats-group">
                     <div class="stat-item">
                         <span class="stat-label">Orbital</span>
                         <span class="stat-value" id="orbital-label">—</span>
                     </div>
-
-                    <!-- Dynamic geometry / composition / angles -->
                     <div id="composition-display"></div>
 
-                    <!-- Phase colour legend -->
+                    <!-- Phase legend -->
                     <div class="stat-item"
-                        style="flex-direction:column; align-items:flex-start; gap:0.5rem; margin-top:0.5rem;">
-                        <span class="stat-label">Phase Legend</span>
-                        <div style="display:flex; gap:1rem; font-size:0.8em;">
-                            <span style="display:flex; align-items:center; gap:4px;">
-                                <div style="width:12px;height:12px;background:#6699ff;border-radius:2px;"></div>
+                        style="flex-direction:column; align-items:flex-start; gap:0.4rem; padding-bottom:0;">
+                        <span class="stat-label">Phase</span>
+                        <div style="display:flex; gap:1rem; font-size:0.82em; margin-top:0.2rem;">
+                            <span style="display:flex; align-items:center; gap:5px;">
+                                <div style="width:11px;height:11px;background:#6699ff;border-radius:2px;"></div>
                                 Positive (+)
                             </span>
-                            <span style="display:flex; align-items:center; gap:4px;">
-                                <div style="width:12px;height:12px;background:#ff6644;border-radius:2px;"></div>
+                            <span style="display:flex; align-items:center; gap:5px;">
+                                <div style="width:11px;height:11px;background:#ff6644;border-radius:2px;"></div>
                                 Negative (−)
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Equation -->
-                <div class="control-group" style="margin-top:1.5rem;">
+                <!-- LCAO equation -->
+                <div class="control-group">
                     <label>LCAO Equation</label>
-                    <div id="equation-display"
-                        style="background:rgba(255,255,255,0.07); border-radius:8px; padding:10px 12px;
-                               font-size:0.85em; line-height:1.7; overflow-x:auto;">
-                        …
-                    </div>
+                    <div id="equation-display" class="equation-box">…</div>
                 </div>
 
-                <div class="control-group" style="margin-top:1.5rem;">
-                    <button id="reset-camera" class="glass-btn" style="width:100%;">Reset View</button>
-                </div>
+                <button id="reset-camera" class="glass-btn" style="width:100%; margin-top:auto;">
+                    Reset View
+                </button>
             </aside>
 
-            <!-- ── 3-D Viewport ──────────────────────────────────────── -->
-            <section class="simulation-container glass-panel" id="canvas-container"
-                style="position:relative; min-height:520px; padding:0;">
-                <div id="three-container" style="width:100%; height:100%; border-radius:12px; overflow:hidden;"></div>
+            <!-- ── 3-D Viewport ───────────────────────────────────────── -->
+            <section class="simulation-container glass-panel" style="padding:0; position:relative;">
+                <div id="three-container"></div>
                 <div id="loading-overlay"
-                    style="position:absolute; inset:0; background:rgba(0,0,0,0.55);
+                    style="position:absolute; inset:0; background:rgba(255,255,255,0.7);
                            display:none; align-items:center; justify-content:center;
-                           color:white; font-size:1.1em; border-radius:12px;">
+                           font-size:1.1em; color:var(--accent-color); border-radius:16px;">
                     Rendering…
                 </div>
             </section>
         </main>
 
-        <!-- ── Educational panel ──────────────────────────────────────────── -->
-        <section style="max-width:1200px; margin:2rem auto; padding:0 1rem;">
-            <div class="glass-panel" style="padding:2rem;">
-                <h2 style="color:var(--accent-blue,#6699ff); margin-bottom:1.2rem;">
-                    Mathematical Foundation
-                </h2>
-                <p style="color:var(--text-dim,#aaa); line-height:1.8; margin-bottom:1rem;">
-                    Hybrid orbitals arise from <strong>linear combinations of atomic orbitals (LCAO)</strong>.
-                    Each hybrid $|\psi_h\rangle$ is a normalised superposition of the central-atom
-                    $|s\rangle$, $|p_x\rangle$, $|p_y\rangle$, and $|p_z\rangle$ orbitals:
-                </p>
-                <p style="text-align:center; margin:1.2rem 0;">
-                    $$|\psi_h\rangle = c_s|s\rangle + c_{p_x}|p_x\rangle + c_{p_y}|p_y\rangle + c_{p_z}|p_z\rangle$$
-                </p>
-                <p style="color:var(--text-dim,#aaa); line-height:1.8; margin-bottom:1rem;">
-                    Normalisation requires $c_s^2+c_{p_x}^2+c_{p_y}^2+c_{p_z}^2=1$.
-                    The squared coefficient $c_s^2$ gives the <em>s character</em> of the hybrid,
-                    which controls electronegativity, bond angles, and acidity.
-                </p>
+        <!-- ── Educational panel ─────────────────────────────────────── -->
+        <div class="info-panel">
 
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1.2rem; margin-top:1.5rem;">
-                    <div style="background:rgba(255,255,255,0.06); border-radius:8px; padding:1rem;">
-                        <h3 style="color:#e74c3c; margin-bottom:0.6rem;">sp</h3>
-                        <p style="font-size:0.85em; color:#bbb; line-height:1.7;">
-                            Linear · 180° · 50% <em>s</em><br>
-                            $$|\psi_1\rangle=\tfrac{1}{\sqrt{2}}|s\rangle+\tfrac{1}{\sqrt{2}}|p_z\rangle$$
-                            $$|\psi_2\rangle=\tfrac{1}{\sqrt{2}}|s\rangle-\tfrac{1}{\sqrt{2}}|p_z\rangle$$
-                            Examples: C≡C, CO<sub>2</sub>, HCN
-                        </p>
-                    </div>
-
-                    <div style="background:rgba(255,255,255,0.06); border-radius:8px; padding:1rem;">
-                        <h3 style="color:#f39c12; margin-bottom:0.6rem;">sp²</h3>
-                        <p style="font-size:0.85em; color:#bbb; line-height:1.7;">
-                            Trigonal planar · 120° · 33% <em>s</em><br>
-                            $$|\psi_1\rangle=\tfrac{1}{\sqrt{3}}|s\rangle+\sqrt{\tfrac{2}{3}}|p_z\rangle$$
-                            Examples: C=C, BF<sub>3</sub>, NO<sub>3</sub><sup>−</sup>
-                        </p>
-                    </div>
-
-                    <div style="background:rgba(255,255,255,0.06); border-radius:8px; padding:1rem;">
-                        <h3 style="color:#2ecc71; margin-bottom:0.6rem;">sp³</h3>
-                        <p style="font-size:0.85em; color:#bbb; line-height:1.7;">
-                            Tetrahedral · 109.47° · 25% <em>s</em><br>
-                            $$|\psi_1\rangle=\tfrac{1}{2}(|s\rangle+|p_x\rangle+|p_y\rangle+|p_z\rangle)$$
-                            Examples: CH<sub>4</sub>, NH<sub>3</sub>, H<sub>2</sub>O
-                        </p>
-                    </div>
+            <div class="glass-panel info-card">
+                <h3>sp — Linear (180°)</h3>
+                <p><strong>s character:</strong> 50% &nbsp;|&nbsp; <strong>Examples:</strong> C≡C, CO₂, HCN</p>
+                <div class="math-block">
+                    $$|\psi_1\rangle=\tfrac{1}{\sqrt{2}}|s\rangle+\tfrac{1}{\sqrt{2}}|p_z\rangle$$
+                    $$|\psi_2\rangle=\tfrac{1}{\sqrt{2}}|s\rangle-\tfrac{1}{\sqrt{2}}|p_z\rangle$$
                 </div>
+                <p>Two unhybridised $p$ orbitals remain and form two $\pi$ bonds in triple bonds.</p>
             </div>
-        </section>
-    </div>
 
-    <script type="module" src="/hybridization.ts"></script>
-    <style>
-        .glass-select {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.9em;
-            cursor: pointer;
-            margin-top: 0.4rem;
-        }
-        .glass-select option {
-            background: #1a2a4a;
-        }
-        .glass-select:focus {
-            outline: none;
-            border-color: rgba(100, 160, 255, 0.6);
-        }
-    </style>
+            <div class="glass-panel info-card">
+                <h3>sp² — Trigonal Planar (120°)</h3>
+                <p><strong>s character:</strong> 33% &nbsp;|&nbsp; <strong>Examples:</strong> C=C, BF₃, benzene</p>
+                <div class="math-block">
+                    $$|\psi_1\rangle=\tfrac{1}{\sqrt{3}}|s\rangle+\sqrt{\tfrac{2}{3}}|p_z\rangle$$
+                    $$|\psi_2\rangle=\tfrac{1}{\sqrt{3}}|s\rangle-\tfrac{1}{\sqrt{6}}|p_z\rangle+\tfrac{1}{\sqrt{2}}|p_x\rangle$$
+                </div>
+                <p>One unhybridised $p$ orbital remains perpendicular to the plane, forming a $\pi$ bond.</p>
+            </div>
+
+            <div class="glass-panel info-card">
+                <h3>sp³ — Tetrahedral (109.47°)</h3>
+                <p><strong>s character:</strong> 25% &nbsp;|&nbsp; <strong>Examples:</strong> CH₄, NH₃, H₂O</p>
+                <div class="math-block">
+                    $$|\psi_1\rangle=\tfrac{1}{2}(|s\rangle+|p_x\rangle+|p_y\rangle+|p_z\rangle)$$
+                    $$|\psi_2\rangle=\tfrac{1}{2}(|s\rangle+|p_x\rangle-|p_y\rangle-|p_z\rangle)$$
+                </div>
+                <ul>
+                    <li>No unhybridised $p$ orbitals remain</li>
+                    <li>Higher $s$ character → shorter, stronger bonds</li>
+                    <li>Lone pairs reduce angle below 109.47°</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Normalisation note -->
+        <div class="glass-panel" style="margin-top:1.5rem; margin-bottom:2rem; padding:1.5rem;">
+            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">
+                Mathematical Foundation: LCAO
+            </h3>
+            <p style="color:var(--text-dim); line-height:1.8; margin-bottom:0.8rem;">
+                Every hybrid orbital is a <strong>normalised linear combination of atomic orbitals</strong>:
+            </p>
+            <div class="math-block">
+                $$|\psi_h\rangle = c_s|s\rangle + c_{p_x}|p_x\rangle + c_{p_y}|p_y\rangle + c_{p_z}|p_z\rangle
+                \qquad \text{subject to} \qquad
+                c_s^2 + c_{p_x}^2 + c_{p_y}^2 + c_{p_z}^2 = 1$$
+            </div>
+            <p style="color:var(--text-dim); line-height:1.8;">
+                The squared coefficient $c_s^2$ gives the <em>s character</em>, which governs bond angles,
+                electronegativity, and acid strength. Higher $s$ character means the electrons are held
+                closer to the nucleus, resulting in shorter and stronger bonds.
+            </p>
+        </div>
+
+    </div><!-- /#app -->
 </body>
 
 </html>
