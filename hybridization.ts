@@ -63,7 +63,7 @@ scene.add(dirLight);
 scene.add(new THREE.AxesHelper(3));
 
 // ─── State ───────────────────────────────────────────────────────────────────
-let vizMode: 'scatter' | 'surface' = 'scatter';
+let vizMode: 'scatter' | 'surface' = 'surface';
 let points: THREE.Points | null = null;
 let surfaceGroup: THREE.Group | null = null;
 
@@ -267,12 +267,35 @@ function populateOrbitalSelector() {
         opt.textContent = o.name;
         orbitalIndexEl.appendChild(opt);
     });
+    updateCounter();
     updateViz();
 }
 
+// ─── Prev / Next navigation ───────────────────────────────────────────────────
+const btnPrev = document.getElementById('btn-prev') as HTMLButtonElement;
+const btnNext = document.getElementById('btn-next') as HTMLButtonElement;
+const orbitalCounter = document.getElementById('orbital-counter')!;
+
+function updateCounter() {
+    const total = orbitalIndexEl.options.length;
+    const current = parseInt(orbitalIndexEl.value) + 1;
+    orbitalCounter.textContent = `${current} / ${total}`;
+}
+
+function stepOrbital(delta: number) {
+    const total = orbitalIndexEl.options.length;
+    const next = (parseInt(orbitalIndexEl.value) + delta + total) % total;
+    orbitalIndexEl.value = next.toString();
+    updateCounter();
+    updateViz();
+}
+
+btnPrev.onclick = () => stepOrbital(-1);
+btnNext.onclick = () => stepOrbital(+1);
+
 // ─── Event listeners ─────────────────────────────────────────────────────────
 hybridTypeEl.addEventListener('change', populateOrbitalSelector);
-orbitalIndexEl.addEventListener('change', updateViz);
+orbitalIndexEl.addEventListener('change', () => { updateCounter(); updateViz(); });
 
 btnScatter.onclick = () => {
     vizMode = 'scatter';
@@ -304,4 +327,5 @@ function animate() {
 
 // ─── Boot ────────────────────────────────────────────────────────────────────
 populateOrbitalSelector();
+updateCounter();
 animate();

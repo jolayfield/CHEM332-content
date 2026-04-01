@@ -136,15 +136,20 @@
                 <div class="control-group">
                     <label>Hybrid Orbital</label>
                     <select id="hybrid-orbital-select"></select>
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+                        <button id="btn-prev" class="glass-btn" style="flex:1; font-size:0.85em; padding:0.4rem;">&#8592; Prev</button>
+                        <span id="orbital-counter" style="font-size:0.85em; color:var(--text-dim); white-space:nowrap; min-width:3rem; text-align:center;">1 / 4</span>
+                        <button id="btn-next" class="glass-btn" style="flex:1; font-size:0.85em; padding:0.4rem;">Next &#8594;</button>
+                    </div>
                 </div>
 
                 <div class="control-group">
                     <label>Visualization Mode</label>
                     <div style="display:flex; gap:0.5rem; margin-top:0.4rem;">
-                        <button id="toggle-scatter" class="glass-btn active" style="flex:1; font-size:0.78em;">
+                        <button id="toggle-scatter" class="glass-btn" style="flex:1; font-size:0.78em;">
                             Scatter
                         </button>
-                        <button id="toggle-surface" class="glass-btn" style="flex:1; font-size:0.78em;">
+                        <button id="toggle-surface" class="glass-btn active" style="flex:1; font-size:0.78em;">
                             90% Surface
                         </button>
                     </div>
