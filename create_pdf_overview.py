@@ -14,7 +14,10 @@ doc = SimpleDocTemplate(pdf_path, pagesize=letter,
                         rightMargin=0.75*inch,
                         leftMargin=0.75*inch,
                         topMargin=0.75*inch,
-                        bottomMargin=0.75*inch)
+                        bottomMargin=0.75*inch,
+                        author="Josh Layfield",
+                        title="QuantumChem Project Overview",
+                        subject="Quantum Mechanics Educational Platform")
 
 # Define styles
 styles = getSampleStyleSheet()
@@ -83,6 +86,7 @@ story.append(Paragraph("Interactive Learning Platform", subtitle_style))
 story.append(Spacer(1, 0.3*inch))
 story.append(Paragraph("Quantum Mechanics Simulations & Educational Tools", normal_style))
 story.append(Spacer(1, 0.3*inch))
+story.append(Paragraph(f"<b>Author:</b> Josh Layfield", normal_style))
 story.append(Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%B %d, %Y')}", normal_style))
 story.append(PageBreak())
 
@@ -350,7 +354,7 @@ story.append(Paragraph(
 ))
 story.append(Spacer(1, 0.1*inch))
 story.append(Paragraph(
-    "QuantumChem Project | © 2026",
+    "QuantumChem Project | Author: Josh Layfield | © 2026",
     normal_style
 ))
 
