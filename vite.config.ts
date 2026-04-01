@@ -17,6 +17,7 @@ export default defineConfig({
                 orbitals: 'atomic-orbitals.html',
                 'mo-scheme': 'mo-scheme.html',
                 particlebox2d: 'particlebox2d.html',
+                hybridization: 'hybridization.html',
             },
             output: {
                 manualChunks: {
