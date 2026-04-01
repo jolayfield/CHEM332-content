@@ -81,7 +81,7 @@ story = []
 
 # Title Page
 story.append(Spacer(1, 0.5*inch))
-story.append(Paragraph("QuantumChem", title_style))
+story.append(Paragraph("Interactive Physics Simulations", title_style))
 story.append(Paragraph("Interactive Learning Platform", subtitle_style))
 story.append(Spacer(1, 0.3*inch))
 story.append(Paragraph("Quantum Mechanics Simulations & Educational Tools", normal_style))
@@ -103,7 +103,7 @@ story.append(PageBreak())
 # Project Overview
 story.append(Paragraph("1. Project Overview", heading1_style))
 story.append(Paragraph(
-    "QuantumChem is an interactive web-based educational platform designed to help students "
+    "This project is an interactive web-based educational platform designed to help students "
     "and educators explore fundamental concepts in quantum mechanics and chemistry. The platform "
     "provides a collection of physics simulations and visualizations that bring theoretical concepts "
     "to life through interactive experimentation.",
@@ -144,17 +144,22 @@ tech_data = [
     ['Node.js', 'Latest', 'Runtime environment and package management'],
 ]
 
-tech_table = Table(tech_data, colWidths=[1.5*inch, 0.8*inch, 2.7*inch])
+tech_table = Table(tech_data, colWidths=[1.4*inch, 0.9*inch, 3.2*inch])
 tech_table.setStyle(TableStyle([
     ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
     ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
     ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
     ('FONTSIZE', (0, 0), (-1, 0), 10),
     ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+    ('TOPPADDING', (0, 1), (-1, -1), 8),
+    ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+    ('LEFTPADDING', (0, 0), (-1, -1), 6),
+    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
     ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
     ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ('FONTSIZE', (0, 1), (-1, -1), 9),
+    ('FONTSIZE', (0, 1), (-1, -1), 8),
     ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
 ]))
 story.append(tech_table)
@@ -348,13 +353,13 @@ story.append(Spacer(1, 0.3*inch))
 
 # Footer
 story.append(Paragraph(
-    "QuantumChem is an open-source educational project designed to democratize access to "
+    "This is an open-source educational project designed to democratize access to "
     "physics and chemistry simulations.",
     normal_style
 ))
 story.append(Spacer(1, 0.1*inch))
 story.append(Paragraph(
-    "QuantumChem Project | Author: Josh Layfield | © 2026",
+    "Interactive Physics Simulations Platform | Author: Josh Layfield | © 2026",
     normal_style
 ))
 
