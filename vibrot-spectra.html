@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vibrational-Rotational Spectra - Interactive Physics Simulations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script type="module" src="/vibrot-spectra.ts"></script>
+    <style>
+        #app { height: auto !important; min-height: 100vh; }
+        .dashboard {
+            grid-template-rows: 1fr !important;
+            grid-template-areas: "controls simulation" !important;
+            min-height: 500px;
+        }
+        .branch-legend {
+            display: flex;
+            gap: 1.2rem;
+            font-size: 0.82em;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .branch-dot {
+            width: 12px; height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+        .branch-note {
+            background: rgba(0,0,0,0.04);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.85em;
+            color: var(--text-dim);
+            margin-top: 0.6rem;
+            border-left: 3px solid var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <nav class="main-nav glass-panel">
+        <div class="nav-brand">Interactive Physics Simulations</div>
+        <ul class="nav-links">
+            <li><a href="./">Home</a></li>
+            <li><a href="lectures.html">Lectures</a></li>
+            <li><a href="simulations.html" class="active">Simulations</a></li>
+        </ul>
+    </nav>
+
+    <div class="breadcrumb">
+        <a href="./">Home</a> &rsaquo;
+        <a href="simulations.html">Simulations</a> <span>/</span>
+        <span>Vibrational-Rotational Spectra</span>
+    </div>
+
+    <header class="page-header">
+        <h1>Vibrational-Rotational Spectra</h1>
+        <p style="color:var(--text-dim); margin-top:0.4rem;">
+            Observe realistic P, Q, and R branches with Boltzmann-weighted intensities.
+            Adjust temperature and instrumental resolution to explore the fine structure.
+        </p>
+    </header>
+
+    <main class="dashboard">
+        <!-- Controls -->
+        <aside class="controls-panel glass-panel">
+
+            <div class="control-group">
+                <label>Molecule</label>
+                <select id="molecule-select">
+                    <option value="hcl">HCl — no Q branch</option>
+                    <option value="hbr">HBr — no Q branch</option>
+                    <option value="hf">HF — no Q branch</option>
+                    <option value="co">CO — no Q branch</option>
+                    <option value="no">NO — with Q branch</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Temperature: <span id="temp-val">300 K</span></label>
+                <input type="range" id="temp-slider" min="50" max="1500" value="300" step="25" />
+            </div>
+
+            <div class="control-group">
+                <label>Resolution (FWHM): <span id="res-val">4.0 cm⁻¹</span></label>
+                <input type="range" id="res-slider" min="0.5" max="30" value="4" step="0.5" />
+            </div>
+
+            <div id="branch-note" class="branch-note"></div>
+
+            <div class="stats-group" id="stats-panel"></div>
+
+            <!-- Branch colour key -->
+            <div class="control-group" style="margin-top:auto;">
+                <label>Branch Legend</label>
+                <div class="branch-legend">
+                    <span><span class="branch-dot" style="background:#e74c3c;"></span> P Branch (ΔJ = −1)</span>
+                    <span><span class="branch-dot" style="background:#2ecc71;"></span> Q Branch (ΔJ = 0)</span>
+                    <span><span class="branch-dot" style="background:#3498db;"></span> R Branch (ΔJ = +1)</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Simulation: vib-rot chart -->
+        <section class="simulation-container glass-panel" style="padding:1.5rem; flex-direction:column; align-items:stretch;">
+            <div style="flex:1; min-height:0; position:relative;">
+                <canvas id="vibrot-chart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Educational panels -->
+    <div class="info-grid">
+        <div class="glass-panel" style="padding:1.5rem;">
+            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">P, Q, R Branch Origin</h3>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
+                The vibrational transition $v=0\to1$ is accompanied by simultaneous rotational changes.
+                The selection rule $\Delta v = \pm 1$ combines with $\Delta J = 0, \pm 1$:
+            </p>
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0;">
+                <div style="margin-bottom:4px;">$$\tilde{\nu}_P = \tilde{\nu}_e - (B_1+B_0)J + (B_1-B_0)J^2$$</div>
+                <div style="margin-bottom:4px;">$$\tilde{\nu}_Q = \tilde{\nu}_e + (B_1-B_0)J(J+1)$$</div>
+                <div>$$\tilde{\nu}_R = \tilde{\nu}_e + (B_1+B_0)(J{+}1) + (B_1-B_0)(J{+}1)^2$$</div>
+            </div>
+        </div>
+
+        <div class="glass-panel" style="padding:1.5rem;">
+            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Why No Q Branch for Linear Molecules?</h3>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
+                For linear molecules (e.g. HCl, CO), the <strong>Q branch is forbidden</strong> because
+                there is no rotational angular momentum component along the molecular axis.
+                This requires $\Delta J = \pm 1$, giving only P and R branches.
+            </p>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em; margin-top:0.6rem;">
+                Non-linear molecules or those with electronic orbital angular momentum (like NO)
+                allow $\Delta J = 0$, producing a Q branch at the band origin $\tilde{\nu}_e$.
+            </p>
+        </div>
+
+        <div class="glass-panel" style="padding:1.5rem;">
+            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Centrifugal Distortion &amp; α<sub>e</sub></h3>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
+                Because the bond stretches at $v=1$, the rotational constant decreases:
+            </p>
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+                $$B_v = B_e - \alpha_e\left(v + \tfrac{1}{2}\right)$$
+            </div>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
+                This causes the P and R branch lines to be unequally spaced — the R branch
+                converges at high $J$ while the P branch opens up. The asymmetry reveals $\alpha_e$.
+            </p>
+        </div>
+
+        <div class="glass-panel" style="padding:1.5rem;">
+            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Temperature Effects</h3>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
+                At higher temperatures, higher $J$ levels become more populated (Boltzmann distribution),
+                so lines at larger $J$ grow in intensity and the band broadens.
+                The most intense line shifts to higher $J$ as $T$ increases.
+            </p>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em; margin-top:0.6rem;">
+                The most populated level: $J_{\max} \approx \sqrt{k_BT/2hcB_0} - \tfrac{1}{2}$
+            </p>
+            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em; margin-top:0.6rem;">
+                Try increasing the temperature slider and watch the envelope of the P/R branches shift outward.
+            </p>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

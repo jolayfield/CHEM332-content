@@ -18,6 +18,9 @@ export default defineConfig({
                 'mo-scheme': 'mo-scheme.html',
                 particlebox2d: 'particlebox2d.html',
                 hybridization: 'hybridization.html',
+                'ir-spectra': 'ir-spectra.html',
+                'rot-spectra': 'rot-spectra.html',
+                'vibrot-spectra': 'vibrot-spectra.html',
             },
             output: {
                 manualChunks: {
