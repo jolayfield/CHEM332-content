@@ -68,6 +68,14 @@
             </div>
 
             <div class="control-group">
+                <label>Display Mode</label>
+                <select id="display-select">
+                    <option value="transmission">Transmittance (%)</option>
+                    <option value="absorbance">Absorbance (a.u.)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
                 <label>Peak Width (FWHM): <span id="peak-width-val">15 cm⁻¹</span></label>
                 <input type="range" id="peak-width-slider" min="2" max="60" value="15" step="1" />
             </div>

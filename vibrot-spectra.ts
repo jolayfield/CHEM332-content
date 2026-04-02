@@ -42,11 +42,13 @@ let mol        = MOLECULES['hcl'];
 let temperature = 300;
 let resolution  = 4.0;   // cm⁻¹ FWHM broadening
 let jMax        = 25;
+let displayMode: 'transmission' | 'absorbance' = 'transmission';
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
 const moleculeSelect = document.getElementById('molecule-select') as HTMLSelectElement;
 const tempSlider     = document.getElementById('temp-slider')     as HTMLInputElement;
 const resSlider      = document.getElementById('res-slider')      as HTMLInputElement;
+const displaySelect  = document.getElementById('display-select')  as HTMLSelectElement;
 const tempVal        = document.getElementById('temp-val')!;
 const resVal         = document.getElementById('res-val')!;
 const statsPanel     = document.getElementById('stats-panel')!;
@@ -99,8 +101,9 @@ const chart = new Chart(ctx, {
                 ticks: { maxTicksLimit: 10 },
             },
             y: {
-                title: { display: true, text: 'Absorbance (a.u.)', font: { size: 13 } },
+                title: { display: true, text: 'Transmittance (%)', font: { size: 13 } },
                 min: 0,
+                max: 105,
             }
         },
         plugins: {
@@ -108,7 +111,7 @@ const chart = new Chart(ctx, {
             tooltip: {
                 callbacks: {
                     title: (items) => `${Number(items[0].label).toFixed(2)} cm⁻¹`,
-                    label: (item) => `${item.dataset.label}: ${(item.raw as number).toFixed(4)}`,
+                    label: (item) => `${item.dataset.label}: ${(item.raw as number).toFixed(displayMode === 'transmission' ? 1 : 4)}${displayMode === 'transmission' ? '%' : ''}`,
                 }
             }
         }
@@ -170,14 +173,48 @@ function update() {
     const xs: number[] = [];
     for (let i = 0; i <= N; i++) xs.push(xMin + (xMax - xMin) * i / N);
 
-    const pBranch = generateBranch(pBranchFreq, 1, xs);
-    const rBranch = generateBranch(rBranchFreq, 0, xs);
-    const qBranch = mol.hasQBranch ? generateBranch(qBranchFreq, 1, xs) : new Array(xs.length).fill(0);
+    const pBranchAbs = generateBranch(pBranchFreq, 1, xs);
+    const rBranchAbs = generateBranch(rBranchFreq, 0, xs);
+    const qBranchAbs = mol.hasQBranch ? generateBranch(qBranchFreq, 1, xs) : new Array(xs.length).fill(0);
+
+    // Convert to transmittance if needed
+    function toDisplay(ys: number[]): number[] {
+        if (displayMode === 'transmission') {
+            // Combine all branches to get total absorbance, then invert
+            return ys.map(v => 100 * (1 - Math.min(v, 1.0)));
+        }
+        return ys;
+    }
+
+    // For transmission, combine all branches before inverting
+    let pDisplay: number[], qDisplay: number[], rDisplay: number[];
+    if (displayMode === 'transmission') {
+        // Sum contributions then split for display (show individual branch contributions on T scale)
+        pDisplay = pBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
+        qDisplay = qBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
+        rDisplay = rBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
+    } else {
+        pDisplay = pBranchAbs;
+        qDisplay = qBranchAbs;
+        rDisplay = rBranchAbs;
+    }
+
+    // Update y-axis
+    const yScale = chart.options.scales!['y']!;
+    if (displayMode === 'transmission') {
+        (yScale as any).title.text = 'Transmittance (%)';
+        (yScale as any).min = 0;
+        (yScale as any).max = 105;
+    } else {
+        (yScale as any).title.text = 'Absorbance (a.u.)';
+        (yScale as any).min = 0;
+        (yScale as any).max = undefined;
+    }
 
     chart.data.labels = xs as any;
-    chart.data.datasets[0].data = pBranch;
-    chart.data.datasets[1].data = qBranch;
-    chart.data.datasets[2].data = rBranch;
+    chart.data.datasets[0].data = pDisplay;
+    chart.data.datasets[1].data = qDisplay;
+    chart.data.datasets[2].data = rDisplay;
     chart.options.scales!['x']!.min = xMin;
     chart.options.scales!['x']!.max = xMax;
     chart.update();
@@ -224,6 +261,11 @@ tempSlider.addEventListener('input', () => {
 resSlider.addEventListener('input', () => {
     resolution = parseFloat(resSlider.value);
     resVal.textContent = `${resolution.toFixed(1)} cm⁻¹`;
+    update();
+});
+
+displaySelect.addEventListener('change', () => {
+    displayMode = displaySelect.value as 'transmission' | 'absorbance';
     update();
 });
 

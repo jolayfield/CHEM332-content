@@ -86,11 +86,13 @@ const MOLECULES: Record<string, Molecule> = {
 let currentMolecule: Molecule = MOLECULES['co2'];
 let peakWidth = 15;       // cm⁻¹ FWHM
 let freqShift = 0;        // cm⁻¹ user-applied shift
+let displayMode: 'transmission' | 'absorbance' = 'transmission';
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
 const moleculeSelect  = document.getElementById('molecule-select')  as HTMLSelectElement;
 const peakWidthSlider = document.getElementById('peak-width-slider') as HTMLInputElement;
 const freqShiftSlider = document.getElementById('freq-shift-slider') as HTMLInputElement;
+const displaySelect   = document.getElementById('display-select')   as HTMLSelectElement;
 const peakWidthVal    = document.getElementById('peak-width-val')!;
 const freqShiftVal    = document.getElementById('freq-shift-val')!;
 const modesPanel      = document.getElementById('modes-panel')!;
@@ -102,7 +104,7 @@ const ctx = (document.getElementById('ir-chart') as HTMLCanvasElement).getContex
 const chart = new Chart(ctx, {
     type: 'line',
     data: { labels: [], datasets: [{
-        label: 'IR Absorbance',
+        label: 'IR Spectrum',
         data: [],
         borderColor: '#340E51',
         backgroundColor: 'rgba(52,14,81,0.15)',
@@ -124,8 +126,8 @@ const chart = new Chart(ctx, {
                 ticks: { stepSize: 400 },
             },
             y: {
-                title: { display: true, text: 'Absorbance (a.u.)', font: { size: 13 } },
-                min: 0, max: 1.1,
+                title: { display: true, text: 'Transmittance (%)', font: { size: 13 } },
+                min: 0, max: 105,
             }
         },
         plugins: {
@@ -133,7 +135,7 @@ const chart = new Chart(ctx, {
             tooltip: {
                 callbacks: {
                     title: (items) => `${Math.round(Number(items[0].label))} cm⁻¹`,
-                    label: (item) => `Absorbance: ${(item.raw as number).toFixed(3)}`,
+                    label: (item) => `${displayMode === 'transmission' ? 'Transmittance' : 'Absorbance'}: ${(item.raw as number).toFixed(displayMode === 'transmission' ? 1 : 3)}${displayMode === 'transmission' ? '%' : ''}`,
                 }
             }
         }
@@ -160,7 +162,20 @@ function generateSpectrum() {
             const center = mode.wavenumber + freqShift;
             abs += mode.intensity * lorentzian(wn, center, peakWidth);
         }
-        ys.push(Math.min(abs, 1.05));
+        abs = Math.min(abs, 1.0);
+        ys.push(displayMode === 'transmission' ? 100 * (1 - abs) : abs);
+    }
+
+    // Update axis label and range based on mode
+    const yScale = chart.options.scales!['y']!;
+    if (displayMode === 'transmission') {
+        (yScale as any).title.text = 'Transmittance (%)';
+        (yScale as any).min = 0;
+        (yScale as any).max = 105;
+    } else {
+        (yScale as any).title.text = 'Absorbance (a.u.)';
+        (yScale as any).min = 0;
+        (yScale as any).max = 1.1;
     }
 
     chart.data.labels = xs as any;
@@ -216,6 +231,11 @@ freqShiftSlider.addEventListener('input', () => {
     freqShift = parseInt(freqShiftSlider.value);
     freqShiftVal.textContent = `${freqShift > 0 ? '+' : ''}${freqShift} cm⁻¹`;
     renderModesList();
+    generateSpectrum();
+});
+
+displaySelect.addEventListener('change', () => {
+    displayMode = displaySelect.value as 'transmission' | 'absorbance';
     generateSpectrum();
 });
 

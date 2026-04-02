@@ -14,13 +14,12 @@
         .dashboard {
             grid-template-rows: 1fr !important;
             grid-template-areas: "controls simulation" !important;
-            min-height: 520px;
+            min-height: 480px;
         }
         .dual-chart {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
-            height: 100%;
         }
         .info-grid {
             display: grid;
@@ -108,17 +107,17 @@
         <!-- Simulation: dual charts -->
         <section class="simulation-container glass-panel" style="padding:1.5rem; flex-direction:column; align-items:stretch;">
             <div class="dual-chart">
-                <div style="position:relative;">
+                <div style="position:relative; height:240px;">
                     <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
                         Microwave Absorption Spectrum
                     </div>
-                    <canvas id="rot-spectrum-chart" style="height:100%;"></canvas>
+                    <canvas id="rot-spectrum-chart"></canvas>
                 </div>
-                <div style="position:relative;">
+                <div style="position:relative; height:200px;">
                     <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
                         Boltzmann Population Distribution
                     </div>
-                    <canvas id="rot-levels-chart" style="height:100%;"></canvas>
+                    <canvas id="rot-levels-chart"></canvas>
                 </div>
             </div>
         </section>
