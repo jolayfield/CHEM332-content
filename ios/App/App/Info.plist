@@ -47,5 +47,34 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<!-- App Store required: privacy descriptions -->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+	<!-- Allow loading from Google Fonts CDN and any future remote resources -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>fonts.googleapis.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>fonts.gstatic.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<!-- Minimum iOS version assertion -->
+	<key>MinimumOSVersion</key>
+	<string>15.0</string>
 </dict>
 </plist>
