@@ -269,7 +269,7 @@ function updateViz() {
             const eq   = getHybridEquation(hybrid);
             const comp = getOrbitalComposition(hybrid);
 
-            equationEl.innerHTML = `\\[|\\psi_{\\text{hybrid}}\\rangle = ${eq}\\]`;
+            equationEl.innerHTML = `\\(|\\psi_{h}\\rangle = ${eq}\\)`;
 
             orbitalLabelEl.textContent = hybrid.name;
 
