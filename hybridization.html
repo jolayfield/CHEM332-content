@@ -21,14 +21,14 @@
         .dashboard {
             grid-template-rows: 1fr !important;
             grid-template-areas: "controls simulation" !important;
-            min-height: 580px;
+            min-height: min(580px, 70vh);
         }
 
         /* Ensure the Three.js container fills the simulation area */
         #three-container {
             width: 100%;
             height: 100%;
-            min-height: 560px;
+            min-height: min(560px, 65vh);
         }
 
         /* Info panel below the dashboard */
@@ -37,6 +37,21 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+            #three-container {
+                min-height: 320px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #three-container {
+                min-height: 260px;
+            }
         }
 
         .info-card {
@@ -101,11 +116,11 @@
             }
         }
     </style>
-  <script type="module" crossorigin src="./assets/hybridization-CKiTdRn1.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BgzER3dT.js">
+  <script type="module" crossorigin src="./assets/hybridization-BXoDy_Vs.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
   <link rel="modulepreload" crossorigin href="./assets/MarchingCubes-BMGvtNEp.js">
   <link rel="modulepreload" crossorigin href="./assets/auto-render-WmSJQ-TS.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-BbGpFOmM.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
 </head>
 
 <body>
@@ -113,6 +128,9 @@
         <!-- Nav -->
         <nav class="main-nav glass-panel">
             <div class="nav-brand">Interactive Physics Simulations</div>
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+              <span></span><span></span><span></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="./">Home</a></li>
                 <li><a href="lectures.html">Lectures</a></li>
@@ -281,6 +299,14 @@
         </div>
 
     </div><!-- /#app -->
+    <script>
+      document.querySelector('.hamburger').addEventListener('click', function () {
+        var open = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!open));
+        this.classList.toggle('is-open');
+        document.querySelector('.nav-links').classList.toggle('nav-open');
+      });
+    </script>
 </body>
 
 </html>

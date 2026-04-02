@@ -1,4 +1,4 @@
-import"./style-BgzER3dT.js";const r=document.getElementById("weeks-container"),i=Array.from({length:14},(o,e)=>e+1);r&&(r.innerHTML=i.map(e=>{const s=e.toString().padStart(2,"0"),t=(e-1)*3+1,l=[t,t+1,t+2];return`
+import"./style-BGpXM_Ix.js";const r=document.getElementById("weeks-container"),i=Array.from({length:14},(o,e)=>e+1);r&&(r.innerHTML=i.map(e=>{const s=e.toString().padStart(2,"0"),t=(e-1)*3+1,l=[t,t+1,t+2];return`
             <div class="glass-panel feature-card">
               <h3>Week ${e}</h3>
               <p>Notes and materials for week ${e} of CHEM 332.</p>

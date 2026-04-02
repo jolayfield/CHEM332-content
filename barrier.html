@@ -10,15 +10,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
         rel="stylesheet">
-  <script type="module" crossorigin src="./assets/barrier-CO3mP9N4.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BgzER3dT.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-BbGpFOmM.css">
+  <script type="module" crossorigin src="./assets/barrier-Cz75CFCw.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
+  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
 </head>
 
 <body>
     <div id="app">
         <nav class="main-nav glass-panel">
             <div class="nav-brand">University of St. Thomas</div>
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+              <span></span><span></span><span></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="./">Home</a></li>
                 <li><a href="lectures.html">Lectures</a></li>
@@ -86,6 +89,14 @@
             </section>
         </main>
     </div>
+    <script>
+      document.querySelector('.hamburger').addEventListener('click', function () {
+        var open = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!open));
+        this.classList.toggle('is-open');
+        document.querySelector('.nav-links').classList.toggle('nav-open');
+      });
+    </script>
 </body>
 
 </html>

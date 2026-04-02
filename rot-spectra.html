@@ -13,12 +13,13 @@
         .dashboard {
             grid-template-rows: 1fr !important;
             grid-template-areas: "controls simulation" !important;
-            min-height: 480px;
+            min-height: min(520px, 65vh);
         }
         .dual-chart {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
             gap: 1rem;
+            height: 100%;
         }
         .info-grid {
             display: grid;
@@ -40,16 +41,19 @@
             border-bottom: 2px solid var(--glass-border);
         }
     </style>
-  <script type="module" crossorigin src="./assets/rot-spectra-DIC9yFkv.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BgzER3dT.js">
+  <script type="module" crossorigin src="./assets/rot-spectra-zyrhC-1A.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
   <link rel="modulepreload" crossorigin href="./assets/chart-vendor-sRkgK8jz.js">
   <link rel="modulepreload" crossorigin href="./assets/auto-render-WmSJQ-TS.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-BbGpFOmM.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
 </head>
 <body>
 <div id="app">
     <nav class="main-nav glass-panel">
         <div class="nav-brand">Interactive Physics Simulations</div>
+        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
         <ul class="nav-links">
             <li><a href="./">Home</a></li>
             <li><a href="lectures.html">Lectures</a></li>
@@ -111,17 +115,17 @@
         <!-- Simulation: dual charts -->
         <section class="simulation-container glass-panel" style="padding:1.5rem; flex-direction:column; align-items:stretch;">
             <div class="dual-chart">
-                <div style="position:relative; height:240px;">
+                <div style="position:relative;">
                     <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
                         Microwave Absorption Spectrum
                     </div>
-                    <canvas id="rot-spectrum-chart"></canvas>
+                    <canvas id="rot-spectrum-chart" style="height:100%;"></canvas>
                 </div>
-                <div style="position:relative; height:200px;">
+                <div style="position:relative;">
                     <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
                         Boltzmann Population Distribution
                     </div>
-                    <canvas id="rot-levels-chart"></canvas>
+                    <canvas id="rot-levels-chart" style="height:100%;"></canvas>
                 </div>
             </div>
         </section>
@@ -189,5 +193,13 @@
     </div>
 
 </div>
+<script>
+  document.querySelector('.hamburger').addEventListener('click', function () {
+    var open = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', String(!open));
+    this.classList.toggle('is-open');
+    document.querySelector('.nav-links').classList.toggle('nav-open');
+  });
+</script>
 </body>
 </html>

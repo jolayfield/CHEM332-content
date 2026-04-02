@@ -13,7 +13,7 @@
         .dashboard {
             grid-template-rows: 1fr !important;
             grid-template-areas: "controls simulation" !important;
-            min-height: 500px;
+            min-height: min(500px, 62vh);
         }
         .branch-legend {
             display: flex;
@@ -46,16 +46,19 @@
             border-left: 3px solid var(--accent-color);
         }
     </style>
-  <script type="module" crossorigin src="./assets/vibrot-spectra-B5wYw2DB.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BgzER3dT.js">
+  <script type="module" crossorigin src="./assets/vibrot-spectra-D4ZlWI7U.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
   <link rel="modulepreload" crossorigin href="./assets/chart-vendor-sRkgK8jz.js">
   <link rel="modulepreload" crossorigin href="./assets/auto-render-WmSJQ-TS.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-BbGpFOmM.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
 </head>
 <body>
 <div id="app">
     <nav class="main-nav glass-panel">
         <div class="nav-brand">Interactive Physics Simulations</div>
+        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
         <ul class="nav-links">
             <li><a href="./">Home</a></li>
             <li><a href="lectures.html">Lectures</a></li>
@@ -89,14 +92,6 @@
                     <option value="hf">HF — no Q branch</option>
                     <option value="co">CO — no Q branch</option>
                     <option value="no">NO — with Q branch</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>Display Mode</label>
-                <select id="display-select">
-                    <option value="transmission">Transmittance (%)</option>
-                    <option value="absorbance">Absorbance (a.u.)</option>
                 </select>
             </div>
 
@@ -192,5 +187,13 @@
     </div>
 
 </div>
+<script>
+  document.querySelector('.hamburger').addEventListener('click', function () {
+    var open = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', String(!open));
+    this.classList.toggle('is-open');
+    document.querySelector('.nav-links').classList.toggle('nav-open');
+  });
+</script>
 </body>
 </html>
