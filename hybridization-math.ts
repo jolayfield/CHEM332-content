@@ -221,17 +221,21 @@ export function getHybridEquation(hybrid: HybridOrbital): string {
     const c = hybrid.coefficients;
     const terms: string[] = [];
 
+    // Axis remapping to chemistry convention:
+    //   Three.js X (internal px) → displayed as p_y  (horizontal)
+    //   Three.js Y (internal py) → displayed as p_z  (vertical)
+    //   Three.js Z (internal pz) → displayed as p_x  (out of plane)
     if (Math.abs(c.s) > 0.001) {
         terms.push(`${formatCoeff(c.s)}|s\\rangle`);
     }
+    if (Math.abs(c.pz) > 0.001) {
+        terms.push(`${formatCoeff(c.pz)}|p_x\\rangle`);
+    }
     if (Math.abs(c.px) > 0.001) {
-        terms.push(`${formatCoeff(c.px)}|p_x\\rangle`);
+        terms.push(`${formatCoeff(c.px)}|p_y\\rangle`);
     }
     if (Math.abs(c.py) > 0.001) {
-        terms.push(`${formatCoeff(c.py)}|p_y\\rangle`);
-    }
-    if (Math.abs(c.pz) > 0.001) {
-        terms.push(`${formatCoeff(c.pz)}|p_z\\rangle`);
+        terms.push(`${formatCoeff(c.py)}|p_z\\rangle`);
     }
 
     return terms.join(' + ').replace(/\+ -/g, '- ');
