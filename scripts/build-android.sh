@@ -13,8 +13,12 @@ echo "=== QuantumChem Android Build ==="
 echo "Build type: $BUILD_TYPE"
 echo "Project root: $PROJECT_ROOT"
 
-# Load NVM
+# Load NVM and required env vars
 source ~/.nvm/nvm.sh 2>/dev/null || true
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home
+export ANDROID_HOME=~/android-sdk
+export ANDROID_SDK_ROOT=~/android-sdk
+export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
 
 # Step 1: Build web assets
 echo ""
