@@ -32,3 +32,6 @@ ios/.xcode.env.local
 android/.gradle/
 android/local.properties
 android/app/release/
+
+# Android signing keystore (never commit!)
+android/keystore/
