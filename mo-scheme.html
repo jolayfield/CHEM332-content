@@ -17,6 +17,9 @@
     <div id="app">
         <nav class="main-nav glass-panel">
             <div class="nav-brand">University of St. Thomas</div>
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+              <span></span><span></span><span></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="./">Home</a></li>
                 <li><a href="lectures.html">Lectures</a></li>
@@ -89,11 +92,19 @@
 
             <section class="simulation-container glass-panel" style="padding: 1rem;">
                 <canvas id="mo-canvas"
-                    style="width: 100%; height: 600px; background: #0a0a1a; border-radius: 8px;"></canvas>
+                    style="width: 100%; height: min(600px, 65vh); background: #0a0a1a; border-radius: 8px;"></canvas>
             </section>
         </main>
     </div>
     <script type="module" src="/mo-scheme.ts"></script>
+    <script>
+      document.querySelector('.hamburger').addEventListener('click', function () {
+        var open = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!open));
+        this.classList.toggle('is-open');
+        document.querySelector('.nav-links').classList.toggle('nav-open');
+      });
+    </script>
 </body>
 
 </html>

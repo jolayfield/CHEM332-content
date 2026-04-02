@@ -16,6 +16,9 @@
     <div id="app">
         <nav class="main-nav glass-panel">
             <div class="nav-brand">University of St. Thomas</div>
+            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+              <span></span><span></span><span></span>
+            </button>
             <ul class="nav-links">
                 <li><a href="./">Home</a></li>
                 <li><a href="lectures.html">Lectures</a></li>
@@ -84,6 +87,14 @@
         </main>
     </div>
     <script type="module" src="/barrier.ts"></script>
+    <script>
+      document.querySelector('.hamburger').addEventListener('click', function () {
+        var open = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!open));
+        this.classList.toggle('is-open');
+        document.querySelector('.nav-links').classList.toggle('nav-open');
+      });
+    </script>
 </body>
 
 </html>
