@@ -77,7 +77,16 @@
             border-radius: 8px;
             padding: 0.6rem 0.8rem;
             overflow-x: auto;
-            font-size: 0.85em;
+            font-size: 0.78em;
+            line-height: 1.9;
+            word-break: break-word;
+        }
+        /* Allow KaTeX inline spans to wrap across lines */
+        .equation-box .katex {
+            white-space: normal !important;
+        }
+        .equation-box .katex-html {
+            white-space: normal !important;
         }
 
         .glass-btn.active {
@@ -92,7 +101,7 @@
             }
         }
     </style>
-  <script type="module" crossorigin src="./assets/hybridization-Cg_fU102.js"></script>
+  <script type="module" crossorigin src="./assets/hybridization-DDiyVCPL.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/style-BgzER3dT.js">
   <link rel="modulepreload" crossorigin href="./assets/MarchingCubes-BMGvtNEp.js">
   <link rel="modulepreload" crossorigin href="./assets/auto-render-WmSJQ-TS.js">
