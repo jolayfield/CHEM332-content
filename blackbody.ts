@@ -171,7 +171,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
     ctx.setLineDash([]);
   } else {
     // Frequency mode
-    const frequencyMin = c / wavelengthMax; // Lower frequency (larger wavelength)
+    const frequencyMin = 0; // Start at zero
     const frequencyMax = c / wavelengthMin; // Higher frequency (smaller wavelength)
 
     // Find peak radiance for normalization
@@ -262,15 +262,14 @@ function drawAxes(ctx: CanvasRenderingContext2D, width: number, height: number, 
     labels = ['100', '500', '1000', '1500', '2000', '2500'];
     positions = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
   } else {
-    // Frequency mode: convert wavelengths to frequencies
-    const frequencyMin = c / wavelengthMax;
+    // Frequency mode: from 0 to max frequency
     const frequencyMax = c / wavelengthMin;
     labels = [
-      (frequencyMin * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.2) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.4) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.6) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.8) * 1e-14).toFixed(1),
+      '0',
+      ((frequencyMax * 0.2) * 1e-14).toFixed(1),
+      ((frequencyMax * 0.4) * 1e-14).toFixed(1),
+      ((frequencyMax * 0.6) * 1e-14).toFixed(1),
+      ((frequencyMax * 0.8) * 1e-14).toFixed(1),
       (frequencyMax * 1e-14).toFixed(1)
     ];
     positions = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
