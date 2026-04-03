@@ -1063,3 +1063,118 @@ canvas {
     border-radius: 8px;
     margin: 1rem 0;
 }
+
+/* Category Styling */
+#categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.category-section {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeInUp 0.6s var(--transition-easing);
+}
+
+.category-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-header h2 {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  color: var(--accent-color);
+  margin: 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent-color);
+  transition: color var(--transition-duration) var(--transition-easing);
+}
+
+.category-header h2:hover {
+  color: var(--btn-hover);
+}
+
+.category-description {
+  font-size: 1rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: text;
+  transition: background-color 0.2s, border-color 0.2s;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+}
+
+.category-description:hover {
+  background-color: rgba(52, 14, 81, 0.05);
+  border: 1px dashed var(--accent-color);
+}
+
+.category-description:focus {
+  outline: none;
+  background-color: rgba(52, 14, 81, 0.1);
+  border: 2px solid var(--accent-color);
+  padding: 0.75rem;
+}
+
+.category-simulations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Responsive: Tablet screens */
+@media (max-width: 900px) {
+  .category-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .category-simulations {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+/* Responsive: Mobile screens */
+@media (max-width: 600px) {
+  #categories-container {
+    gap: 2.5rem;
+  }
+
+  .category-section {
+    gap: 1rem;
+  }
+
+  .category-header h2 {
+    font-size: 1.4rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .category-description {
+    font-size: 0.95rem;
+    padding: 0.5rem;
+  }
+
+  .category-simulations {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+}
