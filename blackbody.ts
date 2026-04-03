@@ -113,7 +113,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
       const normalizedRadiance = radiance / peakRadiance;
 
       const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-      const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+      const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
       if (i === 0) {
         ctx.moveTo(x, y);
@@ -124,7 +124,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
 
     ctx.stroke();
 
-    // Draw Rayleigh-Jeans law if enabled
+    // Draw Rayleigh-Jeans law if enabled (without clipping)
     if (showRayleighJeans) {
       ctx.strokeStyle = '#4da6ff';
       ctx.lineWidth = 2;
@@ -137,7 +137,8 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
         const normalizedRadiance = radiance / peakRadiance;
 
         const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-        const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+        // Don't clip Rayleigh-Jeans curve - allow it to extend above plot area
+        const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
         if (i === 0) {
           ctx.moveTo(x, y);
@@ -193,7 +194,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
       const normalizedRadiance = radiance / peakRadiance;
 
       const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-      const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+      const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
       if (i === 0) {
         ctx.moveTo(x, y);
@@ -204,7 +205,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
 
     ctx.stroke();
 
-    // Draw Rayleigh-Jeans law if enabled
+    // Draw Rayleigh-Jeans law if enabled (without clipping)
     if (showRayleighJeans) {
       ctx.strokeStyle = '#4da6ff';
       ctx.lineWidth = 2;
@@ -217,7 +218,8 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
         const normalizedRadiance = radiance / peakRadiance;
 
         const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-        const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+        // Don't clip Rayleigh-Jeans curve - allow it to extend above plot area
+        const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
         if (i === 0) {
           ctx.moveTo(x, y);
