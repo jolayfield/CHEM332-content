@@ -42,8 +42,43 @@ const MOLECULES: Record<string, VibRotMolecule> = {
 let mol        = MOLECULES['hcl'];
 let temperature = 300;
 let resolution  = 4.0;   // cm⁻¹ FWHM broadening
-let jMax        = 25;
+let jMax        = 25;    // Will be recalculated dynamically based on temperature
 let displayMode: 'transmission' | 'absorbance' = 'transmission';
+
+// ─── Utility functions ────────────────────────────────────────────────────────
+/**
+ * Dynamically calculate maximum J value based on temperature
+ * Include states until population drops to 0.1% of maximum
+ */
+function calculateJMax(B: number, T: number, minPopulationFraction: number = 0.001): number {
+    const pops: number[] = [];
+    let J = 0;
+    let maxPop = 0;
+
+    // First pass: find maximum population and reasonable upper bound
+    while (J < 500) {
+        const pop = boltzmann(J, B, T);
+        pops.push(pop);
+        if (pop > maxPop) maxPop = pop;
+
+        // If population has dropped significantly below max and is decreasing, we can stop searching
+        if (J > 10 && pop < maxPop * minPopulationFraction) {
+            break;
+        }
+        J++;
+    }
+
+    // Find the last J where population is above threshold
+    let jMaxCalculated = 0;
+    for (let i = 0; i < pops.length; i++) {
+        if (pops[i] >= maxPop * minPopulationFraction) {
+            jMaxCalculated = i;
+        }
+    }
+
+    // Ensure reasonable minimum
+    return Math.max(jMaxCalculated, 20);
+}
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
 const moleculeSelect = document.getElementById('molecule-select') as HTMLSelectElement;
@@ -249,6 +284,8 @@ function update() {
 // ─── Events ───────────────────────────────────────────────────────────────────
 moleculeSelect.addEventListener('change', () => {
     mol = MOLECULES[moleculeSelect.value];
+    // Recalculate jMax for new molecule
+    jMax = calculateJMax(mol.B0, temperature);
     update();
     refreshMath();
 });
@@ -256,6 +293,8 @@ moleculeSelect.addEventListener('change', () => {
 tempSlider.addEventListener('input', () => {
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
+    // Recalculate jMax dynamically based on temperature
+    jMax = calculateJMax(mol.B0, temperature);
     update();
 });
 
@@ -271,5 +310,7 @@ displaySelect.addEventListener('change', () => {
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+// Calculate initial jMax based on starting temperature
+jMax = calculateJMax(mol.B0, temperature);
 update();
 refreshMath();
