@@ -1,7 +1,23 @@
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { ParticleBox2DSimulation } from './particleBox2DSimulation';
 
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
+    setupThemeToggle();
     const simCanvas = document.getElementById('pbox2d-canvas') as HTMLCanvasElement;
     if (!simCanvas) throw new Error('Canvas element not found');
 

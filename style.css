@@ -50,6 +50,50 @@
   --transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Dark mode - system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --glass-bg: #2d2d2d;
+    --glass-border: #404040;
+    --text-main: #e0e0e0;
+    --text-dim: #a0a0a0;
+    --accent-color: #340E51;
+    --accent-glow: none;
+    --btn-bg: #b84dcd;
+    --btn-hover: #d164dd;
+    --border-color: #404040;
+  }
+}
+
+/* Manual dark mode override */
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --glass-bg: #2d2d2d;
+  --glass-border: #404040;
+  --text-main: #e0e0e0;
+  --text-dim: #a0a0a0;
+  --accent-color: #340E51;
+  --accent-glow: none;
+  --btn-bg: #b84dcd;
+  --btn-hover: #d164dd;
+  --border-color: #404040;
+}
+
+/* Manual light mode override */
+[data-theme="light"] {
+  --bg-color: #F6F6F6;
+  --glass-bg: #FFFFFF;
+  --glass-border: #E0E0E0;
+  --text-main: #333333;
+  --text-dim: #666666;
+  --accent-color: #340E51;
+  --accent-glow: none;
+  --btn-bg: #982EB4;
+  --btn-hover: #7a2590;
+  --border-color: #E0E0E0;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -245,6 +289,53 @@ body {
 
 .nav-toggle:hover {
   opacity: 0.8;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--transition-duration) var(--transition-easing);
+}
+
+.theme-toggle:hover {
+  opacity: 0.8;
+}
+
+.theme-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+/* Show appropriate icon based on theme */
+[data-theme="light"] .theme-icon-sun {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-moon {
+  display: none;
+}
+
+/* Default (system preference) - show moon in light mode, sun in dark */
+@media (prefers-color-scheme: light) {
+  :not([data-theme]) .theme-icon-sun {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :not([data-theme]) .theme-icon-moon {
+    display: none;
+  }
 }
 
 /* Breadcrumb */
@@ -445,8 +536,8 @@ select:focus {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #fff;
-  /* Ensure canvas has white bg context if needed */
+  background: var(--glass-bg);
+  /* Ensure canvas has appropriate bg context */
   border-radius: 16px;
   min-height: 500px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -461,8 +552,8 @@ select:focus {
   grid-area: graph;
   position: relative;
   padding: 1rem;
-  background: #fff;
-  /* Graph better on white */
+  background: var(--glass-bg);
+  /* Graph better on appropriate background */
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1155,7 +1246,7 @@ canvas {
   padding: 2rem;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  background: white;
+  background: var(--glass-bg);
   transition: box-shadow var(--transition-duration) var(--transition-easing),
               transform var(--transition-duration) var(--transition-easing),
               border-color var(--transition-duration) var(--transition-easing);

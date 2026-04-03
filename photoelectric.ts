@@ -1,9 +1,25 @@
 
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { Simulation } from './simulation';
 import { KEGraph } from './graph';
 
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
+    setupThemeToggle();
     const canvas = document.getElementById('sim-canvas') as HTMLCanvasElement;
     const graphCanvas = document.getElementById('ke-freq-chart') as HTMLCanvasElement;
 

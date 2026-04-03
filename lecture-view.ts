@@ -1,5 +1,6 @@
 import { Marked } from 'marked';
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 const contentContainer = document.getElementById('lecture-content');
 const urlParams = new URLSearchParams(window.location.search);

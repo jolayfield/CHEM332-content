@@ -1,8 +1,24 @@
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { BarrierSimulation } from './barrierSimulation';
 import { TransmissionGraph } from './transmissionGraph';
 
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
+    setupThemeToggle();
     const simCanvas = document.getElementById('barrier-canvas') as HTMLCanvasElement;
     const graphCanvas = document.getElementById('t-graph-canvas') as HTMLCanvasElement;
 

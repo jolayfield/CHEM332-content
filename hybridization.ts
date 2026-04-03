@@ -11,6 +11,7 @@ import {
     HybridOrbital
 } from './hybridization-math';
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 // ─── KaTeX ───────────────────────────────────────────────────────────────────
 function refreshMath() {

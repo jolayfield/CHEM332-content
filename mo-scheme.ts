@@ -1,5 +1,6 @@
 import { MODiagram, EnergyLevel, InteractionLine } from './mo-diagram';
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 interface MoleculeData {
     name: string;

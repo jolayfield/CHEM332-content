@@ -1,8 +1,24 @@
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { BohrSimulation } from './bohrSimulation';
 import { EnergyDiagram } from './energyDiagram';
 
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
+    setupThemeToggle();
     // 1. Setup Canvases
     const bohrCanvas = document.getElementById('bohr-canvas') as HTMLCanvasElement;
     const energyCanvas = document.getElementById('energy-level-canvas') as HTMLCanvasElement;

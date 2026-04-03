@@ -1,7 +1,23 @@
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { ParticleBoxSimulation, ParticleBoxEnergyDiagram } from './particleBoxSimulation';
 
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
+    setupThemeToggle();
     const simCanvas = document.getElementById('pbox-canvas') as HTMLCanvasElement;
     const energyCanvas = document.getElementById('energy-level-canvas') as HTMLCanvasElement;
 

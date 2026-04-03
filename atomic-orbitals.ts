@@ -5,6 +5,7 @@ import katex from 'katex';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import { getWavefunction, getProbabilityDensity } from './orbitals-math';
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 /**
  * Re-renders math equations on the page using KaTeX auto-render

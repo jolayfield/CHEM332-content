@@ -3,6 +3,7 @@ import { initializeCapacitor } from './src/app-init';
 import { initializeAppLifecycle } from './src/app-lifecycle';
 import { initializeStorage } from './src/storage-manager';
 import { setupMobileMenu } from './src/mobile-menu';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 console.log('QuantumChem Landing Page Loaded');
 
@@ -30,5 +31,21 @@ async function initializeApp(): Promise<void> {
 
 initializeApp();
 
-// Setup mobile menu after initialization
-setupMobileMenu();
+// Initialize theme and setup UI handlers
+document.addEventListener('DOMContentLoaded', () => {
+  initializeTheme();
+  setupThemeToggle();
+  setupMobileMenu();
+});
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}

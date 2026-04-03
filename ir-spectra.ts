@@ -2,6 +2,7 @@ import Chart from 'chart.js/auto';
 import katex from 'katex';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 function refreshMath() {
     (window as any).katex = katex;

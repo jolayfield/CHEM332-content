@@ -1,5 +1,6 @@
 import './style.css';
 import { setupMobileMenu } from './src/mobile-menu';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 // Simulation category and item interfaces
 interface Simulation {
@@ -237,7 +238,21 @@ function saveCategory(categoryId: string, newDescription: string): void {
   console.log(`Saved category description: ${categoryId}`);
 }
 
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  initializeTheme();
+  setupThemeToggle();
   initializeSimulationsPage();
 });

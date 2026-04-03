@@ -1,4 +1,5 @@
 import './style.css';
+import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 const weeksContainer = document.getElementById('weeks-container');
 
@@ -45,3 +46,21 @@ if (weeksContainer) {
         });
     });
 }
+
+/**
+ * Setup theme toggle button click handler
+ */
+function setupThemeToggle(): void {
+  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+    });
+  }
+}
+
+// Initialize theme and theme toggle
+document.addEventListener('DOMContentLoaded', () => {
+  initializeTheme();
+  setupThemeToggle();
+});

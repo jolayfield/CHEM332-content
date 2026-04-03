@@ -26,17 +26,32 @@ export async function initializeCapacitor(): Promise<void> {
 
 /**
  * Configure the status bar appearance
+ * Color is set based on system dark mode preference (light mode = purple, dark mode = dark gray)
  */
 async function configureStatusBar(): Promise<void> {
   try {
-    // Set status bar color to match app theme (dark purple)
-    await StatusBar.setBackgroundColor({ color: '#340E51' });
+    // Determine if dark mode is preferred
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Set status bar color based on theme
+    const statusBarColor = isDarkMode ? '#2d2d2d' : '#340E51';
+    await StatusBar.setBackgroundColor({ color: statusBarColor });
 
     // Use light text on dark background
     await StatusBar.setStyle({ style: Style.Light });
 
     // On iOS, show overlays
     await StatusBar.setOverlaysWebView({ overlay: true });
+
+    // Listen for system theme changes and update status bar
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', async (e) => {
+      const newColor = e.matches ? '#2d2d2d' : '#340E51';
+      try {
+        await StatusBar.setBackgroundColor({ color: newColor });
+      } catch (error) {
+        console.debug('Failed to update status bar color:', error);
+      }
+    });
   } catch (error) {
     // Status bar not available on web or if plugin fails
     console.debug('StatusBar plugin unavailable:', error);
