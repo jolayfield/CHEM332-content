@@ -12,8 +12,6 @@ export default defineConfig({
                 bohr: 'bohr.html',
                 particlebox: 'particlebox.html',
                 barrier: 'barrier.html',
-                lectures: 'lectures.html',
-                'lecture-view': 'lecture-view.html',
                 orbitals: 'atomic-orbitals.html',
                 'mo-scheme': 'mo-scheme.html',
                 particlebox2d: 'particlebox2d.html',
