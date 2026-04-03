@@ -11,7 +11,22 @@
 <body>
   <div id="app">
     <nav class="main-nav glass-panel">
-      <div class="nav-brand">University of St. Thomas</div>
+      <div class="nav-brand">
+        <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+          <defs>
+            <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+          <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+          <circle cx="170" cy="100" r="4" fill="currentColor"/>
+          <circle cx="30" cy="100" r="4" fill="currentColor"/>
+          <circle cx="100" cy="100" r="10" fill="currentColor"/>
+        </svg>
+        <span class="brand-text">QuantumChem</span>
+      </div>
       <button class="nav-toggle" aria-label="Toggle menu">☰</button>
       <ul class="nav-links">
         <li><a href="./">Home</a></li>
