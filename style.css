@@ -56,6 +56,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
   background-image:
     radial-gradient(circle at 10% 20%, rgba(61, 90, 254, 0.08) 0%, transparent 20%),
     radial-gradient(circle at 90% 80%, rgba(255, 64, 129, 0.08) 0%, transparent 20%);
@@ -339,6 +340,8 @@ canvas {
   text-align: center;
   margin: 0.5rem 0;
   color: var(--text-main);
+  overflow-x: auto;   /* Scroll wide equations instead of clipping */
+  max-width: 100%;
 }
 
 /* Responsive */

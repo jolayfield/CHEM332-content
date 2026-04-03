@@ -5,9 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rotational Spectra Explorer - Interactive Physics Simulations</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script type="module" src="/rot-spectra.ts"></script>
     <style>
         #app { height: auto !important; min-height: 100vh; }
@@ -28,6 +25,7 @@
             margin-top: 1.5rem;
         }
         @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .info-grid { gap: 1rem; } .glass-panel { padding: 1rem !important; } }
         .levels-header {
             display: grid;
             grid-template-columns: 2fr 2fr 2fr;
@@ -130,13 +128,13 @@
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 For a rigid rotor diatomic molecule:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$E_J = hcBJ(J+1), \quad J = 0, 1, 2, \ldots$$
             </div>
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 The rotational constant $B$ is related to the moment of inertia:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$B = \frac{h}{8\pi^2 c I}, \quad I = \mu r_e^2$$
             </div>
         </div>
@@ -146,7 +144,7 @@
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 Rotational transitions obey $\Delta J = \pm 1$. Each absorption line corresponds to $J \to J+1$:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$\tilde{\nu}_{J\to J+1} = 2B(J+1)$$
             </div>
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
@@ -159,7 +157,7 @@
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 The population of level $J$ at temperature $T$ is:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$N_J \propto (2J+1)\, e^{-hcBJ(J+1)/k_BT}$$
             </div>
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
@@ -173,7 +171,7 @@
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 From a measured $B$ (in cm⁻¹), the bond length is found via:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$r_e = \sqrt{\frac{h}{8\pi^2 c \mu B}}$$
             </div>
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
