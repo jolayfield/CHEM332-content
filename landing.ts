@@ -130,6 +130,19 @@ const SIMULATION_CATEGORIES: Category[] = [
         link: 'mo-scheme.html'
       }
     ]
+  },
+  {
+    id: 'computational-chemistry',
+    title: 'Computational Chemistry',
+    description: 'Explore the mathematical foundations of computational quantum chemistry and molecular modeling.',
+    simulations: [
+      {
+        id: 'basis-set',
+        title: 'Basis Set Visualization',
+        description: 'Visualize Gaussian basis functions and their combinations in molecular orbital theory.',
+        link: 'basis-set.html'
+      }
+    ]
   }
 ];
 

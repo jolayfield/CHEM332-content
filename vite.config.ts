@@ -20,6 +20,7 @@ export default defineConfig({
                 'ir-spectra': 'ir-spectra.html',
                 'rot-spectra': 'rot-spectra.html',
                 'vibrot-spectra': 'vibrot-spectra.html',
+                'basis-set': 'basis-set.html',
             },
             output: {
                 manualChunks: {
