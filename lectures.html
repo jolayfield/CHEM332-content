@@ -52,6 +52,14 @@
       <p>&copy; 2026 QuantumChem. Educating the next generation of scientists.</p>
     </footer>
   </div>
+  <script>
+    document.querySelector('.hamburger').addEventListener('click', function () {
+      var open = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!open));
+      this.classList.toggle('is-open');
+      document.querySelector('.nav-links').classList.toggle('nav-open');
+    });
+  </script>
 </body>
 
 </html>
