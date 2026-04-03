@@ -293,8 +293,8 @@ body {
 
 /* Theme Toggle Button */
 .theme-toggle {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   cursor: pointer;
   padding: 0.5rem;
@@ -303,11 +303,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity var(--transition-duration) var(--transition-easing);
+  transition: opacity var(--transition-duration) var(--transition-easing), background var(--transition-duration) var(--transition-easing);
+  border-radius: 6px;
 }
 
 .theme-toggle:hover {
-  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.25);
+  opacity: 0.9;
 }
 
 .theme-icon {
