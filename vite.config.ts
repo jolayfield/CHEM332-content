@@ -9,6 +9,7 @@ export default defineConfig({
                 main: 'index.html',
                 simulations: 'simulations.html',
                 photoelectric: 'photoelectric.html',
+                blackbody: 'blackbody.html',
                 bohr: 'bohr.html',
                 particlebox: 'particlebox.html',
                 barrier: 'barrier.html',

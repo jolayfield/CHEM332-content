@@ -29,6 +29,12 @@ const SIMULATION_CATEGORIES: Category[] = [
         title: 'Photoelectric Effect',
         description: 'Experiment with light intensity and frequency to eject electrons from metals.',
         link: 'photoelectric.html'
+      },
+      {
+        id: 'blackbody',
+        title: 'Black Body Radiation',
+        description: 'Observe how Planck\'s law explains the spectrum of thermal radiation and the ultraviolet catastrophe.',
+        link: 'blackbody.html'
       }
     ]
   },
