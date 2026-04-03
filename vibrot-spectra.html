@@ -5,9 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vibrational-Rotational Spectra - Interactive Physics Simulations</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script type="module" src="/vibrot-spectra.ts"></script>
     <style>
         #app { height: auto !important; min-height: 100vh; }
@@ -37,6 +34,7 @@
             margin-top: 1.5rem;
         }
         @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .info-grid { gap: 1rem; } .glass-panel { padding: 1rem !important; } }
         .branch-note {
             background: rgba(0,0,0,0.04);
             border-radius: 8px;
@@ -52,10 +50,8 @@
 <div id="app">
     <nav class="main-nav glass-panel">
         <div class="nav-brand">Interactive Physics Simulations</div>
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
+        <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+      <ul class="nav-links">
             <li><a href="./">Home</a></li>
             <li><a href="lectures.html">Lectures</a></li>
             <li><a href="simulations.html" class="active">Simulations</a></li>
@@ -88,6 +84,14 @@
                     <option value="hf">HF — no Q branch</option>
                     <option value="co">CO — no Q branch</option>
                     <option value="no">NO — with Q branch</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Display Mode</label>
+                <select id="display-select">
+                    <option value="transmission">Transmittance (%)</option>
+                    <option value="absorbance">Absorbance (a.u.)</option>
                 </select>
             </div>
 
@@ -157,7 +161,7 @@
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
                 Because the bond stretches at $v=1$, the rotational constant decreases:
             </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
+            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
                 $$B_v = B_e - \alpha_e\left(v + \tfrac{1}{2}\right)$$
             </div>
             <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">

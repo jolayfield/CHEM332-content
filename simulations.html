@@ -6,9 +6,6 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulations - QuantumChem</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
         rel="stylesheet">
     <script type="module" src="/simulations.ts"></script>
 </head>
@@ -16,10 +13,23 @@
 <body>
     <div id="simulations-app">
         <nav class="main-nav glass-panel">
-            <div class="nav-brand">University of St. Thomas</div>
-            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-              <span></span><span></span><span></span>
-            </button>
+            <div class="nav-brand">
+              <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+                <defs>
+                  <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+                <circle cx="170" cy="100" r="4" fill="currentColor"/>
+                <circle cx="30" cy="100" r="4" fill="currentColor"/>
+                <circle cx="100" cy="100" r="10" fill="currentColor"/>
+              </svg>
+              <span class="brand-text">QuantumChem</span>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">☰</button>
             <ul class="nav-links">
                 <li><a href="./">Home</a></li>
                 <li><a href="lectures.html">Lectures</a></li>
@@ -31,64 +41,11 @@
         <main class="simulations-section">
             <div class="hero-content glass-panel">
                 <h1 class="hero-title">Interactive <span class="highlight">Simulations</span></h1>
-                <p class="hero-subtitle">Explore the fundamental principles of quantum mechanics through these
-                    interactive tools.</p>
+                <p class="hero-subtitle">Browse our collection of quantum mechanics simulations organized by topic. Click on category descriptions to customize them.</p>
             </div>
 
-            <div class="feature-cards">
-                <div class="glass-panel feature-card">
-                    <h3>Photoelectric Effect</h3>
-                    <p>Experiment with light intensity and frequency to eject electrons from metals.</p>
-                    <a href="photoelectric.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Bohr Model</h3>
-                    <p>Visualize electron orbits, energy transitions, and spectral lines.</p>
-                    <a href="bohr.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Particle in a Box</h3>
-                    <p>Explore quantum wave functions and energy quantization in infinite potential wells.</p>
-                    <div style="display: flex; gap: 1.5rem;">
-                        <a href="particlebox.html" class="text-link">1D &rarr;</a>
-                        <a href="particlebox2d.html" class="text-link">2D Contour Plot &rarr;</a>
-                    </div>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Quantum Tunneling</h3>
-                    <p>Watch particles scatter through a finite potential barrier and observe tunneling.</p>
-                    <a href="barrier.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Atomic Orbitals</h3>
-                    <p>3D probability density visualizations for Hydrogen-like atoms.</p>
-                    <a href="atomic-orbitals.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Diatomic MO Schemes</h3>
-                    <p>Build molecular orbital diagrams and determine bond properties.</p>
-                    <a href="mo-scheme.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Orbital Hybridization</h3>
-                    <p>3D visualisation of sp, sp², and sp³ hybrid orbitals with LCAO equations.</p>
-                    <a href="hybridization.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>IR Vibrational Spectra</h3>
-                    <p>Simulate infrared spectra, explore normal modes and IR activity selection rules.</p>
-                    <a href="ir-spectra.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Rotational Spectra</h3>
-                    <p>Microwave absorption patterns, Boltzmann populations, and bond length determination.</p>
-                    <a href="rot-spectra.html" class="text-link">Launch &rarr;</a>
-                </div>
-                <div class="glass-panel feature-card">
-                    <h3>Vibrational-Rotational Spectra</h3>
-                    <p>Realistic P, Q, R branch structure with temperature and resolution controls.</p>
-                    <a href="vibrot-spectra.html" class="text-link">Launch &rarr;</a>
-                </div>
+            <div id="categories-container">
+                <!-- Categories will be dynamically generated by simulations.ts -->
             </div>
         </main>
 
