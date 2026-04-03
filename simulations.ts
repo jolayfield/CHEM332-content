@@ -162,22 +162,7 @@ function createCategorySection(category: Category): HTMLElement {
 
   const description = document.createElement('p');
   description.className = 'category-description';
-  description.contentEditable = 'true';
-  description.textContent = loadCategoryDescription(category.id, category.description);
-
-  // Save description when user stops editing
-  description.addEventListener('blur', () => {
-    const newText = description.textContent || '';
-    saveCategory(category.id, newText);
-  });
-
-  // Prevent Enter key from creating line breaks in contenteditable
-  description.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      (e.target as HTMLElement).blur();
-    }
-  });
+  description.textContent = category.description;
 
   header.appendChild(title);
   header.appendChild(description);
@@ -220,22 +205,6 @@ function createSimulationCard(sim: Simulation): HTMLElement {
   card.appendChild(link);
 
   return card;
-}
-
-/**
- * Load category description from localStorage or use default
- */
-function loadCategoryDescription(categoryId: string, defaultText: string): string {
-  const stored = localStorage.getItem(`category-desc-${categoryId}`);
-  return stored || defaultText;
-}
-
-/**
- * Save category description to localStorage
- */
-function saveCategory(categoryId: string, newDescription: string): void {
-  localStorage.setItem(`category-desc-${categoryId}`, newDescription);
-  console.log(`Saved category description: ${categoryId}`);
 }
 
 /**
