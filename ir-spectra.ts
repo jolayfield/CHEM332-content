@@ -90,10 +90,8 @@ let freqShift = 0;        // cm⁻¹ user-applied shift
 let displayMode: 'transmission' | 'absorbance' = 'transmission';
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
-const moleculeSelect  = document.getElementById('molecule-select')  as HTMLSelectElement;
 const peakWidthSlider = document.getElementById('peak-width-slider') as HTMLInputElement;
 const freqShiftSlider = document.getElementById('freq-shift-slider') as HTMLInputElement;
-const displaySelect   = document.getElementById('display-select')   as HTMLSelectElement;
 const peakWidthVal    = document.getElementById('peak-width-val')!;
 const freqShiftVal    = document.getElementById('freq-shift-val')!;
 const modesPanel      = document.getElementById('modes-panel')!;
@@ -215,29 +213,43 @@ function renderModesList() {
 }
 
 // ─── Event listeners ──────────────────────────────────────────────────────────
-moleculeSelect.addEventListener('change', () => {
-    currentMolecule = MOLECULES[moleculeSelect.value];
-    renderModesList();
-    generateSpectrum();
-    refreshMath();
+let spectrumTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleSpectrum() {
+    if (spectrumTimer) clearTimeout(spectrumTimer);
+    spectrumTimer = setTimeout(generateSpectrum, 80);
+}
+
+document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        currentMolecule = MOLECULES[chip.dataset.mol!];
+        renderModesList();
+        generateSpectrum();
+        refreshMath();
+    });
+});
+
+document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.display-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        displayMode = chip.dataset.mode as 'transmission' | 'absorbance';
+        generateSpectrum();
+    });
 });
 
 peakWidthSlider.addEventListener('input', () => {
     peakWidth = parseInt(peakWidthSlider.value);
     peakWidthVal.textContent = `${peakWidth} cm⁻¹`;
-    generateSpectrum();
+    scheduleSpectrum();
 });
 
 freqShiftSlider.addEventListener('input', () => {
     freqShift = parseInt(freqShiftSlider.value);
     freqShiftVal.textContent = `${freqShift > 0 ? '+' : ''}${freqShift} cm⁻¹`;
     renderModesList();
-    generateSpectrum();
-});
-
-displaySelect.addEventListener('change', () => {
-    displayMode = displaySelect.value as 'transmission' | 'absorbance';
-    generateSpectrum();
+    scheduleSpectrum();
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────

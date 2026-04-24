@@ -1,135 +1,98 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Basis Set Visualization - QuantumChem</title>
-    <script type="module" src="/basis-set.ts"></script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basis Set Visualization — QuantumChem</title>
+  <script type="module" src="/basis-set.ts"></script>
 </head>
-
 <body>
-    <div id="basis-set-app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">
-                <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-                    <defs>
-                        <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5"
-                        opacity="0.3" />
-                    <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5"
-                        opacity="0.3" />
-                    <circle cx="170" cy="100" r="4" fill="currentColor" />
-                    <circle cx="30" cy="100" r="4" fill="currentColor" />
-                    <circle cx="100" cy="100" r="10" fill="currentColor" />
-                </svg>
-                <span class="brand-text">QuantumChem</span>
-            </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-                <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
-                </svg>
-                <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="5" fill="currentColor" />
-                    <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24"
-                        stroke="currentColor" stroke-width="2" fill="none" />
-                </svg>
-            </button>
-            <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-            <ul class="nav-links">
-                <li><a href="./">Home</a></li>
-                <li><a href="simulations.html">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="basis-set-app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 5.2</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <main class="simulation-page">
-            <div class="breadcrumb">
-                <a href="./">Home</a> / <a href="simulations.html">Simulations</a> / <span>Basis Set Visualization</span>
-            </div>
-
-            <h1 class="page-title">Basis Set Visualization</h1>
-
-            <section class="simulation-layout">
-                <div class="controls-panel glass-panel">
-                    <h2>Controls</h2>
-
-                    <div class="control-group">
-                        <label for="basis-set">Basis Set:</label>
-                        <select id="basis-set">
-                            <option value="sto3g">STO-3G</option>
-                            <option value="631g">6-31G</option>
-                            <option value="ccpvdz">cc-pVDZ</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="basis-count">Number of Basis Functions:</label>
-                        <input type="range" id="basis-count" min="1" max="6" value="3" step="1">
-                        <span id="basis-count-val">3</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="exponent">Gaussian Exponent (α):</label>
-                        <input type="range" id="exponent" min="0.1" max="5" value="1.5" step="0.1">
-                        <span id="exponent-val">1.5</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label>
-                            <input type="checkbox" id="show-overlap" checked>
-                            Show Overlap Integrals
-                        </label>
-                    </div>
-
-                    <button id="reset-btn" class="secondary-btn">Reset</button>
-                </div>
-
-                <div class="simulation-container" id="basis-container">
-                    <canvas id="basis-chart"></canvas>
-                </div>
-            </section>
-
-            <section class="info-panel glass-panel">
-                <h2>Information</h2>
-                <p>Basis sets are collections of mathematical functions used to describe molecular orbitals in computational chemistry.</p>
-                <p><strong>Gaussian Basis Functions:</strong> Represented as products of Cartesian polynomials and Gaussian exponentials.</p>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span>Current Basis Set:</span>
-                        <span id="current-basis">STO-3G</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Basis Functions:</span>
-                        <span id="basis-functions">3</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Gaussian Exponent:</span>
-                        <span id="current-exponent">1.5</span>
-                    </div>
-                </div>
-
-                <h3>Understanding Basis Sets</h3>
-                <p>Different basis sets provide different levels of accuracy and computational cost:</p>
-                <ul class="info-list">
-                    <li><strong>STO-3G:</strong> Minimal basis, fast computations, lower accuracy</li>
-                    <li><strong>6-31G:</strong> Split-valence basis, good balance of accuracy and speed</li>
-                    <li><strong>cc-pVDZ:</strong> Correlation-consistent basis, higher accuracy for correlated methods</li>
-                </ul>
-            </section>
-        </main>
-
-        <footer class="landing-footer">
-            <p>&copy; 2026 QuantumChem. Educating the next generation of scientists.</p>
-        </footer>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Basis Set Visualization</span>
     </div>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 05 · Section 5.2</div>
+      <h1>Basis Set <i>Visualization.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 5.2 · Gaussian Basis Functions</div>
+    <div class="sim-canvas-wrap" id="basis-container">
+      <canvas id="basis-chart"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Basis Set</div>
+        <div class="v" id="current-basis" style="font-size:16px;padding-top:2px">STO-3G</div>
+      </div>
+      <div>
+        <div class="k">Functions</div>
+        <div class="v" id="basis-functions">3</div>
+      </div>
+      <div>
+        <div class="k">Exponent α</div>
+        <div class="v" id="current-exponent">1.5</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <label for="basis-set">Basis Set</label>
+        <select id="basis-set">
+          <option value="sto3g">STO-3G</option>
+          <option value="631g">6-31G</option>
+          <option value="ccpvdz">cc-pVDZ</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="basis-count">Number of Basis Functions</label>
+          <span class="value-display" id="basis-count-val">3</span>
+        </div>
+        <input type="range" id="basis-count" class="qc-slider" min="1" max="6" value="3" step="1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="exponent">Gaussian Exponent (α)</label>
+          <span class="value-display" id="exponent-val">1.5</span>
+        </div>
+        <input type="range" id="exponent" class="qc-slider" min="0.1" max="5" value="1.5" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">
+          <input type="checkbox" id="show-overlap" checked>
+          Show Overlap Integrals
+        </label>
+      </div>
+
+      <button id="reset-btn" class="btn-outline" style="width:100%">Reset</button>
+
+      <div style="margin-top:20px">
+        <p style="font-size:13px;color:var(--ink-2);line-height:1.6;margin-bottom:8px">
+          Basis sets are collections of mathematical functions describing molecular orbitals.
+        </p>
+        <ul style="font-size:13px;color:var(--ink-2);line-height:1.7;padding-left:16px">
+          <li><strong>STO-3G:</strong> Minimal basis, fast, lower accuracy</li>
+          <li><strong>6-31G:</strong> Split-valence, good balance</li>
+          <li><strong>cc-pVDZ:</strong> Correlation-consistent, higher accuracy</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
 </html>

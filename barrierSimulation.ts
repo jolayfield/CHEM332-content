@@ -344,8 +344,10 @@ export class BarrierSimulation {
         const dt = Math.min(timestamp - this.lastTimestamp, 100);
         this.lastTimestamp = timestamp;
 
-        this.update(dt);
-        this.draw();
+        if (!document.hidden) {
+            this.update(dt);
+            this.draw();
+        }
         requestAnimationFrame(this.loop);
     }
 }

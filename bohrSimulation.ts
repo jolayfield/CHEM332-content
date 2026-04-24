@@ -219,19 +219,19 @@ export class BohrSimulation {
         for (let i = 1; i <= 6; i++) {
             const r = this.getRadius(i);
             this.ctx.beginPath();
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-            if (i === this.targetN || i === this.n) this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            this.ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            if (i === this.targetN || i === this.n) this.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
 
             // Handle if we are waiting for absorption (highlight target)
-            if (this.waitingForAbsorption && i === this.targetN) this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            if (this.waitingForAbsorption && i === this.targetN) this.ctx.strokeStyle = 'rgba(255,255,255,0.5)';
 
             this.ctx.lineWidth = 1;
             this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
             this.ctx.stroke();
 
             // Label
-            this.ctx.fillStyle = '#666';
-            this.ctx.font = '10px Arial';
+            this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            this.ctx.font = '600 10px Lato, sans-serif';
             this.ctx.fillText(`n=${i}`, cx + 5, cy - r);
         }
 
@@ -258,8 +258,8 @@ export class BohrSimulation {
         const ey = cy + Math.sin(this.electronAngle) * r;
 
         this.ctx.beginPath();
-        this.ctx.fillStyle = '#00e5ff'; // Cyan electron
-        this.ctx.shadowColor = '#00e5ff';
+        this.ctx.fillStyle = '#7cc4ff';
+        this.ctx.shadowColor = '#7cc4ff';
         this.ctx.shadowBlur = 15;
         this.ctx.arc(ex, ey, 5, 0, Math.PI * 2);
         this.ctx.fill();
@@ -304,8 +304,10 @@ export class BohrSimulation {
     }
 
     loop() {
-        this.update();
-        this.draw();
+        if (!document.hidden) {
+            this.update();
+            this.draw();
+        }
         requestAnimationFrame(this.loop);
     }
 

@@ -81,10 +81,8 @@ function calculateJMax(B: number, T: number, minPopulationFraction: number = 0.0
 }
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
-const moleculeSelect = document.getElementById('molecule-select') as HTMLSelectElement;
 const tempSlider     = document.getElementById('temp-slider')     as HTMLInputElement;
 const resSlider      = document.getElementById('res-slider')      as HTMLInputElement;
-const displaySelect  = document.getElementById('display-select')  as HTMLSelectElement;
 const tempVal        = document.getElementById('temp-val')!;
 const resVal         = document.getElementById('res-val')!;
 const statsPanel     = document.getElementById('stats-panel')!;
@@ -282,31 +280,43 @@ function update() {
 }
 
 // ─── Events ───────────────────────────────────────────────────────────────────
-moleculeSelect.addEventListener('change', () => {
-    mol = MOLECULES[moleculeSelect.value];
-    // Recalculate jMax for new molecule
-    jMax = calculateJMax(mol.B0, temperature);
-    update();
-    refreshMath();
+let updateTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleUpdate() {
+    if (updateTimer) clearTimeout(updateTimer);
+    updateTimer = setTimeout(update, 80);
+}
+
+document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        mol = MOLECULES[chip.dataset.mol!];
+        jMax = calculateJMax(mol.B0, temperature);
+        update();
+        refreshMath();
+    });
+});
+
+document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.display-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        displayMode = chip.dataset.mode as 'transmission' | 'absorbance';
+        update();
+    });
 });
 
 tempSlider.addEventListener('input', () => {
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
-    // Recalculate jMax dynamically based on temperature
     jMax = calculateJMax(mol.B0, temperature);
-    update();
+    scheduleUpdate();
 });
 
 resSlider.addEventListener('input', () => {
     resolution = parseFloat(resSlider.value);
     resVal.textContent = `${resolution.toFixed(1)} cm⁻¹`;
-    update();
-});
-
-displaySelect.addEventListener('change', () => {
-    displayMode = displaySelect.value as 'transmission' | 'absorbance';
-    update();
+    scheduleUpdate();
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────

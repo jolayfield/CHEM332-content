@@ -1,204 +1,117 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rotational Spectra Explorer - Interactive Physics Simulations</title>
-    <script type="module" src="/rot-spectra.ts"></script>
-    <style>
-        #app { height: auto !important; min-height: 100vh; }
-        .dashboard {
-            grid-template-rows: 1fr !important;
-            grid-template-areas: "controls simulation" !important;
-            min-height: 480px;
-        }
-        .dual-chart {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 600px) { .info-grid { gap: 1rem; } .glass-panel { padding: 1rem !important; } }
-        .levels-header {
-            display: grid;
-            grid-template-columns: 2fr 2fr 2fr;
-            gap: 8px;
-            padding: 6px 8px;
-            font-size: 0.8em;
-            font-weight: 700;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--glass-border);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotational Spectra — QuantumChem</title>
+  <script type="module" src="/rot-spectra.ts"></script>
 </head>
 <body>
-<div id="app">
-    <nav class="main-nav glass-panel">
-        <div class="nav-brand">Interactive Physics Simulations</div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
-        </svg>
-        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" fill="currentColor"/>
-          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-      </button>
-      
-      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-      <ul class="nav-links">
-            <li><a href="./">Home</a></li>            <li><a href="simulations.html" class="active">Simulations</a></li>
-        </ul>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 3.2</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
     </nav>
 
     <div class="breadcrumb">
-        <a href="./">Home</a> &rsaquo;
-        <a href="simulations.html">Simulations</a> <span>/</span>
-        <span>Rotational Spectra</span>
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Rotational Spectra</span>
     </div>
 
     <header class="page-header">
-        <h1>Rotational Spectra Explorer</h1>
-        <p style="color:var(--text-dim); margin-top:0.4rem;">
-            Explore microwave absorption spectra, Boltzmann population distributions,
-            and the relationship between molecular geometry and rotational constants.
-        </p>
+      <div class="eyebrow">Chapter 03 · Section 3.2</div>
+      <h1>Rotational Spectra <i>Explorer.</i></h1>
     </header>
 
-    <main class="dashboard">
-        <!-- Controls -->
-        <aside class="controls-panel glass-panel">
+    <div class="fig-caption">Figure 3.2 · Microwave Absorption Spectrum</div>
+    <div class="sim-canvas-wrap dark" style="padding:16px 0 0">
+      <div class="dual-chart" style="padding:0 16px 16px">
+        <div style="position:relative;height:220px">
+          <canvas id="rot-spectrum-chart" style="width:100%;height:220px;display:block"></canvas>
+        </div>
+        <div class="fig-caption" style="padding:8px 0 4px">Figure 3.3 · Boltzmann Population Distribution</div>
+        <div style="position:relative;height:180px">
+          <canvas id="rot-levels-chart" style="width:100%;height:180px;display:block"></canvas>
+        </div>
+      </div>
+    </div>
 
-            <div class="control-group">
-                <label>Diatomic Molecule</label>
-                <select id="molecule-select">
-                    <option value="hcl">HCl — Hydrogen Chloride</option>
-                    <option value="hbr">HBr — Hydrogen Bromide</option>
-                    <option value="hf">HF — Hydrogen Fluoride</option>
-                    <option value="co">CO — Carbon Monoxide</option>
-                    <option value="n2">N₂ — Nitrogen</option>
-                    <option value="no">NO — Nitric Oxide</option>
-                </select>
-            </div>
+    <div class="readouts" id="stats-panel">
+      <!-- Rendered dynamically by rot-spectra.ts -->
+      <div><div class="k">Molecule</div><div class="v" style="font-size:16px;padding-top:2px">HCl</div></div>
+      <div><div class="k">B (cm⁻¹)</div><div class="v">—</div></div>
+      <div><div class="k">r<sub>e</sub> (Å)</div><div class="v">—</div></div>
+    </div>
 
-            <div class="control-group">
-                <label>Temperature: <span id="temp-val">300 K</span></label>
-                <input type="range" id="temp-slider" min="50" max="1000" value="300" step="10" />
-            </div>
+    <div class="control-panel">
+      <div class="control-group">
+        <label>Diatomic Molecule</label>
+        <div class="chip-group">
+          <button class="qc-chip mol-chip on" data-mol="hcl">HCl</button>
+          <button class="qc-chip mol-chip" data-mol="hbr">HBr</button>
+          <button class="qc-chip mol-chip" data-mol="hf">HF</button>
+          <button class="qc-chip mol-chip" data-mol="co">CO</button>
+          <button class="qc-chip mol-chip" data-mol="n2">N₂</button>
+          <button class="qc-chip mol-chip" data-mol="no">NO</button>
+        </div>
+      </div>
 
-            <div class="control-group">
-                <label>Max J level: <span id="jmax-val">20</span></label>
-                <input type="range" id="jmax-slider" min="5" max="40" value="20" step="1" />
-            </div>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="temp-slider">Temperature</label>
+          <span class="value-display" id="temp-val">300 K</span>
+        </div>
+        <input type="range" id="temp-slider" class="qc-slider" min="50" max="1000" value="300" step="10">
+      </div>
 
-            <div class="stats-group" id="stats-panel"></div>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="jmax-slider">Max J level</label>
+          <span class="value-display" id="jmax-val">20</span>
+        </div>
+        <input type="range" id="jmax-slider" class="qc-slider" min="5" max="40" value="20" step="1">
+      </div>
 
-            <div class="control-group" style="flex:1; min-height:0; overflow-y:auto;">
-                <label>Energy Levels</label>
-                <div class="levels-header">
-                    <span>J</span><span>E (cm⁻¹)</span><span>Population</span>
-                </div>
-                <div id="levels-panel"></div>
-            </div>
-        </aside>
-
-        <!-- Simulation: dual charts -->
-        <section class="simulation-container glass-panel" style="padding:1.5rem; flex-direction:column; align-items:stretch;">
-            <div class="dual-chart">
-                <div style="position:relative; height:240px;">
-                    <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
-                        Microwave Absorption Spectrum
-                    </div>
-                    <canvas id="rot-spectrum-chart"></canvas>
-                </div>
-                <div style="position:relative; height:200px;">
-                    <div style="font-size:0.8em; font-weight:700; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">
-                        Boltzmann Population Distribution
-                    </div>
-                    <canvas id="rot-levels-chart"></canvas>
-                </div>
-            </div>
-        </section>
-    </main>
+      <div class="control-group">
+        <label>Energy Levels</label>
+        <div class="levels-header">
+          <span>J</span><span>E (cm⁻¹)</span><span>Population</span>
+        </div>
+        <div id="levels-panel"></div>
+      </div>
+    </div>
 
     <!-- Educational panels -->
     <div class="info-grid">
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Rotational Energy Levels</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                For a rigid rotor diatomic molecule:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
-                $$E_J = hcBJ(J+1), \quad J = 0, 1, 2, \ldots$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                The rotational constant $B$ is related to the moment of inertia:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
-                $$B = \frac{h}{8\pi^2 c I}, \quad I = \mu r_e^2$$
-            </div>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Selection Rule &amp; Line Spacing</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                Rotational transitions obey $\Delta J = \pm 1$. Each absorption line corresponds to $J \to J+1$:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
-                $$\tilde{\nu}_{J\to J+1} = 2B(J+1)$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                Lines are equally spaced by $2B$, so measuring the spacing directly gives $B$ and thus the bond length $r_e$.
-            </p>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Boltzmann Populations</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                The population of level $J$ at temperature $T$ is:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
-                $$N_J \propto (2J+1)\, e^{-hcBJ(J+1)/k_BT}$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                The most populated level is at $J_{\max} \approx \sqrt{k_BT / 2hcB} - \tfrac{1}{2}$.
-                Higher temperature shifts the population maximum to higher $J$.
-            </p>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Determining Bond Lengths</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                From a measured $B$ (in cm⁻¹), the bond length is found via:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center; overflow-x:auto; max-width:100%;">
-                $$r_e = \sqrt{\frac{h}{8\pi^2 c \mu B}}$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                This is one of the most precise methods for measuring internuclear distances.
-                Try observing how heavy molecules (CO, N₂) have small $B$ and dense line patterns,
-                while light hydrides (HF, HCl) have large $B$ and widely spaced lines.
-            </p>
-        </div>
+      <div class="glass-panel">
+        <h3>Rotational Energy Levels</h3>
+        <p>For a rigid rotor diatomic molecule:</p>
+        <div class="math-block">$$E_J = hcBJ(J+1), \quad J = 0, 1, 2, \ldots$$</div>
+        <p>The rotational constant $B$ relates to the moment of inertia:</p>
+        <div class="math-block">$$B = \frac{h}{8\pi^2 c I}, \quad I = \mu r_e^2$$</div>
+      </div>
+      <div class="glass-panel">
+        <h3>Selection Rule &amp; Line Spacing</h3>
+        <p>Rotational transitions obey $\Delta J = \pm 1$. Each line corresponds to $J \to J+1$:</p>
+        <div class="math-block">$$\tilde{\nu}_{J\to J+1} = 2B(J+1)$$</div>
+        <p>Lines are equally spaced by $2B$, so measuring spacing gives $B$ and thus the bond length.</p>
+      </div>
+      <div class="glass-panel">
+        <h3>Boltzmann Populations</h3>
+        <p>The population of level $J$ at temperature $T$ is:</p>
+        <div class="math-block">$$N_J \propto (2J+1)\, e^{-hcBJ(J+1)/k_BT}$$</div>
+        <p>The most populated level: $J_{\max} \approx \sqrt{k_BT / 2hcB} - \tfrac{1}{2}$.</p>
+      </div>
+      <div class="glass-panel">
+        <h3>Determining Bond Lengths</h3>
+        <p>From a measured $B$ (in cm⁻¹), the bond length is:</p>
+        <div class="math-block">$$r_e = \sqrt{\frac{h}{8\pi^2 c \mu B}}$$</div>
+        <p>Heavy molecules (CO, N₂) have small $B$ and dense line patterns; light hydrides (HF, HCl) have large $B$ and widely spaced lines.</p>
+      </div>
     </div>
-
-</div>
-<script>
-  document.querySelector('.hamburger').addEventListener('click', function () {
-    var open = this.getAttribute('aria-expanded') === 'true';
-    this.setAttribute('aria-expanded', String(!open));
-    this.classList.toggle('is-open');
-    document.querySelector('.nav-links').classList.toggle('nav-open');
-  });
-</script>
+  </div>
 </body>
 </html>

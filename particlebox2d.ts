@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nyInput = document.getElementById('quantum-ny') as HTMLInputElement;
     const lxInput = document.getElementById('box-lx') as HTMLInputElement;
     const lyInput = document.getElementById('box-ly') as HTMLInputElement;
-    const displayMode = document.getElementById('display-mode') as HTMLSelectElement;
+    let showProbabilityMode = false;
 
     // Value displays
     const nxVal = document.getElementById('nx-val') as HTMLElement;
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ny = parseInt(nyInput.value);
         const Lx = parseFloat(lxInput.value);
         const Ly = parseFloat(lyInput.value);
-        const showProbability = displayMode.value === 'probability';
+        const showProbability = showProbabilityMode;
 
         // Update value displays with subscripts
         nxVal.innerHTML = `n<sub>x</sub> = ${nx}`;
@@ -77,7 +77,15 @@ document.addEventListener('DOMContentLoaded', () => {
     nyInput.addEventListener('input', updateUI);
     lxInput.addEventListener('input', updateUI);
     lyInput.addEventListener('input', updateUI);
-    displayMode.addEventListener('change', updateUI);
+
+    document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.display-chip').forEach(c => c.classList.remove('on'));
+            chip.classList.add('on');
+            showProbabilityMode = chip.dataset.mode === 'probability';
+            updateUI();
+        });
+    });
 
     // Initial draw
     updateUI();

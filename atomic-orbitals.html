@@ -1,144 +1,105 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Atomic Orbitals - QuantumChem</title>
-        rel="stylesheet">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atomic Orbitals — QuantumChem</title>
 </head>
-
 <body>
-    <div id="app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">
-        <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-          <defs>
-            <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
-            </linearGradient>
-          </defs>
-          <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="170" cy="100" r="4" fill="currentColor"/>
-          <circle cx="30" cy="100" r="4" fill="currentColor"/>
-          <circle cx="100" cy="100" r="10" fill="currentColor"/>
-        </svg>
-        <span class="brand-text">QuantumChem</span>
-      </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
-        </svg>
-        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" fill="currentColor"/>
-          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-      </button>
-      
-      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-      <ul class="nav-links">
-                <li><a href="./">Home</a></li>                <li><a href="simulations.html" class="active">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 4.2</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <div class="breadcrumb">
-            <a href="./">Home</a> &rsaquo; <a href="simulations.html">Simulations</a> <span>/</span> <span>Atomic
-                Orbitals</span>
-        </div>
-
-        <header class="page-header">
-            <h1>3D Atomic Orbitals</h1>
-            <p style="color: var(--text-dim); max-width: 800px; margin: 0.5rem auto;">Visualize the probability density
-                $|\psi|^2$ for Hydrogen-like atoms. Orbitals are rendered as 3D point clouds where point density
-                represents probability.</p>
-        </header>
-
-        <main class="dashboard">
-            <aside class="controls-panel glass-panel">
-                <div class="control-group">
-                    <label>Principal ($n$)</label>
-                    <input type="range" id="param-n" min="1" max="4" value="2" step="1">
-                    <span class="value-display" id="val-n">$n = 2$</span>
-                </div>
-
-                <div class="control-group">
-                    <label>Angular ($l$)</label>
-                    <input type="range" id="param-l" min="0" max="1" value="1" step="1">
-                    <span class="value-display" id="val-l">$l = 1$</span>
-                </div>
-
-                <div class="control-group">
-                    <label>Magnetic ($m_l$)</label>
-                    <input type="range" id="param-ml" min="-1" max="1" value="0" step="1">
-                    <span class="value-display" id="val-ml">$m_l = 0$</span>
-                </div>
-
-                <div class="control-group">
-                    <label>Atomic Number ($Z$)</label>
-                    <input type="range" id="param-z" min="1" max="10" value="1" step="1">
-                    <span class="value-display" id="val-z">$Z = 1$ (Hydrogen)</span>
-                </div>
-
-                <div class="control-group">
-                    <label>Visualization Mode</label>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button id="toggle-scatter" class="glass-btn active"
-                            style="flex: 1; font-size: 0.8em;">Scatter</button>
-                        <button id="toggle-surface" class="glass-btn" style="flex: 1; font-size: 0.8em;">90%
-                            Surface</button>
-                    </div>
-                </div>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span class="stat-label">Orbital Type</span>
-                        <span class="stat-value" id="orbital-name">2p</span>
-                    </div>
-                    <div class="stat-item"
-                        style="flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-top: 0.5rem;">
-                        <span class="stat-label">Phase Legend</span>
-                        <div style="display: flex; gap: 1rem; font-size: 0.8em;">
-                            <span style="display: flex; align-items: center; gap: 4px;">
-                                <div style="width: 12px; height: 12px; background: #6699ff; border-radius: 2px;"></div>
-                                Positive (+)
-                            </span>
-                            <span style="display: flex; align-items: center; gap: 4px;">
-                                <div style="width: 12px; height: 12px; background: #ff6666; border-radius: 2px;"></div>
-                                Negative (-)
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="control-group" style="margin-top: 2rem;">
-                    <button id="reset-camera" class="glass-btn" style="width: 100%;">Reset View</button>
-                </div>
-            </aside>
-
-            <section class="simulation-container glass-panel" id="canvas-container"
-                style="position: relative; min-height: 500px; padding: 0;">
-                <div id="three-container" style="width: 100%; height: 100%; border-radius: 12px; overflow: hidden;">
-                </div>
-                <div id="loading-overlay"
-                    style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; display: none;">
-                    Rendering...
-                </div>
-            </section>
-        </main>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Atomic Orbitals</span>
     </div>
-    <script type="module" src="/atomic-orbitals.ts"></script>
-    <script>
-      document.querySelector('.hamburger').addEventListener('click', function () {
-        var open = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!open));
-        this.classList.toggle('is-open');
-        document.querySelector('.nav-links').classList.toggle('nav-open');
-      });
-    </script>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 04 · Section 4.2</div>
+      <h1>3D Atomic <i>Orbitals.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 4.3 · Probability Density |ψ|²</div>
+    <div class="sim-canvas-wrap dark" id="canvas-container" style="position:relative">
+      <div class="three-wrap">
+        <div id="three-container"></div>
+      </div>
+      <div id="loading-overlay">Rendering…</div>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Orbital</div>
+        <div class="v" id="orbital-name" style="font-size:20px;padding-top:2px">2p</div>
+      </div>
+      <div>
+        <div class="k">Mode</div>
+        <div class="v" id="viz-mode-label" style="font-size:14px;padding-top:4px">Scatter</div>
+      </div>
+      <div>
+        <div class="k">Z</div>
+        <div class="v" id="val-z" style="font-size:20px;padding-top:2px">1</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="param-n">Principal (n)</label>
+          <span class="value-display" id="val-n">2</span>
+        </div>
+        <input type="range" id="param-n" class="qc-slider" min="1" max="4" value="2" step="1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="param-l">Angular (l)</label>
+          <span class="value-display" id="val-l">1</span>
+        </div>
+        <input type="range" id="param-l" class="qc-slider" min="0" max="1" value="1" step="1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="param-ml">Magnetic (m<sub>l</sub>)</label>
+          <span class="value-display" id="val-ml">0</span>
+        </div>
+        <input type="range" id="param-ml" class="qc-slider" min="-1" max="1" value="0" step="1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="param-z">Atomic Number (Z)</label>
+          <span class="value-display" id="val-z-ctrl">1 — H</span>
+        </div>
+        <input type="range" id="param-z" class="qc-slider" min="1" max="10" value="1" step="1">
+      </div>
+
+      <div class="control-group">
+        <label>Visualization Mode</label>
+        <div class="chip-group">
+          <button id="toggle-scatter" class="qc-chip on">Scatter</button>
+          <button id="toggle-surface" class="qc-chip">90% Surface</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Phase</label>
+        <div class="phase-legend">
+          <span><span class="phase-dot" style="background:#6699ff"></span>Positive (+)</span>
+          <span><span class="phase-dot" style="background:#ff6666"></span>Negative (−)</span>
+        </div>
+      </div>
+
+      <button id="reset-camera" class="btn-outline" style="width:100%;margin-top:8px">Reset View</button>
+    </div>
+  </div>
+  <script type="module" src="/atomic-orbitals.ts"></script>
+</body>
 </html>

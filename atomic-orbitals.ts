@@ -335,6 +335,7 @@ window.addEventListener('resize', () => {
 
 function animate() {
     requestAnimationFrame(animate);
+    if (document.hidden) return;
     controls.update();
     renderer.render(scene, camera);
 }

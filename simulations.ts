@@ -1,247 +1,97 @@
 import './style.css';
 import { setupMobileMenu } from './src/mobile-menu';
-import { initializeTheme, toggleTheme } from './src/theme-manager';
+import { initializeTheme } from './src/theme-manager';
 
-// Simulation category and item interfaces
-interface Simulation {
+interface SimEntry {
   id: string;
   title: string;
-  description: string;
-  link: string;
+  section: string;
+  href: string;
 }
 
-interface Category {
-  id: string;
+interface Chapter {
+  num: string;
   title: string;
-  description: string;
-  simulations: Simulation[];
+  weeks: string;
+  sims: SimEntry[];
 }
 
-// Define simulation categories with all content
-const SIMULATION_CATEGORIES: Category[] = [
+const CHAPTERS: Chapter[] = [
   {
-    id: 'classical-failure',
+    num: '01',
     title: 'Failure of Classical Mechanics',
-    description: 'Explore phenomena that classical physics cannot explain, leading to the development of quantum mechanics.',
-    simulations: [
-      {
-        id: 'photoelectric',
-        title: 'Photoelectric Effect',
-        description: 'Experiment with light intensity and frequency to eject electrons from metals.',
-        link: 'photoelectric.html'
-      },
-      {
-        id: 'blackbody',
-        title: 'Black Body Radiation',
-        description: 'Observe how Planck\'s law explains the spectrum of thermal radiation and the ultraviolet catastrophe.',
-        link: 'blackbody.html'
-      }
-    ]
+    weeks: 'Weeks 1–2',
+    sims: [
+      { id: 'photoelectric', title: 'Photoelectric Effect',   section: '1.1', href: 'photoelectric.html' },
+      { id: 'blackbody',     title: 'Black Body Radiation',   section: '1.2', href: 'blackbody.html'     },
+    ],
   },
   {
-    id: 'idealized-systems',
+    num: '02',
     title: 'Idealized Quantum Systems',
-    description: 'Study simplified quantum systems that reveal fundamental principles of wave-particle behavior.',
-    simulations: [
-      {
-        id: 'particlebox',
-        title: 'Particle in a Box (1D)',
-        description: 'Explore quantum wave functions and energy quantization in infinite potential wells.',
-        link: 'particlebox.html'
-      },
-      {
-        id: 'particlebox2d',
-        title: 'Particle in a Box (2D)',
-        description: 'Extend the particle in a box model to two dimensions with contour plot visualization.',
-        link: 'particlebox2d.html'
-      },
-      {
-        id: 'tunneling',
-        title: 'Quantum Tunneling',
-        description: 'Watch particles scatter through a finite potential barrier and observe tunneling.',
-        link: 'barrier.html'
-      }
-    ]
+    weeks: 'Weeks 3–4',
+    sims: [
+      { id: 'particlebox',   title: 'Particle in a Box (1D)', section: '2.1', href: 'particlebox.html'   },
+      { id: 'particlebox2d', title: 'Particle in a Box (2D)', section: '2.2', href: 'particlebox2d.html' },
+      { id: 'tunneling',     title: 'Quantum Tunneling',      section: '2.3', href: 'barrier.html'       },
+    ],
   },
   {
-    id: 'nuclear-spectroscopy',
-    title: 'Nuclear Spectroscopy',
-    description: 'Analyze vibrational, rotational, and combined vibrational-rotational spectra of molecules.',
-    simulations: [
-      {
-        id: 'ir-spectra',
-        title: 'Vibrational Spectra',
-        description: 'Simulate IR vibrational spectra with varying molecular properties.',
-        link: 'ir-spectra.html'
-      },
-      {
-        id: 'rot-spectra',
-        title: 'Rotational Spectra',
-        description: 'Explore microwave rotational spectra and molecular rotation.',
-        link: 'rot-spectra.html'
-      },
-      {
-        id: 'vibrot-spectra',
-        title: 'Vibrational-Rotational Spectra',
-        description: 'Simulate combined P, Q, and R branches in molecular spectra.',
-        link: 'vibrot-spectra.html'
-      }
-    ]
+    num: '03',
+    title: 'Molecular Spectroscopy',
+    weeks: 'Weeks 5–6',
+    sims: [
+      { id: 'ir-spectra',     title: 'IR Vibrational Spectra',         section: '3.1', href: 'ir-spectra.html'     },
+      { id: 'rot-spectra',    title: 'Rotational Spectra',             section: '3.2', href: 'rot-spectra.html'    },
+      { id: 'vibrot-spectra', title: 'Vibrational-Rotational Spectra', section: '3.3', href: 'vibrot-spectra.html' },
+    ],
   },
   {
-    id: 'atomic-systems',
+    num: '04',
     title: 'Atomic Systems',
-    description: 'Investigate the structure of atoms, electron energy levels, and orbital shapes.',
-    simulations: [
-      {
-        id: 'bohr',
-        title: 'Bohr Model',
-        description: 'Visualize electron orbits, energy transitions, and spectral lines.',
-        link: 'bohr.html'
-      },
-      {
-        id: 'orbitals',
-        title: 'Atomic Orbitals',
-        description: '3D probability density visualizations for Hydrogen-like atoms in your browser.',
-        link: 'atomic-orbitals.html'
-      },
-      {
-        id: 'hybridization',
-        title: 'Orbital Hybridization',
-        description: 'Explore sp, sp², and sp³ hybridization with orbital combinations.',
-        link: 'hybridization.html'
-      }
-    ]
+    weeks: 'Weeks 7–8',
+    sims: [
+      { id: 'bohr',          title: 'Bohr Model',            section: '4.1', href: 'bohr.html'           },
+      { id: 'orbitals',      title: 'Atomic Orbitals',       section: '4.2', href: 'atomic-orbitals.html'},
+      { id: 'hybridization', title: 'Orbital Hybridization', section: '4.3', href: 'hybridization.html'  },
+    ],
   },
   {
-    id: 'molecular-systems',
+    num: '05',
     title: 'Molecular Systems',
-    description: 'Understand molecular bonding through orbital diagrams and chemical structure.',
-    simulations: [
-      {
-        id: 'mo-schemes',
-        title: 'Diatomic MO Schemes',
-        description: 'Build molecular orbital diagrams and determine bond properties of diatomic molecules.',
-        link: 'mo-scheme.html'
-      }
-    ]
-  }
-  // Computational Chemistry section hidden for now
-  // {
-  //   id: 'computational-chemistry',
-  //   title: 'Computational Chemistry',
-  //   description: 'Explore the mathematical foundations of computational quantum chemistry and molecular modeling.',
-  //   simulations: [
-  //     {
-  //       id: 'basis-set',
-  //       title: 'Basis Set Visualization',
-  //       description: 'Visualize Gaussian basis functions and their combinations in molecular orbital theory.',
-  //       link: 'basis-set.html'
-  //     }
-  //   ]
-  // }
+    weeks: 'Weeks 9–10',
+    sims: [
+      { id: 'mo-schemes', title: 'Diatomic MO Schemes', section: '5.1', href: 'mo-scheme.html' },
+    ],
+  },
 ];
 
-/**
- * Initialize the simulations page
- */
-function initializeSimulationsPage(): void {
-  renderCategories();
-  setupMobileMenu();
+function renderSimTOC(chapters: Chapter[]): string {
+  return chapters.map(c => {
+    const rows = c.sims.map(s => `
+      <a class="toc-row sim-row" href="${s.href}">
+        <span class="num">${s.section}</span>
+        <div class="body">
+          <div class="title">${s.title}</div>
+        </div>
+        <span class="chev">›</span>
+      </a>`).join('');
+
+    return `
+      <div class="chapter-section" id="ch-${c.num}">
+        <div class="chapter-section-header">
+          <span class="num">${c.num}</span>
+          <span class="ch-title">${c.title}</span>
+        </div>
+        ${rows}
+      </div>`;
+  }).join('');
 }
 
-/**
- * Render all category sections
- */
-function renderCategories(): void {
-  const container = document.getElementById('categories-container');
-  if (!container) {
-    console.error('categories-container not found');
-    return;
-  }
-
-  SIMULATION_CATEGORIES.forEach((category) => {
-    const section = createCategorySection(category);
-    container.appendChild(section);
-  });
-}
-
-/**
- * Create a category section with title, editable description, and simulation cards
- */
-function createCategorySection(category: Category): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'category-section';
-
-  // Create header with title and editable description
-  const header = document.createElement('div');
-  header.className = 'category-header';
-
-  const title = document.createElement('h2');
-  title.textContent = category.title;
-
-  const description = document.createElement('p');
-  description.className = 'category-description';
-  description.textContent = category.description;
-
-  header.appendChild(title);
-  header.appendChild(description);
-
-  // Create simulation cards grid
-  const cardsContainer = document.createElement('div');
-  cardsContainer.className = 'category-simulations';
-
-  category.simulations.forEach((sim) => {
-    const card = createSimulationCard(sim);
-    cardsContainer.appendChild(card);
-  });
-
-  section.appendChild(header);
-  section.appendChild(cardsContainer);
-
-  return section;
-}
-
-/**
- * Create a single simulation card
- */
-function createSimulationCard(sim: Simulation): HTMLElement {
-  const card = document.createElement('div');
-  card.className = 'glass-panel feature-card';
-
-  const title = document.createElement('h3');
-  title.textContent = sim.title;
-
-  const description = document.createElement('p');
-  description.textContent = sim.description;
-
-  const link = document.createElement('a');
-  link.href = sim.link;
-  link.className = 'text-link';
-  link.textContent = 'Launch →';
-
-  card.appendChild(title);
-  card.appendChild(description);
-  card.appendChild(link);
-
-  return card;
-}
-
-/**
- * Setup theme toggle button click handler
- */
-function setupThemeToggle(): void {
-  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      toggleTheme();
-    });
-  }
-}
-
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initializeTheme();
-  setupThemeToggle();
-  initializeSimulationsPage();
+  setupMobileMenu();
+
+  const tocEl = document.getElementById('sim-toc');
+  if (tocEl) tocEl.innerHTML = renderSimTOC(CHAPTERS);
 });

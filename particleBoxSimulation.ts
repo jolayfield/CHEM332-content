@@ -23,6 +23,11 @@ export class ParticleBoxSimulation {
     boxBottom: number = 0;
     waveBaseline: number = 0;
 
+    // Cached wall gradients (invalidated on resize)
+    private wallGradL: CanvasGradient | null = null;
+    private wallGradR: CanvasGradient | null = null;
+    private cachedBoxLeft: number = -1;
+
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const ctx = canvas.getContext('2d');
@@ -113,17 +118,19 @@ export class ParticleBoxSimulation {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Wall shading (infinite potential)
-        const wallGrad = ctx.createLinearGradient(this.boxLeft - 40, 0, this.boxLeft, 0);
-        wallGrad.addColorStop(0, 'rgba(45, 52, 54, 0.3)');
-        wallGrad.addColorStop(1, 'rgba(45, 52, 54, 0.05)');
-        ctx.fillStyle = wallGrad;
+        // Wall shading (infinite potential) — gradients cached until resize
+        if (this.cachedBoxLeft !== this.boxLeft) {
+            this.wallGradL = ctx.createLinearGradient(this.boxLeft - 40, 0, this.boxLeft, 0);
+            this.wallGradL.addColorStop(0, 'rgba(45, 52, 54, 0.3)');
+            this.wallGradL.addColorStop(1, 'rgba(45, 52, 54, 0.05)');
+            this.wallGradR = ctx.createLinearGradient(this.boxRight, 0, this.boxRight + 40, 0);
+            this.wallGradR.addColorStop(0, 'rgba(45, 52, 54, 0.05)');
+            this.wallGradR.addColorStop(1, 'rgba(45, 52, 54, 0.3)');
+            this.cachedBoxLeft = this.boxLeft;
+        }
+        ctx.fillStyle = this.wallGradL!;
         ctx.fillRect(this.boxLeft - 40, this.boxTop, 40, boxH);
-
-        const wallGradR = ctx.createLinearGradient(this.boxRight, 0, this.boxRight + 40, 0);
-        wallGradR.addColorStop(0, 'rgba(45, 52, 54, 0.05)');
-        wallGradR.addColorStop(1, 'rgba(45, 52, 54, 0.3)');
-        ctx.fillStyle = wallGradR;
+        ctx.fillStyle = this.wallGradR!;
         ctx.fillRect(this.boxRight, this.boxTop, 40, boxH);
 
         // V=∞ labels
@@ -315,8 +322,10 @@ export class ParticleBoxSimulation {
         const dt = Math.min(timestamp - this.lastTimestamp, 100);
         this.lastTimestamp = timestamp;
 
-        this.update(dt);
-        this.draw();
+        if (!document.hidden) {
+            this.update(dt);
+            this.draw();
+        }
         requestAnimationFrame(this.loop);
     }
 }

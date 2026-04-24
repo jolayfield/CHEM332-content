@@ -1,119 +1,77 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Black Body Radiation - QuantumChem</title>
-    <script type="module" src="/blackbody.ts"></script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Black Body Radiation — QuantumChem</title>
+  <script type="module" src="/blackbody.ts"></script>
 </head>
-
 <body>
-    <div id="blackbody-app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">
-                <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-                    <defs>
-                        <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5"
-                        opacity="0.3" />
-                    <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5"
-                        opacity="0.3" />
-                    <circle cx="170" cy="100" r="4" fill="currentColor" />
-                    <circle cx="30" cy="100" r="4" fill="currentColor" />
-                    <circle cx="100" cy="100" r="10" fill="currentColor" />
-                </svg>
-                <span class="brand-text">QuantumChem</span>
-            </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-                <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
-                </svg>
-                <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="5" fill="currentColor" />
-                    <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24"
-                        stroke="currentColor" stroke-width="2" fill="none" />
-                </svg>
-            </button>
-            <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-            <ul class="nav-links">
-                <li><a href="./">Home</a></li>
-                <li><a href="simulations.html">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="blackbody-app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 1.2</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <main class="simulation-page">
-            <div class="breadcrumb">
-                <a href="./">Home</a> / <a href="simulations.html">Simulations</a> / <span>Black Body Radiation</span>
-            </div>
-
-            <h1 class="page-title">Black Body Radiation</h1>
-
-            <section class="simulation-layout">
-                <div class="controls-panel glass-panel">
-                    <h2>Controls</h2>
-
-                    <div class="control-group">
-                        <label for="temperature">Temperature (K):</label>
-                        <input type="range" id="temperature" min="1000" max="8000" value="5000" step="100">
-                        <span id="temperature-val">5000 K</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="wavelength-mode">Display Mode:</label>
-                        <select id="wavelength-mode">
-                            <option value="wavelength">Wavelength</option>
-                            <option value="frequency">Frequency</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="rayleigh-jeans-toggle">
-                            <input type="checkbox" id="rayleigh-jeans-toggle">
-                            Show Rayleigh-Jeans Law
-                        </label>
-                    </div>
-
-                    <button id="reset-btn" class="secondary-btn">Reset</button>
-                </div>
-
-                <div class="simulation-container" id="spectrum-container">
-                    <canvas id="spectrum-chart"></canvas>
-                </div>
-            </section>
-
-            <section class="info-panel glass-panel">
-                <h2>Information</h2>
-                <p>Black body radiation demonstrates the failure of classical physics to explain experimental observations.</p>
-                <p><strong>Planck's Law:</strong> The distribution of electromagnetic radiation emitted by a black body at absolute temperature T.</p>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span>Peak Wavelength (nm):</span>
-                        <span id="peak-wavelength">579</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Temperature (K):</span>
-                        <span id="current-temp">5000</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>Visible Light Range:</span>
-                        <span>380-700 nm</span>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="landing-footer">
-            <p>&copy; 2026 QuantumChem. Educating the next generation of scientists.</p>
-        </footer>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Black Body Radiation</span>
     </div>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 01 · Section 1.2</div>
+      <h1>Black Body <i>Radiation.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 1.3 · Planck vs Rayleigh-Jeans</div>
+    <div class="sim-canvas-wrap">
+      <canvas id="spectrum-chart"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Temperature</div>
+        <div class="v" id="current-temp">5000<span class="unit">K</span></div>
+      </div>
+      <div>
+        <div class="k">Peak λ</div>
+        <div class="v" id="peak-wavelength">579<span class="unit">nm</span></div>
+      </div>
+      <div>
+        <div class="k">Visible Range</div>
+        <div class="v" style="font-size:13px;padding-top:4px">380–700 nm</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="temperature">Temperature</label>
+          <span class="value-display" id="temperature-val">5000 K</span>
+        </div>
+        <input type="range" id="temperature" class="qc-slider" min="1000" max="8000" value="5000" step="100">
+      </div>
+
+      <div class="control-group">
+        <label>Display Mode</label>
+        <div class="chip-group">
+          <button class="qc-chip mode-chip on" data-mode="wavelength">Wavelength</button>
+          <button class="qc-chip mode-chip" data-mode="frequency">Frequency</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">
+          <input type="checkbox" id="rayleigh-jeans-toggle">
+          Show Rayleigh-Jeans Law
+        </label>
+      </div>
+
+      <button id="reset-btn" class="qc-chip" style="width:100%">Reset</button>
+    </div>
+  </div>
+</body>
 </html>

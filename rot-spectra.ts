@@ -46,7 +46,6 @@ let temperature = 300;  // K
 let jMax = 20;
 
 // ─── DOM ─────────────────────────────────────────────────────────────────────
-const moleculeSelect = document.getElementById('molecule-select') as HTMLSelectElement;
 const tempSlider     = document.getElementById('temp-slider')     as HTMLInputElement;
 const jMaxSlider     = document.getElementById('jmax-slider')     as HTMLInputElement;
 const tempVal        = document.getElementById('temp-val')!;
@@ -193,22 +192,32 @@ function update() {
 }
 
 // ─── Events ───────────────────────────────────────────────────────────────────
-moleculeSelect.addEventListener('change', () => {
-    currentMol = MOLECULES[moleculeSelect.value];
-    update();
-    refreshMath();
+let updateTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleUpdate() {
+    if (updateTimer) clearTimeout(updateTimer);
+    updateTimer = setTimeout(update, 80);
+}
+
+document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        currentMol = MOLECULES[chip.dataset.mol!];
+        update();
+        refreshMath();
+    });
 });
 
 tempSlider.addEventListener('input', () => {
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
-    update();
+    scheduleUpdate();
 });
 
 jMaxSlider.addEventListener('input', () => {
     jMax = parseInt(jMaxSlider.value);
     jMaxVal.textContent = `${jMax}`;
-    update();
+    scheduleUpdate();
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────

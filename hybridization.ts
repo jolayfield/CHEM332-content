@@ -30,8 +30,8 @@ function refreshMath() {
 // ─── DOM ─────────────────────────────────────────────────────────────────────
 const container       = document.getElementById('three-container')!;
 const loadingOverlay  = document.getElementById('loading-overlay')!;
-const hybridTypeEl    = document.getElementById('hybridization-type') as HTMLSelectElement;
 const orbitalIndexEl  = document.getElementById('hybrid-orbital-select') as HTMLSelectElement;
+let currentHybType: 'sp' | 'sp2' | 'sp3' = 'sp3';
 const btnScatter      = document.getElementById('toggle-scatter') as HTMLButtonElement;
 const btnSurface      = document.getElementById('toggle-surface') as HTMLButtonElement;
 const resetBtn        = document.getElementById('reset-camera') as HTMLButtonElement;
@@ -256,7 +256,7 @@ function updateViz() {
     loadingOverlay.style.display = 'flex';
     setTimeout(() => {
         try {
-            const hybridType = hybridTypeEl.value as 'sp' | 'sp2' | 'sp3';
+            const hybridType = currentHybType;
             const idx        = parseInt(orbitalIndexEl.value);
             const orbitals   = getHybridOrbitalSet(hybridType);
             const hybrid     = orbitals[idx];
@@ -294,7 +294,7 @@ function updateViz() {
 
 // ─── Orbital selector population ─────────────────────────────────────────────
 function populateOrbitalSelector() {
-    const hybridType = hybridTypeEl.value as 'sp' | 'sp2' | 'sp3';
+    const hybridType = currentHybType;
     const orbitals   = getHybridOrbitalSet(hybridType);
     orbitalIndexEl.innerHTML = '';
     orbitals.forEach((o, i) => {
@@ -330,19 +330,27 @@ btnPrev.onclick = () => stepOrbital(-1);
 btnNext.onclick = () => stepOrbital(+1);
 
 // ─── Event listeners ─────────────────────────────────────────────────────────
-hybridTypeEl.addEventListener('change', populateOrbitalSelector);
+document.querySelectorAll<HTMLButtonElement>('.hyb-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.hyb-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        currentHybType = chip.dataset.hyb as 'sp' | 'sp2' | 'sp3';
+        populateOrbitalSelector();
+    });
+});
+
 orbitalIndexEl.addEventListener('change', () => { updateCounter(); updateViz(); });
 
 btnScatter.onclick = () => {
     vizMode = 'scatter';
-    btnScatter.classList.add('active');
-    btnSurface.classList.remove('active');
+    btnScatter.classList.add('on');
+    btnSurface.classList.remove('on');
     updateViz();
 };
 btnSurface.onclick = () => {
     vizMode = 'surface';
-    btnSurface.classList.add('active');
-    btnScatter.classList.remove('active');
+    btnSurface.classList.add('on');
+    btnScatter.classList.remove('on');
     updateViz();
 };
 
@@ -357,6 +365,7 @@ window.addEventListener('resize', () => {
 // ─── Render loop ─────────────────────────────────────────────────────────────
 function animate() {
     requestAnimationFrame(animate);
+    if (document.hidden) return;
     controls.update();
     renderer.render(scene, camera);
 }

@@ -4,122 +4,104 @@ import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { Simulation } from './simulation';
 import { KEGraph } from './graph';
 
-
-/**
- * Setup theme toggle button click handler
- */
 function setupThemeToggle(): void {
-  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      toggleTheme();
-    });
-  }
+    const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => toggleTheme());
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
     setupThemeToggle();
+
     const canvas = document.getElementById('sim-canvas') as HTMLCanvasElement;
     const graphCanvas = document.getElementById('ke-freq-chart') as HTMLCanvasElement;
-
     if (!canvas) throw new Error("Canvas not found");
     if (!graphCanvas) throw new Error("Graph Canvas not found");
 
     const sim = new Simulation(canvas);
     const graph = new KEGraph(graphCanvas);
 
-    // Controls
     const intensityInput = document.getElementById('intensity') as HTMLInputElement;
     const wavelengthInput = document.getElementById('wavelength') as HTMLInputElement;
-    const metalSelect = document.getElementById('metal') as HTMLSelectElement;
-
-    // Displays
     const intensityVal = document.getElementById('intensity-val') as HTMLElement;
     const wavelengthVal = document.getElementById('wavelength-val') as HTMLElement;
-    const colorPreview = document.getElementById('color-preview') as HTMLElement;
-
     const photonEnergyStat = document.getElementById('photon-energy') as HTMLElement;
     const workFuncStat = document.getElementById('work-function') as HTMLElement;
     const maxKeStat = document.getElementById('max-ke') as HTMLElement;
 
+    let currentWorkFunc = 2.1;
+    let currentMetalName = 'Cesium';
+
+    const metalColors: Record<number, string> = {
+        2.1: '#2196f3',
+        2.3: '#ffeb3b',
+        4.7: '#ff5722',
+        5.1: '#ffc107'
+    };
 
     const updateUI = () => {
         const intensity = parseInt(intensityInput.value);
-        const wavelength = parseInt(wavelengthInput.value); // Read wavelength
-        const workFunc = parseFloat(metalSelect.value);
-        const metalName = metalSelect.options[metalSelect.selectedIndex].text.split('(')[0].trim();
+        const wavelength = parseInt(wavelengthInput.value);
 
-        // Update Simulation
-        sim.updateParams(wavelength, intensity, workFunc, metalName);
+        sim.updateParams(wavelength, intensity, currentWorkFunc, currentMetalName);
 
-        // Metal Colors
-        const metalColors: { [key: number]: string } = {
-            2.1: '#2196f3', // Cesium (Blue)
-            2.3: '#ffeb3b', // Sodium (Yellow)
-            4.7: '#ff5722', // Copper (Orange)
-            5.1: '#ffc107'  // Gold (Amber)
-        };
-        const pointColor = metalColors[workFunc] || '#00f2ff';
-
-        // Update Graph
-        // Need Frequency. Sim has helper? 
         const freq = sim.getFrequency();
-        graph.update(freq, workFunc, pointColor);
+        const energy = sim.getPhotonEnergy();
+        const maxKe = Math.max(0, energy - currentWorkFunc);
+        const pointColor = maxKe > 0
+            ? (metalColors[currentWorkFunc] ?? '#00f2ff')
+            : 'rgba(123,118,129,0.5)';
+        graph.update(freq, currentWorkFunc, pointColor);
 
-
-        // Update Text
         if (intensityVal) intensityVal.textContent = `${intensity}%`;
         if (wavelengthVal) wavelengthVal.textContent = `${wavelength} nm`;
 
-        // Update Color Preview
-        const color = sim.wavelengthToColor(wavelength);
-        if (colorPreview) {
-            colorPreview.style.background = color;
-            colorPreview.style.boxShadow = `0 0 10px ${color}`;
-        }
-
-        // Update Stats
-        const energy = sim.getPhotonEnergy();
-        const maxKe = Math.max(0, energy - workFunc);
-
         if (photonEnergyStat) photonEnergyStat.textContent = `${energy.toFixed(2)} eV`;
-        if (workFuncStat) workFuncStat.textContent = `${workFunc.toFixed(2)} eV`;
+        if (workFuncStat) workFuncStat.textContent = `${currentWorkFunc.toFixed(2)} eV`;
         if (maxKeStat) {
             maxKeStat.textContent = `${maxKe.toFixed(2)} eV`;
-
-            // Dynamic styles
             if (maxKe > 0) {
-                maxKeStat.style.color = '#00f2ff';
-                maxKeStat.style.textShadow = '0 0 8px rgba(0, 242, 255, 0.5)';
+                maxKeStat.style.color = '';
+                maxKeStat.style.textShadow = '';
             } else {
-                maxKeStat.style.color = '#ff073a';
+                maxKeStat.style.color = 'var(--ink-3)';
                 maxKeStat.style.textShadow = 'none';
             }
         }
     };
 
-    // Listeners
+    // Metal chip selection
+    document.querySelectorAll<HTMLButtonElement>('.metal-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.metal-chip').forEach(c => c.classList.remove('on'));
+            chip.classList.add('on');
+            currentWorkFunc = parseFloat(chip.dataset.work!);
+            currentMetalName = chip.dataset.name!;
+            updateUI();
+        });
+    });
+
+    // Graph axis chip selection
+    document.querySelectorAll<HTMLButtonElement>('.axis-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.axis-chip').forEach(c => c.classList.remove('on'));
+            chip.classList.add('on');
+            graph.setMode(chip.dataset.axis as 'wavelength' | 'frequency');
+        });
+    });
+
     if (intensityInput) intensityInput.addEventListener('input', updateUI);
     if (wavelengthInput) wavelengthInput.addEventListener('input', updateUI);
-    if (metalSelect) metalSelect.addEventListener('change', updateUI);
 
     const resetBtn = document.getElementById('reset-graph-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
             graph.reset();
-            updateUI(); // Redraw current state immediately
+            updateUI();
         });
     }
 
-    const axisSelect = document.getElementById('graph-axis-select') as HTMLSelectElement;
-    if (axisSelect) {
-        axisSelect.addEventListener('change', () => {
-            const mode = axisSelect.value as 'wavelength' | 'frequency';
-            graph.setMode(mode);
-        });
-    }
-
-    // Initial call
     updateUI();
 });

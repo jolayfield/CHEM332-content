@@ -1,159 +1,114 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Particle in a Box - QuantumChem</title>
-        rel="stylesheet">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Particle in a Box — QuantumChem</title>
 </head>
-
 <body>
-    <div id="app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">
-        <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-          <defs>
-            <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
-            </linearGradient>
-          </defs>
-          <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="170" cy="100" r="4" fill="currentColor"/>
-          <circle cx="30" cy="100" r="4" fill="currentColor"/>
-          <circle cx="100" cy="100" r="10" fill="currentColor"/>
-        </svg>
-        <span class="brand-text">QuantumChem</span>
-      </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
-        </svg>
-        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" fill="currentColor"/>
-          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-      </button>
-      
-      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-      <ul class="nav-links">
-                <li><a href="./">Home</a></li>                <li><a href="simulations.html" class="active">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 2.1</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <div class="breadcrumb">
-            <a href="./">Home</a> &rsaquo; <a href="simulations.html">Simulations</a> <span>/</span> <span>Particle in a
-                Box</span>
-        </div>
-
-        <header class="page-header">
-            <h1>Particle in a Box</h1>
-            <p style="color: var(--text-dim); margin-top: 0.5rem; font-size: 0.95rem;">
-                <a href="particlebox2d.html" class="text-link">Explore the 2D version →</a>
-            </p>
-        </header>
-
-        <main class="dashboard">
-            <aside class="controls-panel glass-panel">
-                <div class="control-group">
-                    <label for="quantum-n">Quantum Number (n)</label>
-                    <input type="range" id="quantum-n" min="1" max="8" value="1" step="1">
-                    <span class="value-display" id="quantum-n-val">n = 1</span>
-                </div>
-
-                <div class="control-group">
-                    <label>Display Mode</label>
-                    <select id="display-mode">
-                        <option value="wavefunction">ψ(x, t) — Wave Function</option>
-                        <option value="probability">|ψ(x)|² — Probability Density</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label>Superposition</label>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button id="add-state" class="btn btn-secondary" style="flex: 1;">Add n to
-                            Superposition</button>
-                    </div>
-                    <div style="margin-top: 0.5rem;">
-                        <button id="clear-states" class="btn btn-outline" style="width: 100%;">Clear
-                            Superposition</button>
-                    </div>
-                    <div id="coefficients-container" style="margin-top: 1rem; overflow-x: auto;">
-                        <table class="coefficients-table"
-                            style="width: 100%; border-collapse: collapse; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden;">
-                            <thead style="background: var(--bg-dim);">
-                                <tr>
-                                    <th
-                                        style="padding: 0.5rem; text-align: left; border-bottom: 2px solid var(--border-color); border-right: 1px solid var(--border-color);">
-                                        n</th>
-                                    <th
-                                        style="padding: 0.5rem; text-align: left; border-bottom: 2px solid var(--border-color); border-right: 1px solid var(--border-color);">
-                                        Coeff (cₙ)</th>
-                                    <th
-                                        style="padding: 0.5rem; text-align: right; border-bottom: 2px solid var(--border-color);">
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="coefficients-body">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Animation</label>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                        <button id="toggle-animate" class="btn btn-primary" style="flex: 1;">Animate
-                            Wavefunction</button>
-                        <button id="reset-animate" class="btn btn-secondary" style="flex: 0 0 auto;">Reset</button>
-                    </div>
-                    <div class="control-group" style="margin-top: 1rem;">
-                        <label for="animation-speed">Animation Speed: <span id="speed-val">1.0</span>x</label>
-                        <input type="range" id="animation-speed" min="0.1" max="5.0" step="0.1" value="1.0">
-                    </div>
-                </div>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span class="stat-label">Energy E<sub>n</sub></span>
-                        <span class="stat-value" id="energy-val">1 E₁</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Nodes</span>
-                        <span class="stat-value" id="nodes-val">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Wavelength λ</span>
-                        <span class="stat-value" id="wavelength-val">2L</span>
-                    </div>
-                </div>
-            </aside>
-
-            <section class="simulation-container glass-panel">
-                <canvas id="pbox-canvas"></canvas>
-            </section>
-
-            <section class="graph-panel glass-panel" style="display: flex; flex-direction: column;">
-                <h3 style="margin-bottom: 1rem; color: var(--text-dim); font-size: 1rem;">Energy Level Diagram</h3>
-                <canvas id="energy-level-canvas" style="flex:1; width: 100%;"></canvas>
-            </section>
-        </main>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Particle in a Box</span>
     </div>
-    <script type="module" src="/particlebox.ts"></script>
-    <script>
-      document.querySelector('.hamburger').addEventListener('click', function () {
-        var open = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!open));
-        this.classList.toggle('is-open');
-        document.querySelector('.nav-links').classList.toggle('nav-open');
-      });
-    </script>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 02 · Section 2.1</div>
+      <h1>Particle in a <i>Box.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 2.1 · Wave Function</div>
+    <div class="sim-canvas-wrap">
+      <canvas id="pbox-canvas"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Energy E<sub>n</sub></div>
+        <div class="v" id="energy-val">1 E₁</div>
+      </div>
+      <div>
+        <div class="k">Nodes</div>
+        <div class="v" id="nodes-val">0</div>
+      </div>
+      <div>
+        <div class="k">Wavelength λ</div>
+        <div class="v" id="wavelength-val">2L</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="quantum-n">Quantum Number (n)</label>
+          <span class="value-display" id="quantum-n-val">n = 1</span>
+        </div>
+        <input type="range" id="quantum-n" class="qc-slider" min="1" max="8" value="1" step="1">
+      </div>
+
+      <div class="control-group">
+        <label>Display Mode</label>
+        <div class="chip-group">
+          <button class="qc-chip display-chip on" data-mode="wavefunction">ψ(x, t)</button>
+          <button class="qc-chip display-chip" data-mode="probability">|ψ|²</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Superposition</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button id="add-state" class="qc-chip" style="flex:1">Add n to Superposition</button>
+          <button id="clear-states" class="qc-chip">Clear</button>
+        </div>
+        <div id="coefficients-container" style="margin-top:10px;overflow-x:auto">
+          <table class="coefficients-table">
+            <thead>
+              <tr>
+                <th>n</th>
+                <th>Coeff (c<sub>n</sub>)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="coefficients-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Animation</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button id="toggle-animate" class="qc-chip" style="flex:1">Animate Wavefunction</button>
+          <button id="reset-animate" class="qc-chip">Reset</button>
+        </div>
+        <div style="margin-top:12px">
+          <div class="control-row">
+            <label for="animation-speed">Animation Speed</label>
+            <span class="value-display" id="speed-val">1.0×</span>
+          </div>
+          <input type="range" id="animation-speed" class="qc-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--ink-2)">
+        Also explore: <a href="particlebox2d.html" style="color:var(--accent)">2D version →</a>
+      </p>
+    </div>
+
+    <div class="fig-caption">Figure 2.2 · Energy Level Diagram</div>
+    <div class="graph-wrap">
+      <div class="chart-container">
+        <canvas id="energy-level-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/particlebox.ts"></script>
+</body>
 </html>

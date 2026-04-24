@@ -1,118 +1,88 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quantum Tunneling - QuantumChem</title>
-        rel="stylesheet">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantum Tunneling — QuantumChem</title>
 </head>
-
 <body>
-    <div id="app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">
-        <svg class="brand-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
-          <defs>
-            <linearGradient id="atomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:1" />
-            </linearGradient>
-          </defs>
-          <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
-          <circle cx="170" cy="100" r="4" fill="currentColor"/>
-          <circle cx="30" cy="100" r="4" fill="currentColor"/>
-          <circle cx="100" cy="100" r="10" fill="currentColor"/>
-        </svg>
-        <span class="brand-text">QuantumChem</span>
-      </div>
-            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
-        </svg>
-        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="5" fill="currentColor"/>
-          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-15.78 7.78l4.24-4.24m3.08-3.08l4.24-4.24" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-      </button>
-      
-      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
-      <ul class="nav-links">
-                <li><a href="./">Home</a></li>                <li><a href="simulations.html" class="active">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 2.3</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <div class="breadcrumb">
-            <a href="./">Home</a> &rsaquo; <a href="simulations.html">Simulations</a> <span>/</span> <span>Quantum
-                Tunneling</span>
-        </div>
-
-        <header class="page-header">
-            <h1>Scattering Through a Finite Barrier</h1>
-        </header>
-
-        <main class="dashboard">
-            <aside class="controls-panel glass-panel">
-                <div class="control-group">
-                    <label for="particle-energy">Particle Energy (E)</label>
-                    <input type="range" id="particle-energy" min="0.1" max="10" value="3.0" step="0.1">
-                    <span class="value-display" id="energy-val">3.0 eV</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="barrier-height">Barrier Height (V₀)</label>
-                    <input type="range" id="barrier-height" min="0.1" max="10" value="5.0" step="0.1">
-                    <span class="value-display" id="barrier-height-val">5.0 eV</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="barrier-width">Barrier Width (a)</label>
-                    <input type="range" id="barrier-width" min="0.1" max="2.0" value="0.5" step="0.05">
-                    <span class="value-display" id="barrier-width-val">0.50 nm</span>
-                </div>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span class="stat-label">Transmission (T)</span>
-                        <span class="stat-value" id="transmission-val">0.00</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Reflection (R)</span>
-                        <span class="stat-value" id="reflection-val">1.00</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">E / V₀ Ratio</span>
-                        <span class="stat-value" id="ratio-val">0.60</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Regime</span>
-                        <span class="stat-value" id="regime-val">Tunneling</span>
-                    </div>
-                </div>
-            </aside>
-
-            <section class="simulation-container glass-panel">
-                <canvas id="barrier-canvas"></canvas>
-            </section>
-
-            <section class="graph-panel glass-panel" style="display: flex; flex-direction: column;">
-                <h3 style="margin-bottom: 1rem; color: var(--text-dim); font-size: 1rem;">Transmission vs Energy</h3>
-                <canvas id="t-graph-canvas" style="flex:1; width: 100%;"></canvas>
-            </section>
-        </main>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Quantum Tunneling</span>
     </div>
-    <script type="module" src="/barrier.ts"></script>
-    <script>
-      document.querySelector('.hamburger').addEventListener('click', function () {
-        var open = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!open));
-        this.classList.toggle('is-open');
-        document.querySelector('.nav-links').classList.toggle('nav-open');
-      });
-    </script>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 02 · Section 2.3</div>
+      <h1>Scattering Through a Finite <i>Barrier.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 2.4 · Interactive</div>
+    <div class="sim-canvas-wrap dark">
+      <canvas id="barrier-canvas"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Transmission T</div>
+        <div class="v" id="transmission-val">0.00</div>
+      </div>
+      <div>
+        <div class="k">Reflection R</div>
+        <div class="v" id="reflection-val">1.00</div>
+      </div>
+      <div>
+        <div class="k">E / V₀</div>
+        <div class="v" id="ratio-val">0.60</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="particle-energy">Particle Energy (E)</label>
+          <span class="value-display" id="energy-val">3.0 eV</span>
+        </div>
+        <input type="range" id="particle-energy" class="qc-slider" min="0.1" max="10" value="3.0" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="barrier-height">Barrier Height (V₀)</label>
+          <span class="value-display" id="barrier-height-val">5.0 eV</span>
+        </div>
+        <input type="range" id="barrier-height" class="qc-slider" min="0.1" max="10" value="5.0" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="barrier-width">Barrier Width (a)</label>
+          <span class="value-display" id="barrier-width-val">0.50 nm</span>
+        </div>
+        <input type="range" id="barrier-width" class="qc-slider" min="0.1" max="2.0" value="0.5" step="0.05">
+      </div>
+
+      <div class="stat-item" style="border:none;padding:0">
+        <span class="stat-label">Regime</span>
+        <span class="stat-value" id="regime-val">Tunneling</span>
+      </div>
+    </div>
+
+    <div class="fig-caption">Figure 2.5 · Transmission vs Energy</div>
+    <div class="graph-wrap">
+      <div class="chart-container">
+        <canvas id="t-graph-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/barrier.ts"></script>
+</body>
 </html>

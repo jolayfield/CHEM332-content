@@ -303,11 +303,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('spectrum-chart') as HTMLCanvasElement;
   const temperatureInput = document.getElementById('temperature') as HTMLInputElement;
   const temperatureVal = document.getElementById('temperature-val') as HTMLElement;
-  const wavelengthModeSelect = document.getElementById('wavelength-mode') as HTMLSelectElement;
   const rayleighJeansToggle = document.getElementById('rayleigh-jeans-toggle') as HTMLInputElement;
   const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
   const peakWavelengthDisplay = document.getElementById('peak-wavelength') as HTMLElement;
   const currentTempDisplay = document.getElementById('current-temp') as HTMLElement;
+
+  let spectrumMode: 'wavelength' | 'frequency' = 'wavelength';
 
   // Set canvas size
   if (canvas) {
@@ -317,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateDisplay = () => {
     const temperature = parseInt(temperatureInput.value);
-    const mode = wavelengthModeSelect.value as 'wavelength' | 'frequency';
+    const mode = spectrumMode;
     const showRayleighJeans = rayleighJeansToggle.checked;
 
     // Update text displays
@@ -336,8 +337,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event listeners
   temperatureInput.addEventListener('input', updateDisplay);
-  wavelengthModeSelect.addEventListener('change', updateDisplay);
   rayleighJeansToggle.addEventListener('change', updateDisplay);
+
+  document.querySelectorAll<HTMLButtonElement>('.mode-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.mode-chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      spectrumMode = chip.dataset.mode as 'wavelength' | 'frequency';
+      updateDisplay();
+    });
+  });
 
   resetBtn.addEventListener('click', () => {
     temperatureInput.value = '5000';
@@ -348,11 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial draw
   updateDisplay();
 
-  // Handle window resize
+  // Handle window resize (debounced to avoid expensive redraws during drag)
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
   window.addEventListener('resize', () => {
-    if (canvas) {
-      canvas.width = canvas.offsetWidth;
-      updateDisplay();
-    }
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (canvas) {
+        canvas.width = canvas.offsetWidth;
+        updateDisplay();
+      }
+    }, 150);
   });
 });

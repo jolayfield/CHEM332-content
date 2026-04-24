@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Controls
     const nInput = document.getElementById('quantum-n') as HTMLInputElement;
     const nVal = document.getElementById('quantum-n-val') as HTMLElement;
-    const displayMode = document.getElementById('display-mode') as HTMLSelectElement;
+    let showProbabilityMode = false;
 
     // Superposition Controls
     const addStateBtn = document.getElementById('add-state') as HTMLButtonElement;
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sim.previewN = n;
 
         // Display mode
-        sim.showProbability = displayMode.value === 'probability';
+        sim.showProbability = showProbabilityMode;
 
         const allStates = sim.pinnedStates.map(s => ({ ...s, isPreview: false }));
         if (!sim.pinnedStates.some(s => s.n === sim.previewN)) {
@@ -149,7 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     nInput.addEventListener('input', updateUI);
 
-    displayMode.addEventListener('change', updateUI);
+    document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.display-chip').forEach(c => c.classList.remove('on'));
+            chip.classList.add('on');
+            showProbabilityMode = chip.dataset.mode === 'probability';
+            updateUI();
+        });
+    });
 
     addStateBtn.addEventListener('click', () => {
         const n = parseInt(nInput.value);

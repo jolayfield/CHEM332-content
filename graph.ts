@@ -24,6 +24,10 @@ export class KEGraph {
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
+        const _style = getComputedStyle(document.documentElement);
+        const _accent = _style.getPropertyValue('--accent').trim() || '#340E51';
+        const _ink3  = _style.getPropertyValue('--ink-3').trim()  || '#7b7681';
+        const _line  = _style.getPropertyValue('--line').trim()   || '#d9d2c5';
         this.chart = new Chart(canvas, {
             type: 'line',
             data: {
@@ -31,7 +35,7 @@ export class KEGraph {
                     {
                         label: 'Theoretical Max KE',
                         data: [], // Curve
-                        borderColor: '#666',
+                        borderColor: _accent,
                         borderWidth: 2,
                         borderDash: [5, 5],
                         pointRadius: 0,
@@ -41,8 +45,8 @@ export class KEGraph {
                     {
                         label: 'Current State',
                         data: [], // multiple points
-                        backgroundColor: '#00f2ff',
-                        // Remove white border to make them look solid/opaque
+                        backgroundColor: [], // per-point colors pushed via update()
+                        // color comes from wavelengthToColor in photoelectric.ts
                         borderColor: 'transparent',
                         borderWidth: 0,
                         pointRadius: 6,
@@ -53,8 +57,8 @@ export class KEGraph {
                     {
                         label: 'Zero Line',
                         data: [{ x: 200, y: 0 }, { x: 1000, y: 0 }],
-                        borderColor: '#b2bec3',
-                        borderWidth: 2,
+                        borderColor: _line,
+                        borderWidth: 1,
                         pointRadius: 0,
                         showLine: true,
                         fill: false,
@@ -72,13 +76,13 @@ export class KEGraph {
                         title: {
                             display: true,
                             text: 'Wavelength \u03BB (nm)',
-                            color: '#636e72'
+                            color: _ink3
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: _line
                         },
                         ticks: {
-                            color: '#636e72',
+                            color: _ink3,
                             stepSize: 100
                         },
                         min: 200,
@@ -88,14 +92,14 @@ export class KEGraph {
                         title: {
                             display: true,
                             text: 'Max Kinetic Energy (eV)',
-                            color: '#636e72'
+                            color: _ink3
                         },
                         grid: {
-                            color: (ctx) => ctx.tick.value === 0 ? '#636e72' : 'rgba(0, 0, 0, 0.1)',
-                            lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 1
+                            color: (ctx) => ctx.tick.value === 0 ? _ink3 : _line,
+                            lineWidth: (ctx) => ctx.tick.value === 0 ? 1.5 : 1
                         },
                         ticks: {
-                            color: '#636e72',
+                            color: _ink3,
                             callback: function (val) {
                                 return Number(val) < 0 ? '' : val;
                             }
@@ -208,16 +212,21 @@ export class KEGraph {
             this.redrawTheoretical();
             this.chart.data.datasets[0].label = `Phi = ${workFunction} eV`;
 
-            // Add Point
+            // Add Point (cap to prevent unbounded accumulation)
+            const MAX_POINTS = 500;
             const newPoint = { x: xVal, y: currentKE };
             const scatterDataset = this.chart.data.datasets[1];
-            (scatterDataset.data as any[]).push(newPoint);
-
-            // Color
             if (!Array.isArray(scatterDataset.backgroundColor)) {
                 scatterDataset.backgroundColor = [];
             }
-            (scatterDataset.backgroundColor as string[]).push(color);
+            const pts = scatterDataset.data as any[];
+            const colors = scatterDataset.backgroundColor as string[];
+            if (pts.length >= MAX_POINTS) {
+                pts.shift();
+                colors.shift();
+            }
+            pts.push(newPoint);
+            colors.push(color);
 
             this.chart.update();
         } catch (e) {

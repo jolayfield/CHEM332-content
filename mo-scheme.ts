@@ -174,8 +174,8 @@ function fillElectrons(levels: EnergyLevel[], totalElectrons: number) {
 }
 
 // UI Elements
-const select = document.getElementById('molecule-select') as HTMLSelectElement;
 const canvas = document.getElementById('mo-canvas') as HTMLCanvasElement;
+let currentMolKey = 'O2';
 const bondOrderVal = document.getElementById('bond-order')!;
 const magnetismVal = document.getElementById('magnetism')!;
 const homoVal = document.getElementById('homo-label')!;
@@ -185,7 +185,7 @@ const theoryNote = document.getElementById('theory-note')!;
 const diagram = new MODiagram(canvas);
 
 function updateMO() {
-    const molKey = select.value;
+    const molKey = currentMolKey;
     const mol = molecules[molKey];
     if (!mol) return;
 
@@ -215,5 +215,12 @@ function updateMO() {
     diagram.setLevels(mol.levels, mol.interactions);
 }
 
-select.onchange = updateMO;
+document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+        currentMolKey = chip.dataset.mol!;
+        updateMO();
+    });
+});
 updateMO();

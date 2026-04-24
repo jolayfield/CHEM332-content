@@ -2,268 +2,180 @@ import './style.css';
 import { initializeCapacitor } from './src/app-init';
 import { initializeAppLifecycle } from './src/app-lifecycle';
 import { initializeStorage } from './src/storage-manager';
-import { setupMobileMenu } from './src/mobile-menu';
-import { initializeTheme, toggleTheme } from './src/theme-manager';
+import { initializeTheme } from './src/theme-manager';
 
 console.log('QuantumChem Landing Page Loaded');
 
-// Simulation category and item interfaces
-interface Simulation {
+// ─── Data model ──────────────────────────────────────────────────────────────
+
+interface SimEntry {
   id: string;
   title: string;
-  description: string;
-  link: string;
+  section: string;
+  href: string;
+  done: boolean;
 }
 
-interface Category {
-  id: string;
+interface Chapter {
+  num: string;
   title: string;
-  description: string;
-  simulations: Simulation[];
+  weeks: string;
+  sims: SimEntry[];
 }
 
-// Define simulation categories with all content
-const SIMULATION_CATEGORIES: Category[] = [
-  {
-    id: 'classical-failure',
-    title: 'Failure of Classical Mechanics',
-    description: 'Explore phenomena that classical physics cannot explain, leading to the development of quantum mechanics.',
-    simulations: [
-      {
-        id: 'photoelectric',
-        title: 'Photoelectric Effect',
-        description: 'Experiment with light intensity and frequency to eject electrons from metals.',
-        link: 'photoelectric.html'
-      },
-      {
-        id: 'blackbody',
-        title: 'Black Body Radiation',
-        description: 'Observe how Planck\'s law explains the spectrum of thermal radiation and the ultraviolet catastrophe.',
-        link: 'blackbody.html'
-      }
-    ]
-  },
-  {
-    id: 'idealized-systems',
-    title: 'Idealized Quantum Systems',
-    description: 'Study simplified quantum systems that reveal fundamental principles of wave-particle behavior.',
-    simulations: [
-      {
-        id: 'particlebox',
-        title: 'Particle in a Box (1D)',
-        description: 'Explore quantum wave functions and energy quantization in infinite potential wells.',
-        link: 'particlebox.html'
-      },
-      {
-        id: 'particlebox2d',
-        title: 'Particle in a Box (2D)',
-        description: 'Extend the particle in a box model to two dimensions with contour plot visualization.',
-        link: 'particlebox2d.html'
-      },
-      {
-        id: 'tunneling',
-        title: 'Quantum Tunneling',
-        description: 'Watch particles scatter through a finite potential barrier and observe tunneling.',
-        link: 'barrier.html'
-      }
-    ]
-  },
-  {
-    id: 'nuclear-spectroscopy',
-    title: 'Nuclear Spectroscopy',
-    description: 'Analyze vibrational, rotational, and combined vibrational-rotational spectra of molecules.',
-    simulations: [
-      {
-        id: 'ir-spectra',
-        title: 'Vibrational Spectra',
-        description: 'Simulate IR vibrational spectra with varying molecular properties.',
-        link: 'ir-spectra.html'
-      },
-      {
-        id: 'rot-spectra',
-        title: 'Rotational Spectra',
-        description: 'Explore microwave rotational spectra and molecular rotation.',
-        link: 'rot-spectra.html'
-      },
-      {
-        id: 'vibrot-spectra',
-        title: 'Vibrational-Rotational Spectra',
-        description: 'Simulate combined P, Q, and R branches in molecular spectra.',
-        link: 'vibrot-spectra.html'
-      }
-    ]
-  },
-  {
-    id: 'atomic-systems',
-    title: 'Atomic Systems',
-    description: 'Investigate the structure of atoms, electron energy levels, and orbital shapes.',
-    simulations: [
-      {
-        id: 'bohr',
-        title: 'Bohr Model',
-        description: 'Visualize electron orbits, energy transitions, and spectral lines.',
-        link: 'bohr.html'
-      },
-      {
-        id: 'orbitals',
-        title: 'Atomic Orbitals',
-        description: '3D probability density visualizations for Hydrogen-like atoms in your browser.',
-        link: 'atomic-orbitals.html'
-      },
-      {
-        id: 'hybridization',
-        title: 'Orbital Hybridization',
-        description: 'Explore sp, sp², and sp³ hybridization with orbital combinations.',
-        link: 'hybridization.html'
-      }
-    ]
-  },
-  {
-    id: 'molecular-systems',
-    title: 'Molecular Systems',
-    description: 'Understand molecular bonding through orbital diagrams and chemical structure.',
-    simulations: [
-      {
-        id: 'mo-schemes',
-        title: 'Diatomic MO Schemes',
-        description: 'Build molecular orbital diagrams and determine bond properties of diatomic molecules.',
-        link: 'mo-scheme.html'
-      }
-    ]
-  }
-  // Computational Chemistry section hidden for now
-  // {
-  //   id: 'computational-chemistry',
-  //   title: 'Computational Chemistry',
-  //   description: 'Explore the mathematical foundations of computational quantum chemistry and molecular modeling.',
-  //   simulations: [
-  //     {
-  //       id: 'basis-set',
-  //       title: 'Basis Set Visualization',
-  //       description: 'Visualize Gaussian basis functions and their combinations in molecular orbital theory.',
-  //       link: 'basis-set.html'
-  //     }
-  //   ]
-  // }
-];
+interface Progress {
+  lastSim: string;
+  bookmark: string;
+  step: number;
+  total: number;
+  section: string;
+  title: string;
+  done: Record<string, boolean>;
+}
 
-// Initialize Capacitor plugins, lifecycle handlers, and storage
-// This runs on all platforms (web and mobile)
+const STORAGE_KEY = 'qc.progress';
+
+const DEFAULT_PROGRESS: Progress = {
+  lastSim: 'photoelectric',
+  bookmark: 'Introduction',
+  step: 0,
+  total: 12,
+  section: '1.1',
+  title: 'The Photoelectric Effect',
+  done: {},
+};
+
+function loadProgress(): Progress {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...DEFAULT_PROGRESS, ...JSON.parse(raw) };
+  } catch { /* ignore */ }
+  return { ...DEFAULT_PROGRESS };
+}
+
+// ─── Chapter / sim definitions ────────────────────────────────────────────────
+
+function buildChapters(progress: Progress): Chapter[] {
+  const done = progress.done ?? {};
+  return [
+    {
+      num: '01',
+      title: 'Failure of Classical Mechanics',
+      weeks: 'Weeks 1–2',
+      sims: [
+        { id: 'photoelectric', title: 'Photoelectric Effect',   section: '1.1', href: 'photoelectric.html', done: !!done['photoelectric'] },
+        { id: 'blackbody',     title: 'Black Body Radiation',   section: '1.2', href: 'blackbody.html',     done: !!done['blackbody']     },
+      ],
+    },
+    {
+      num: '02',
+      title: 'Idealized Quantum Systems',
+      weeks: 'Weeks 3–4',
+      sims: [
+        { id: 'particlebox',   title: 'Particle in a Box (1D)', section: '2.1', href: 'particlebox.html',   done: !!done['particlebox']   },
+        { id: 'particlebox2d', title: 'Particle in a Box (2D)', section: '2.2', href: 'particlebox2d.html', done: !!done['particlebox2d'] },
+        { id: 'tunneling',     title: 'Quantum Tunneling',      section: '2.3', href: 'barrier.html',       done: !!done['tunneling']     },
+      ],
+    },
+    {
+      num: '03',
+      title: 'Molecular Spectroscopy',
+      weeks: 'Weeks 5–6',
+      sims: [
+        { id: 'ir-spectra',    title: 'IR Vibrational Spectra',        section: '3.1', href: 'ir-spectra.html',    done: !!done['ir-spectra']    },
+        { id: 'rot-spectra',   title: 'Rotational Spectra',            section: '3.2', href: 'rot-spectra.html',   done: !!done['rot-spectra']   },
+        { id: 'vibrot-spectra',title: 'Vibrational-Rotational Spectra',section: '3.3', href: 'vibrot-spectra.html',done: !!done['vibrot-spectra'] },
+      ],
+    },
+    {
+      num: '04',
+      title: 'Atomic Systems',
+      weeks: 'Weeks 7–8',
+      sims: [
+        { id: 'bohr',          title: 'Bohr Model',         section: '4.1', href: 'bohr.html',           done: !!done['bohr']          },
+        { id: 'orbitals',      title: 'Atomic Orbitals',    section: '4.2', href: 'atomic-orbitals.html', done: !!done['orbitals']      },
+        { id: 'hybridization', title: 'Orbital Hybridization', section: '4.3', href: 'hybridization.html', done: !!done['hybridization'] },
+      ],
+    },
+    {
+      num: '05',
+      title: 'Molecular Systems',
+      weeks: 'Weeks 9–10',
+      sims: [
+        { id: 'mo-schemes', title: 'Diatomic MO Schemes', section: '5.1', href: 'mo-scheme.html', done: !!done['mo-schemes'] },
+      ],
+    },
+  ];
+}
+
+// ─── Render helpers ───────────────────────────────────────────────────────────
+
+function renderResume(p: Progress): string {
+  const pct = p.total > 0 ? Math.round((p.step / p.total) * 100) : 0;
+  const ticks = Array.from({ length: p.total }, (_, i) =>
+    `<div class="tick${i < p.step ? ' done' : ''}"></div>`
+  ).join('');
+  return `
+    <div class="resume-inner">
+      <div class="eyebrow">Continue reading</div>
+      <div class="resume-title">§ ${p.section} · ${p.title}</div>
+      <div class="resume-sub">You stopped on &ldquo;${p.bookmark}.&rdquo;</div>
+      <div class="qc-prog">${ticks}</div>
+      <div class="byline" style="margin-top:8px">${p.step} / ${p.total} &nbsp;·&nbsp; ${pct}% complete</div>
+    </div>`;
+}
+
+function renderProgressStrip(chapters: Chapter[]): string {
+  return chapters.map(c => {
+    const doneCount = c.sims.filter(s => s.done).length;
+    const pct = c.sims.length > 0 ? (doneCount / c.sims.length) * 100 : 0;
+    return `<div class="cp-seg" style="flex:${c.sims.length}">
+      <div class="cp-fill" style="width:${pct}%"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTOC(chapters: Chapter[]): string {
+  return chapters.map(c => {
+    const doneCount = c.sims.filter(s => s.done).length;
+    const ticks = c.sims.map(s =>
+      `<div class="tick${s.done ? ' done' : ''}"></div>`
+    ).join('');
+    return `
+      <a class="toc-row" href="simulations.html#ch-${c.num}">
+        <span class="num">${c.num}</span>
+        <div class="body">
+          <div class="title">${c.title}</div>
+          <div class="meta byline">${c.weeks} &nbsp;·&nbsp; ${doneCount}/${c.sims.length} done</div>
+          <div class="qc-prog micro meta">${ticks}</div>
+        </div>
+        <span class="chev">›</span>
+      </a>`;
+  }).join('');
+}
+
+// ─── App init ─────────────────────────────────────────────────────────────────
+
 async function initializeApp(): Promise<void> {
-  try {
-    await initializeCapacitor();
-  } catch (error) {
-    console.warn('Capacitor initialization skipped (likely running on web):', error);
-  }
-
-  try {
-    initializeAppLifecycle();
-  } catch (error) {
-    console.warn('App lifecycle initialization skipped:', error);
-  }
-
-  try {
-    await initializeStorage();
-  } catch (error) {
-    console.warn('Storage initialization failed:', error);
-  }
+  try { await initializeCapacitor(); } catch { /* web fallback */ }
+  try { initializeAppLifecycle(); } catch { /* web fallback */ }
+  try { await initializeStorage(); } catch { /* web fallback */ }
 }
 
 initializeApp();
 
-/**
- * Render all category sections
- */
-function renderCategories(): void {
-  const container = document.getElementById('categories-container');
-  if (!container) {
-    console.error('categories-container not found');
-    return;
-  }
-
-  SIMULATION_CATEGORIES.forEach((category) => {
-    const section = createCategorySection(category);
-    container.appendChild(section);
-  });
-}
-
-/**
- * Create a category section with title, editable description, and simulation cards
- */
-function createCategorySection(category: Category): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'category-section';
-
-  // Create header with title and editable description
-  const header = document.createElement('div');
-  header.className = 'category-header';
-
-  const title = document.createElement('h2');
-  title.textContent = category.title;
-
-  const description = document.createElement('p');
-  description.className = 'category-description';
-  description.textContent = category.description;
-
-  header.appendChild(title);
-  header.appendChild(description);
-
-  // Create simulation cards grid
-  const cardsContainer = document.createElement('div');
-  cardsContainer.className = 'category-simulations';
-
-  category.simulations.forEach((sim) => {
-    const card = createSimulationCard(sim);
-    cardsContainer.appendChild(card);
-  });
-
-  section.appendChild(header);
-  section.appendChild(cardsContainer);
-
-  return section;
-}
-
-/**
- * Create a single simulation card
- */
-function createSimulationCard(sim: Simulation): HTMLElement {
-  const card = document.createElement('div');
-  card.className = 'glass-panel feature-card';
-
-  const title = document.createElement('h3');
-  title.textContent = sim.title;
-
-  const description = document.createElement('p');
-  description.textContent = sim.description;
-
-  const link = document.createElement('a');
-  link.href = sim.link;
-  link.className = 'text-link';
-  link.textContent = 'Launch →';
-
-  card.appendChild(title);
-  card.appendChild(description);
-  card.appendChild(link);
-
-  return card;
-}
-
-// Initialize theme and setup UI handlers
 document.addEventListener('DOMContentLoaded', () => {
   initializeTheme();
-  setupThemeToggle();
-  setupMobileMenu();
-  renderCategories();
-});
 
-/**
- * Setup theme toggle button click handler
- */
-function setupThemeToggle(): void {
-  const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      toggleTheme();
-    });
-  }
-}
+  const progress = loadProgress();
+  const chapters = buildChapters(progress);
+
+  const resumeEl = document.getElementById('resume-card');
+  if (resumeEl) resumeEl.innerHTML = renderResume(progress);
+
+  const progressEl = document.getElementById('course-progress');
+  if (progressEl) progressEl.innerHTML = renderProgressStrip(chapters);
+
+  const tocEl = document.getElementById('toc');
+  if (tocEl) tocEl.innerHTML = renderTOC(chapters);
+});
