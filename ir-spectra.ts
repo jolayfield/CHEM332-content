@@ -100,14 +100,17 @@ const selectionNote   = document.getElementById('selection-note')!;
 
 // ─── Chart setup ─────────────────────────────────────────────────────────────
 const ctx = (document.getElementById('ir-chart') as HTMLCanvasElement).getContext('2d')!;
+const dimWhite = 'rgba(255,255,255,0.5)';
+const gridLine = 'rgba(255,255,255,0.1)';
+
 const chart = new Chart(ctx, {
     type: 'line',
     data: { labels: [], datasets: [{
         label: 'IR Spectrum',
         data: [],
-        borderColor: '#340E51',
-        backgroundColor: 'rgba(52,14,81,0.15)',
-        borderWidth: 2,
+        borderColor: '#ffd580',
+        backgroundColor: 'rgba(253,213,128,0.08)',
+        borderWidth: 1.6,
         pointRadius: 0,
         fill: true,
         tension: 0.2,
@@ -119,14 +122,19 @@ const chart = new Chart(ctx, {
         scales: {
             x: {
                 type: 'linear',
-                reverse: true,            // IR spectra shown high→low wavenumber
-                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 13 } },
+                reverse: true,
+                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 11 }, color: dimWhite },
                 min: 400, max: 4000,
-                ticks: { stepSize: 400 },
+                ticks: { stepSize: 400, color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: 'rgba(255,255,255,0.2)' },
             },
             y: {
-                title: { display: true, text: 'Transmittance (%)', font: { size: 13 } },
+                title: { display: true, text: 'Transmittance (%)', font: { size: 11 }, color: dimWhite },
                 min: 0, max: 105,
+                ticks: { color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: 'rgba(255,255,255,0.2)' },
             }
         },
         plugins: {
@@ -193,17 +201,17 @@ function renderModesList() {
         div.className = 'mode-row';
         div.style.cssText = `
             display:flex; flex-direction:column; gap:4px;
-            padding:10px 12px; border-radius:8px; margin-bottom:8px;
-            background:${mode.irActive ? 'rgba(52,14,81,0.07)' : 'rgba(0,0,0,0.03)'};
-            border-left: 4px solid ${mode.irActive ? 'var(--accent-color)' : '#ccc'};
+            padding:10px 12px; margin-bottom:8px;
+            background:${mode.irActive ? 'var(--paper-2)' : 'transparent'};
+            border-left: 3px solid ${mode.irActive ? 'var(--accent)' : 'var(--line)'};
         `;
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <strong style="font-size:0.88em;">${mode.label}</strong>
-                <span style="font-size:0.82em; color:var(--text-dim);">${Math.round(wn)} cm⁻¹</span>
+                <span style="font-size:0.82em; color:var(--ink-3);">${Math.round(wn)} cm⁻¹</span>
             </div>
-            <div style="font-size:0.8em; color:var(--text-dim);">${mode.description}</div>
-            <div style="font-size:0.78em; font-weight:600; color:${mode.irActive ? 'var(--accent-color)' : '#999'};">
+            <div style="font-size:0.8em; color:var(--ink-2);">${mode.description}</div>
+            <div style="font-size:0.78em; font-weight:600; color:${mode.irActive ? 'var(--accent)' : 'var(--ink-3)'};">
                 ${mode.irActive ? `IR Active · Rel. intensity: ${(mode.intensity * 100).toFixed(0)}%` : 'IR Inactive'}
             </div>
         `;

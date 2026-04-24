@@ -185,7 +185,7 @@ export class MODiagram {
         const spacing = 8;
 
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#1a1520';
 
         if (count >= 1) {
             // Spin up

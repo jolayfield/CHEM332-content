@@ -89,11 +89,12 @@ export class Simulation {
     }
 
     buildGrid(): void {
+        const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
         const gc = document.createElement('canvas');
         gc.width = this.width;
         gc.height = this.height;
         const gctx = gc.getContext('2d')!;
-        gctx.fillStyle = '#080c10';
+        gctx.fillStyle = canvasBg;
         gctx.fillRect(0, 0, gc.width, gc.height);
         gctx.strokeStyle = 'rgba(255,255,255,0.05)';
         gctx.lineWidth = 0.5;
@@ -217,7 +218,8 @@ export class Simulation {
         const ctx = this.ctx;
 
         // Background
-        ctx.fillStyle = '#080c10';
+        const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
+        ctx.fillStyle = canvasBg;
         ctx.fillRect(0, 0, this.width, this.height);
 
         // Pre-rendered grid (one drawImage instead of N line draws)

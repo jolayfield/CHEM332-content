@@ -18,6 +18,9 @@ export class BohrSimulation {
 
     // Constants
     baseRadiusScale: number = 30;
+    gridCanvas: HTMLCanvasElement | null = null;
+    elementSymbol: string = 'H';
+    elementZ: number = 1;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -42,7 +45,25 @@ export class BohrSimulation {
             this.width = this.canvas.width;
             this.height = this.canvas.height;
             this.baseRadiusScale = Math.min(this.width, this.height) / 20;
+            this.buildGrid();
         }
+    }
+
+    buildGrid() {
+        const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
+        const gc = document.createElement('canvas');
+        gc.width = this.width;
+        gc.height = this.height;
+        const gctx = gc.getContext('2d')!;
+        gctx.fillStyle = canvasBg;
+        gctx.fillRect(0, 0, gc.width, gc.height);
+        gctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        gctx.lineWidth = 0.5;
+        gctx.beginPath();
+        for (let x = 0; x <= this.width; x += 24) { gctx.moveTo(x, 0); gctx.lineTo(x, this.height); }
+        for (let y = 0; y <= this.height; y += 24) { gctx.moveTo(0, y); gctx.lineTo(this.width, y); }
+        gctx.stroke();
+        this.gridCanvas = gc;
     }
 
     getRadius(n: number): number {
@@ -210,7 +231,16 @@ export class BohrSimulation {
     }
 
     draw() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        const ctx = this.ctx;
+
+        // Dark background + grid
+        if (this.gridCanvas) {
+            ctx.drawImage(this.gridCanvas, 0, 0);
+        } else {
+            const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
+            ctx.fillStyle = canvasBg;
+            ctx.fillRect(0, 0, this.width, this.height);
+        }
 
         const cx = this.width / 2;
         const cy = this.height / 2;
@@ -218,30 +248,49 @@ export class BohrSimulation {
         // Draw Orbits
         for (let i = 1; i <= 6; i++) {
             const r = this.getRadius(i);
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-            if (i === this.targetN || i === this.n) this.ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            const isActive = (i === this.n) || (!this.waitingForAbsorption && i === this.targetN);
+            const isTarget = this.waitingForAbsorption && i === this.targetN;
 
-            // Handle if we are waiting for absorption (highlight target)
-            if (this.waitingForAbsorption && i === this.targetN) this.ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.beginPath();
+            if (isActive) {
+                ctx.strokeStyle = '#c8892a';
+                ctx.lineWidth = 1.2;
+                ctx.setLineDash([]);
+            } else if (isTarget) {
+                ctx.strokeStyle = 'rgba(200,137,42,0.6)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+            } else {
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 0.6;
+                ctx.setLineDash([2, 3]);
+            }
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-            this.ctx.lineWidth = 1;
-            this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            // Label
-            this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            this.ctx.font = '600 10px Lato, sans-serif';
-            this.ctx.fillText(`n=${i}`, cx + 5, cy - r);
+            // n= label
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '600 9px Lato, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`n=${i}`, cx + r + 4, cy + 4);
         }
 
-        // Draw Nucleus
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#ff1744';
-        this.ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.shadowColor = '#ff1744';
-        this.ctx.shadowBlur = 10;
+        // Nucleus glow ring
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255,179,71,0.35)';
+        ctx.lineWidth = 0.6;
+        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Nucleus
+        ctx.beginPath();
+        ctx.fillStyle = '#ffb347';
+        ctx.shadowColor = '#ffb347';
+        ctx.shadowBlur = 8;
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
 
 
         // Draw Electron
@@ -257,49 +306,51 @@ export class BohrSimulation {
         const ex = cx + Math.cos(this.electronAngle) * r;
         const ey = cy + Math.sin(this.electronAngle) * r;
 
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#7cc4ff';
-        this.ctx.shadowColor = '#7cc4ff';
-        this.ctx.shadowBlur = 15;
-        this.ctx.arc(ex, ey, 5, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.fillStyle = '#7cc4ff';
+        ctx.shadowColor = '#7cc4ff';
+        ctx.shadowBlur = 15;
+        ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Bottom-left element label
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '600 9px Lato, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Z = ${this.elementZ} · ${this.elementSymbol.toUpperCase()}`, 12, this.height - 10);
 
         // Draw Photons (Sine wave packet)
         this.photons.forEach(p => {
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = p.color;
-            this.ctx.lineWidth = 3;
-            this.ctx.shadowColor = p.color;
-            this.ctx.shadowBlur = 8;
-            this.ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 3;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 8;
+            ctx.lineCap = 'round';
 
             // Draw a sine wave segment oriented along velocity
             const angle = Math.atan2(p.vy, p.vx);
-            const packetLen = 40; // Longer packet
+            const packetLen = 40;
             const freq = 0.4;
             const amp = 6;
 
-            this.ctx.save();
-            this.ctx.translate(p.x, p.y);
-            this.ctx.rotate(angle);
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(angle);
 
-            this.ctx.moveTo(-packetLen / 2, 0);
+            ctx.moveTo(-packetLen / 2, 0);
             for (let x = -packetLen / 2; x <= packetLen / 2; x += 2) {
-                // Wave travels backwards along packet as p moves? Or stationary wave packet?
-                // Let's make it wiggle.
                 const phase = p.waviness;
-                // Envelope window (taper ends)
                 const distFromCenter = Math.abs(x);
                 const envelope = Math.max(0, 1 - distFromCenter / (packetLen / 2));
-
                 const y = Math.sin(x * freq - phase) * amp * envelope;
-                this.ctx.lineTo(x, y);
+                ctx.lineTo(x, y);
             }
 
-            this.ctx.stroke();
-            this.ctx.restore();
-            this.ctx.shadowBlur = 0;
+            ctx.stroke();
+            ctx.restore();
+            ctx.shadowBlur = 0;
         });
     }
 
