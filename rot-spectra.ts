@@ -57,13 +57,17 @@ const levelsPanel    = document.getElementById('levels-panel')!;
 const ctxSpec  = (document.getElementById('rot-spectrum-chart') as HTMLCanvasElement).getContext('2d')!;
 const ctxLevels = (document.getElementById('rot-levels-chart')  as HTMLCanvasElement).getContext('2d')!;
 
+const dimWhite = 'rgba(255,255,255,0.5)';
+const gridLine  = 'rgba(255,255,255,0.1)';
+const axisBorder = 'rgba(255,255,255,0.2)';
+
 const specChart = new Chart(ctxSpec, {
     type: 'bar',
     data: { labels: [], datasets: [{
         label: 'Microwave Absorption Intensity',
         data: [],
-        backgroundColor: 'rgba(52,14,81,0.7)',
-        borderColor: '#340E51',
+        backgroundColor: 'rgba(200,137,42,0.8)',
+        borderColor: '#c8892a',
         borderWidth: 1,
         barPercentage: 0.6,
     }]},
@@ -72,8 +76,19 @@ const specChart = new Chart(ctxSpec, {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            x: { title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 12 } } },
-            y: { title: { display: true, text: 'Intensity (a.u.)', font: { size: 12 } }, min: 0 }
+            x: {
+                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 11 }, color: dimWhite },
+                ticks: { color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: axisBorder },
+            },
+            y: {
+                title: { display: true, text: 'Intensity (a.u.)', font: { size: 11 }, color: dimWhite },
+                min: 0,
+                ticks: { color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: axisBorder },
+            }
         },
         plugins: {
             legend: { display: false },
@@ -96,7 +111,7 @@ const levelsChart = new Chart(ctxLevels, {
             const v = (ctx.dataset.data[ctx.dataIndex] as number);
             const max = Math.max(...(ctx.dataset.data as number[]));
             const t = v / (max || 1);
-            return `rgba(${Math.round(52 + 180 * t)}, ${Math.round(14 + 50 * t)}, ${Math.round(81 + 100 * (1 - t))}, 0.8)`;
+            return `rgba(200,137,42,${(0.25 + 0.75 * t).toFixed(2)})`;
         },
         borderWidth: 0,
     }]},
@@ -106,8 +121,19 @@ const levelsChart = new Chart(ctxLevels, {
         maintainAspectRatio: false,
         indexAxis: 'y',
         scales: {
-            x: { title: { display: true, text: 'Relative Population', font: { size: 12 } }, min: 0 },
-            y: { title: { display: true, text: 'J level', font: { size: 12 } } }
+            x: {
+                title: { display: true, text: 'Relative Population', font: { size: 11 }, color: dimWhite },
+                min: 0,
+                ticks: { color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: axisBorder },
+            },
+            y: {
+                title: { display: true, text: 'J level', font: { size: 11 }, color: dimWhite },
+                ticks: { color: dimWhite, font: { size: 10 } },
+                grid: { color: gridLine },
+                border: { color: axisBorder },
+            }
         },
         plugins: { legend: { display: false } }
     }
@@ -185,7 +211,7 @@ function update() {
         const E = rotationalEnergy(J, B);
         const pop = (pops[J] / maxPop * 100).toFixed(1);
         const row = document.createElement('div');
-        row.style.cssText = 'display:grid; grid-template-columns:2fr 2fr 2fr; gap:8px; padding:6px 8px; font-size:0.82em; border-bottom:1px solid var(--glass-border);';
+        row.style.cssText = 'display:grid; grid-template-columns:2fr 2fr 2fr; gap:8px; padding:6px 8px; font-size:0.82em; border-bottom:1px solid var(--line);';
         row.innerHTML = `<span><strong>J = ${J}</strong></span><span>${E.toFixed(2)} cm⁻¹</span><span>${pop}%</span>`;
         levelsPanel.appendChild(row);
     }
