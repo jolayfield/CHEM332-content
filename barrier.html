@@ -1,102 +1,91 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quantum Tunneling - QuantumChem</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"
-        rel="stylesheet">
-  <script type="module" crossorigin src="./assets/barrier-Cz75CFCw.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantum Tunneling — QuantumChem</title>
+  <script type="module" crossorigin src="./assets/barrier-BURdzUbc.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
+  <link rel="modulepreload" crossorigin href="./assets/theme-manager-DYMd5c2H.js">
+  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
 </head>
-
 <body>
-    <div id="app">
-        <nav class="main-nav glass-panel">
-            <div class="nav-brand">University of St. Thomas</div>
-            <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-              <span></span><span></span><span></span>
-            </button>
-            <ul class="nav-links">
-                <li><a href="./">Home</a></li>
-                <li><a href="lectures.html">Lectures</a></li>
-                <li><a href="simulations.html" class="active">Simulations</a></li>
-                <li><a href="#">Resources</a></li>
-            </ul>
-        </nav>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 2.3</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
 
-        <div class="breadcrumb">
-            <a href="./">Home</a> &rsaquo; <a href="simulations.html">Simulations</a> <span>/</span> <span>Quantum
-                Tunneling</span>
-        </div>
-
-        <header class="page-header">
-            <h1>Scattering Through a Finite Barrier</h1>
-        </header>
-
-        <main class="dashboard">
-            <aside class="controls-panel glass-panel">
-                <div class="control-group">
-                    <label for="particle-energy">Particle Energy (E)</label>
-                    <input type="range" id="particle-energy" min="0.1" max="10" value="3.0" step="0.1">
-                    <span class="value-display" id="energy-val">3.0 eV</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="barrier-height">Barrier Height (V₀)</label>
-                    <input type="range" id="barrier-height" min="0.1" max="10" value="5.0" step="0.1">
-                    <span class="value-display" id="barrier-height-val">5.0 eV</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="barrier-width">Barrier Width (a)</label>
-                    <input type="range" id="barrier-width" min="0.1" max="2.0" value="0.5" step="0.05">
-                    <span class="value-display" id="barrier-width-val">0.50 nm</span>
-                </div>
-
-                <div class="stats-group">
-                    <div class="stat-item">
-                        <span class="stat-label">Transmission (T)</span>
-                        <span class="stat-value" id="transmission-val">0.00</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Reflection (R)</span>
-                        <span class="stat-value" id="reflection-val">1.00</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">E / V₀ Ratio</span>
-                        <span class="stat-value" id="ratio-val">0.60</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Regime</span>
-                        <span class="stat-value" id="regime-val">Tunneling</span>
-                    </div>
-                </div>
-            </aside>
-
-            <section class="simulation-container glass-panel">
-                <canvas id="barrier-canvas"></canvas>
-            </section>
-
-            <section class="graph-panel glass-panel" style="display: flex; flex-direction: column;">
-                <h3 style="margin-bottom: 1rem; color: var(--text-dim); font-size: 1rem;">Transmission vs Energy</h3>
-                <canvas id="t-graph-canvas" style="flex:1; width: 100%;"></canvas>
-            </section>
-        </main>
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Quantum Tunneling</span>
     </div>
-    <script>
-      document.querySelector('.hamburger').addEventListener('click', function () {
-        var open = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!open));
-        this.classList.toggle('is-open');
-        document.querySelector('.nav-links').classList.toggle('nav-open');
-      });
-    </script>
-</body>
 
+    <header class="page-header">
+      <div class="eyebrow">Chapter 02 · Section 2.3</div>
+      <h1>Scattering Through a Finite <i>Barrier.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 2.4 · Interactive</div>
+    <div class="sim-canvas-wrap dark">
+      <canvas id="barrier-canvas"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Transmission T</div>
+        <div class="v" id="transmission-val">0.00</div>
+      </div>
+      <div>
+        <div class="k">Reflection R</div>
+        <div class="v" id="reflection-val">1.00</div>
+      </div>
+      <div>
+        <div class="k">E / V₀</div>
+        <div class="v" id="ratio-val">0.60</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="particle-energy">Particle Energy (E)</label>
+          <span class="value-display" id="energy-val">3.0 eV</span>
+        </div>
+        <input type="range" id="particle-energy" class="qc-slider" min="0.1" max="10" value="3.0" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="barrier-height">Barrier Height (V₀)</label>
+          <span class="value-display" id="barrier-height-val">5.0 eV</span>
+        </div>
+        <input type="range" id="barrier-height" class="qc-slider" min="0.1" max="10" value="5.0" step="0.1">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row">
+          <label for="barrier-width">Barrier Width (a)</label>
+          <span class="value-display" id="barrier-width-val">0.50 nm</span>
+        </div>
+        <input type="range" id="barrier-width" class="qc-slider" min="0.1" max="2.0" value="0.5" step="0.05">
+      </div>
+
+      <div class="stat-item" style="border:none;padding:0">
+        <span class="stat-label">Regime</span>
+        <span class="stat-value" id="regime-val">Tunneling</span>
+      </div>
+    </div>
+
+    <div class="fig-caption">Figure 2.5 · Transmission vs Energy</div>
+    <div class="graph-wrap">
+      <div class="chart-container">
+        <canvas id="t-graph-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</body>
 </html>

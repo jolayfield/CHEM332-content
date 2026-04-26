@@ -1,189 +1,131 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IR Vibrational Spectra - Interactive Physics Simulations</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <style>
-        #app { height: auto !important; min-height: 100vh; }
-        .dashboard {
-            grid-template-rows: 1fr !important;
-            grid-template-areas: "controls simulation" !important;
-            min-height: min(480px, 60vh);
-        }
-        #ir-chart { width: 100% !important; height: 100% !important; }
-        .mode-row:hover { background: rgba(52,14,81,0.12) !important; }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
-    </style>
-  <script type="module" crossorigin src="./assets/ir-spectra-Coxn6E4x.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IR Vibrational Spectra — QuantumChem</title>
+  <script type="module" crossorigin src="./assets/ir-spectra-Jp22VFGn.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
   <link rel="modulepreload" crossorigin href="./assets/chart-vendor-sRkgK8jz.js">
-  <link rel="modulepreload" crossorigin href="./assets/auto-render-WmSJQ-TS.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
+  <link rel="modulepreload" crossorigin href="./assets/auto-render-DwzWyz09.js">
+  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
 </head>
 <body>
-<div id="app">
-    <nav class="main-nav glass-panel">
-        <div class="nav-brand">Interactive Physics Simulations</div>
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links">
-            <li><a href="./">Home</a></li>
-            <li><a href="lectures.html">Lectures</a></li>
-            <li><a href="simulations.html" class="active">Simulations</a></li>
-        </ul>
+  <div id="app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 3.1</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
     </nav>
 
     <div class="breadcrumb">
-        <a href="./">Home</a> &rsaquo;
-        <a href="simulations.html">Simulations</a> <span>/</span>
-        <span>IR Vibrational Spectra</span>
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">IR Vibrational Spectra</span>
     </div>
 
     <header class="page-header">
-        <h1>IR Vibrational Spectra Simulator</h1>
-        <p style="color:var(--text-dim); margin-top:0.4rem;">
-            Explore normal modes, IR activity, and vibrational frequencies.
-            Adjust peak width and frequency shift to simulate real spectrometer conditions.
-        </p>
+      <div class="eyebrow">Chapter 03 · Section 3.1</div>
+      <h1>IR Vibrational <i>Spectra.</i></h1>
     </header>
 
-    <main class="dashboard">
-        <!-- Controls -->
-        <aside class="controls-panel glass-panel">
+    <div class="fig-caption">Figure 3.1 · Transmission Spectrum &nbsp;·&nbsp; ← Higher energy &nbsp;|&nbsp; Lower energy →</div>
+    <div class="sim-canvas-wrap dark" style="padding:16px 0 0">
+      <canvas id="ir-chart" style="width:100%;height:280px;display:block"></canvas>
+    </div>
 
-            <div class="control-group">
-                <label>Molecule</label>
-                <select id="molecule-select">
-                    <option value="co2">CO₂ — Carbon Dioxide</option>
-                    <option value="h2o">H₂O — Water</option>
-                    <option value="hcl">HCl — Hydrogen Chloride</option>
-                    <option value="ch4">CH₄ — Methane</option>
-                    <option value="nh3">NH₃ — Ammonia</option>
-                </select>
-            </div>
+    <div class="readouts">
+      <div>
+        <div class="k">Molecule</div>
+        <div class="v" id="molecule-label" style="font-size:16px;padding-top:2px">—</div>
+      </div>
+      <div>
+        <div class="k">Display</div>
+        <div class="v" id="display-label" style="font-size:14px;padding-top:4px">Transmittance</div>
+      </div>
+      <div>
+        <div class="k">IR Active</div>
+        <div class="v" id="selection-note" style="font-size:13px;padding-top:4px">—</div>
+      </div>
+    </div>
 
-            <div class="control-group">
-                <label>Peak Width (FWHM): <span id="peak-width-val">15 cm⁻¹</span></label>
-                <input type="range" id="peak-width-slider" min="2" max="60" value="15" step="1" />
-            </div>
+    <div class="control-panel">
+      <div class="control-group">
+        <label>Molecule</label>
+        <div class="chip-group">
+          <button class="qc-chip mol-chip on" data-mol="co2">CO₂</button>
+          <button class="qc-chip mol-chip" data-mol="h2o">H₂O</button>
+          <button class="qc-chip mol-chip" data-mol="hcl">HCl</button>
+          <button class="qc-chip mol-chip" data-mol="ch4">CH₄</button>
+          <button class="qc-chip mol-chip" data-mol="nh3">NH₃</button>
+        </div>
+      </div>
 
-            <div class="control-group">
-                <label>Frequency Shift: <span id="freq-shift-val">0 cm⁻¹</span></label>
-                <input type="range" id="freq-shift-slider" min="-100" max="100" value="0" step="5" />
-            </div>
+      <div class="control-group">
+        <label>Display Mode</label>
+        <div class="chip-group">
+          <button class="qc-chip display-chip on" data-mode="transmission">Transmittance</button>
+          <button class="qc-chip display-chip" data-mode="absorbance">Absorbance</button>
+        </div>
+      </div>
 
-            <div class="stats-group" style="margin-top:0;">
-                <div class="stat-item">
-                    <span class="stat-label">Molecule</span>
-                    <span class="stat-value" id="molecule-label">—</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label" id="selection-note" style="font-size:0.8em;">—</span>
-                </div>
-            </div>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="peak-width-slider">Peak Width (FWHM)</label>
+          <span class="value-display" id="peak-width-val">15 cm⁻¹</span>
+        </div>
+        <input type="range" id="peak-width-slider" class="qc-slider" min="2" max="60" value="15" step="1">
+      </div>
 
-            <div class="control-group" style="flex:1; min-height:0; overflow-y:auto;">
-                <label>Normal Modes</label>
-                <div id="modes-panel"></div>
-            </div>
-        </aside>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="freq-shift-slider">Frequency Shift</label>
+          <span class="value-display" id="freq-shift-val">0 cm⁻¹</span>
+        </div>
+        <input type="range" id="freq-shift-slider" class="qc-slider" min="-100" max="100" value="0" step="5">
+      </div>
 
-        <!-- Simulation: IR chart -->
-        <section class="simulation-container glass-panel" style="padding:1.5rem; flex-direction:column; align-items:stretch;">
-            <div style="font-size:0.82em; color:var(--text-dim); margin-bottom:0.5rem; text-align:right;">
-                ← Higher energy &nbsp;|&nbsp; Lower energy →  &nbsp;(wavenumber axis reversed, per convention)
-            </div>
-            <div style="flex:1; min-height:0; position:relative;">
-                <canvas id="ir-chart"></canvas>
-            </div>
-        </section>
-    </main>
+      <div class="control-group">
+        <label>Normal Modes</label>
+        <div id="modes-panel"></div>
+      </div>
+    </div>
 
     <!-- Educational panels -->
     <div class="info-grid">
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">IR Activity Selection Rule</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                A vibrational mode is <strong>IR active</strong> only if it produces a change in the molecular dipole moment:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
-                $$\left(\frac{\partial \mu}{\partial Q}\right)_0 \neq 0$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                where $Q$ is the normal coordinate and $\mu$ is the dipole moment.
-                Symmetric modes of centrosymmetric molecules (e.g. CO₂ symmetric stretch)
-                are IR inactive — use Raman spectroscopy to observe them.
-            </p>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Vibrational Energy Levels</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                In the harmonic oscillator approximation, vibrational energy levels are equally spaced:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
-                $$E_v = h\tilde{\nu}\left(v + \frac{1}{2}\right), \quad v = 0, 1, 2, \ldots$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                The fundamental IR absorption corresponds to $v = 0 \to 1$, observed at wavenumber $\tilde{\nu}$.
-                Anharmonicity causes overtones ($v = 0 \to 2$) to appear at slightly less than $2\tilde{\nu}$.
-            </p>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Number of Normal Modes</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                For a molecule with $N$ atoms:
-            </p>
-            <div style="background:rgba(0,0,0,0.04); border-radius:8px; padding:0.8rem 1rem; margin:0.8rem 0; text-align:center;">
-                $$\text{Linear: } 3N - 5 \quad\quad \text{Nonlinear: } 3N - 6$$
-            </div>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">
-                e.g. CO₂ (linear, N=3): $3(3)-5 = 4$ modes (ν₂ doubly degenerate counts as 2).
-                H₂O (nonlinear, N=3): $3(3)-6 = 3$ modes.
-            </p>
-        </div>
-
-        <div class="glass-panel" style="padding:1.5rem;">
-            <h3 style="font-family:var(--font-head); color:var(--accent-color); margin-bottom:0.8rem;">Characteristic Group Frequencies</h3>
-            <p style="color:var(--text-dim); line-height:1.8; font-size:0.92em;">Functional groups absorb in characteristic regions:</p>
-            <table style="width:100%; font-size:0.82em; border-collapse:collapse; margin-top:0.5rem;">
-                <thead><tr style="background:rgba(52,14,81,0.08);">
-                    <th style="padding:5px 8px; text-align:left;">Group</th>
-                    <th style="padding:5px 8px; text-align:left;">Range (cm⁻¹)</th>
-                </tr></thead>
-                <tbody>
-                    <tr style="border-bottom:1px solid var(--glass-border);"><td style="padding:4px 8px;">O–H stretch</td><td style="padding:4px 8px;">3200–3600</td></tr>
-                    <tr style="border-bottom:1px solid var(--glass-border);"><td style="padding:4px 8px;">N–H stretch</td><td style="padding:4px 8px;">3300–3500</td></tr>
-                    <tr style="border-bottom:1px solid var(--glass-border);"><td style="padding:4px 8px;">C–H stretch</td><td style="padding:4px 8px;">2850–3000</td></tr>
-                    <tr style="border-bottom:1px solid var(--glass-border);"><td style="padding:4px 8px;">C≡N, C≡C</td><td style="padding:4px 8px;">2100–2260</td></tr>
-                    <tr style="border-bottom:1px solid var(--glass-border);"><td style="padding:4px 8px;">C=O stretch</td><td style="padding:4px 8px;">1650–1750</td></tr>
-                    <tr><td style="padding:4px 8px;">C–O stretch</td><td style="padding:4px 8px;">1000–1300</td></tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="glass-panel">
+        <h3>IR Activity Selection Rule</h3>
+        <p>A mode is <strong>IR active</strong> only if it produces a change in dipole moment:</p>
+        <div class="math-block">$$\left(\frac{\partial \mu}{\partial Q}\right)_0 \neq 0$$</div>
+        <p>Symmetric modes of centrosymmetric molecules (e.g. CO₂ symmetric stretch) are IR inactive.</p>
+      </div>
+      <div class="glass-panel">
+        <h3>Vibrational Energy Levels</h3>
+        <p>In the harmonic oscillator approximation, levels are equally spaced:</p>
+        <div class="math-block">$$E_v = h\tilde{\nu}\left(v + \frac{1}{2}\right), \quad v = 0, 1, 2, \ldots$$</div>
+        <p>The fundamental IR absorption is $v = 0 \to 1$ at wavenumber $\tilde{\nu}$.</p>
+      </div>
+      <div class="glass-panel">
+        <h3>Number of Normal Modes</h3>
+        <div class="math-block">$$\text{Linear: } 3N - 5 \quad\quad \text{Nonlinear: } 3N - 6$$</div>
+        <p>e.g. CO₂ (linear, N=3): 4 modes. H₂O (nonlinear, N=3): 3 modes.</p>
+      </div>
+      <div class="glass-panel">
+        <h3>Characteristic Group Frequencies</h3>
+        <table style="width:100%">
+          <thead><tr><th>Group</th><th>Range (cm⁻¹)</th></tr></thead>
+          <tbody>
+            <tr><td>O–H stretch</td><td>3200–3600</td></tr>
+            <tr><td>N–H stretch</td><td>3300–3500</td></tr>
+            <tr><td>C–H stretch</td><td>2850–3000</td></tr>
+            <tr><td>C≡N, C≡C</td><td>2100–2260</td></tr>
+            <tr><td>C=O stretch</td><td>1650–1750</td></tr>
+            <tr><td>C–O stretch</td><td>1000–1300</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
-</div>
-<script>
-  document.querySelector('.hamburger').addEventListener('click', function () {
-    var open = this.getAttribute('aria-expanded') === 'true';
-    this.setAttribute('aria-expanded', String(!open));
-    this.classList.toggle('is-open');
-    document.querySelector('.nav-links').classList.toggle('nav-open');
-  });
-</script>
+  </div>
 </body>
 </html>

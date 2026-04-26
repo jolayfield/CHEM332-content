@@ -1,111 +1,46 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="./logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuantumChem - Interactive Learning</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-  <!-- Note: In production you might want to import CSS via JS, but for now linking is fine or we create landing.ts -->
-  <script type="module" crossorigin src="./assets/main-DhSyV7jH.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
+  <title>QuantumChem — Quantum Mechanics Simulations</title>
+  <script type="module" crossorigin src="./assets/main-BtXcBPPd.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
+  <link rel="modulepreload" crossorigin href="./assets/theme-manager-DYMd5c2H.js">
+  <link rel="modulepreload" crossorigin href="./assets/index-DPwOWmb4.js">
+  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
 </head>
-
 <body>
-  <div id="landing-app">
-    <nav class="main-nav glass-panel">
-      <div class="nav-brand">University of St. Thomas</div>
-      <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links">
-        <li><a href="./" class="active">Home</a></li>
-        <li><a href="lectures.html">Lectures</a></li>
-        <li><a href="simulations.html">Simulations</a></li>
-        <li><a href="#">Resources</a></li>
-      </ul>
-    </nav>
+  <nav class="main-nav">
+    <button class="nav-menu">Contents</button>
+    <div class="brand">QuantumChem</div>
+    <button class="nav-search" aria-label="Search">&#9776;</button>
+  </nav>
 
-    <main class="hero-section">
-      <div class="hero-content glass-panel">
-        <h1 class="hero-title">Quantum <span class="highlight">Chemistry</span> Simulations</h1>
-        <p class="hero-subtitle">Interactive tools for exploring the fundamental principles of quantum mechanics,
-          provided by the University of St. Thomas.
-          Explore the photoelectric effect, wave functions, and more.
-        </p>
-        <div class="hero-actions">
-          <a href="simulations.html" class="cta-btn">Start Simulation</a>
-          <a href="lectures.html" class="secondary-btn">View Lectures</a>
-        </div>
-      </div>
-
-      <div class="feature-cards">
-        <div class="glass-panel feature-card">
-          <h3>Photoelectric Effect</h3>
-          <p>Experiment with light intensity and frequency to eject electrons from metals.</p>
-          <a href="photoelectric.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Bohr Model</h3>
-          <p>Visualize electron orbits, energy transitions, and spectral lines.</p>
-          <a href="bohr.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Particle in a Box</h3>
-          <p>Explore quantum wave functions and energy quantization in infinite potential wells.</p>
-          <div style="display: flex; gap: 1.5rem;">
-            <a href="particlebox.html" class="text-link">1D &rarr;</a>
-            <a href="particlebox2d.html" class="text-link">2D Contour Plot &rarr;</a>
-          </div>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Quantum Tunneling</h3>
-          <p>Watch particles scatter through a finite potential barrier and observe tunneling.</p>
-          <a href="barrier.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Atomic Orbitals</h3>
-          <p>3D probability density visualizations for Hydrogen-like atoms in your browser.</p>
-          <a href="atomic-orbitals.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Diatomic MO Schemes</h3>
-          <p>Build molecular orbital diagrams and determine bond properties of diatomic molecules.</p>
-          <a href="mo-scheme.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Orbital Hybridization</h3>
-          <p>Explore the mathematical foundations of sp, sp², and sp³ hybridization with orbital combinations.</p>
-          <a href="hybridization.html" class="text-link">Launch &rarr;</a>
-        </div>
-        <div class="glass-panel feature-card">
-          <h3>Molecular Spectroscopy</h3>
-          <p>Simulate IR vibrational spectra, microwave rotational spectra, and combined vibrational-rotational band structure with P, Q, and R branches.</p>
-          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-            <a href="ir-spectra.html" class="text-link">IR Spectra &rarr;</a>
-            <a href="rot-spectra.html" class="text-link">Rotational &rarr;</a>
-            <a href="vibrot-spectra.html" class="text-link">Vib-Rot &rarr;</a>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <footer class="landing-footer">
-      <p>&copy; 2026 QuantumChem. Educating the next generation of scientists.</p>
-    </footer>
+  <div class="breadcrumb">
+    <span class="current">Home</span>
+    <span class="sep">/</span>
+    <span>Course Library</span>
   </div>
-  <script>
-    document.querySelector('.hamburger').addEventListener('click', function () {
-      var open = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', String(!open));
-      this.classList.toggle('is-open');
-      document.querySelector('.nav-links').classList.toggle('nav-open');
-    });
-  </script>
-</body>
 
+  <header class="page-header">
+    <div class="eyebrow">Course · Phys Chem II · Spring 2026</div>
+    <h1>Quantum Mechanics, from <i>first failures</i> to molecular orbitals.</h1>
+  </header>
+
+  <!-- Resume card — rendered by landing.ts -->
+  <div id="resume-card" class="resume-card"></div>
+
+  <!-- Course progress strip -->
+  <div id="course-progress" class="course-progress"></div>
+
+  <!-- Table of Contents -->
+  <div class="toc-heading">Table of Contents</div>
+  <div id="toc"></div>
+
+  <footer class="landing-footer">
+    <p>&copy; 2026 QuantumChem · University of St. Thomas</p>
+  </footer>
+</body>
 </html>

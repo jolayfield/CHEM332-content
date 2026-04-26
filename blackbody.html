@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Black Body Radiation — QuantumChem</title>
+  <script type="module" crossorigin src="./assets/blackbody-C1x0DxCq.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
+  <link rel="modulepreload" crossorigin href="./assets/theme-manager-DYMd5c2H.js">
+  <link rel="modulepreload" crossorigin href="./assets/mobile-menu-CmJFkfVD.js">
+  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
+</head>
+<body>
+  <div id="blackbody-app">
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 1.2</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
+    </nav>
+
+    <div class="breadcrumb">
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Black Body Radiation</span>
+    </div>
+
+    <header class="page-header">
+      <div class="eyebrow">Chapter 01 · Section 1.2</div>
+      <h1>Black Body <i>Radiation.</i></h1>
+    </header>
+
+    <div class="fig-caption">Figure 1.3 · Planck vs Rayleigh-Jeans</div>
+    <div class="sim-canvas-wrap">
+      <canvas id="spectrum-chart"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Temperature</div>
+        <div class="v" id="current-temp">5000<span class="unit">K</span></div>
+      </div>
+      <div>
+        <div class="k">Peak λ</div>
+        <div class="v" id="peak-wavelength">579<span class="unit">nm</span></div>
+      </div>
+      <div>
+        <div class="k">Visible Range</div>
+        <div class="v" style="font-size:13px;padding-top:4px">380–700 nm</div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
+          <label for="temperature">Temperature</label>
+          <span class="value-display" id="temperature-val">5000 K</span>
+        </div>
+        <input type="range" id="temperature" class="qc-slider" min="1000" max="8000" value="5000" step="100">
+      </div>
+
+      <div class="control-group">
+        <label>Display Mode</label>
+        <div class="chip-group">
+          <button class="qc-chip mode-chip on" data-mode="wavelength">Wavelength</button>
+          <button class="qc-chip mode-chip" data-mode="frequency">Frequency</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">
+          <input type="checkbox" id="rayleigh-jeans-toggle">
+          Show Rayleigh-Jeans Law
+        </label>
+      </div>
+
+      <button id="reset-btn" class="qc-chip" style="width:100%">Reset</button>
+    </div>
+  </div>
+</body>
+</html>

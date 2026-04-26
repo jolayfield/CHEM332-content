@@ -1,113 +1,94 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="./logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Photo Electric Effect</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/photoelectric-C8CulcHt.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-BGpXM_Ix.js">
+  <title>Photoelectric Effect — QuantumChem</title>
+  <script type="module" crossorigin src="./assets/photoelectric-CFta7qdg.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
+  <link rel="modulepreload" crossorigin href="./assets/theme-manager-DYMd5c2H.js">
   <link rel="modulepreload" crossorigin href="./assets/chart-vendor-sRkgK8jz.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-DHakKqKI.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
 </head>
-
 <body>
   <div id="app">
-    <nav class="main-nav glass-panel">
-      <div class="nav-brand">University of St. Thomas</div>
-      <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links">
-        <li><a href="./">Home</a></li>
-        <li><a href="#">Lectures</a></li>
-        <li><a href="simulations.html" class="active">Simulations</a></li>
-        <li><a href="#">Resources</a></li>
-      </ul>
+    <nav class="main-nav sim-nav">
+      <a class="nav-back" href="/simulations.html">‹ Back</a>
+      <div class="nav-section byline">§ 1.1</div>
+      <button class="nav-bookmark" aria-label="Bookmark">&#9734;</button>
     </nav>
 
     <div class="breadcrumb">
-      <a href="./">Home</a> &rsaquo; <a href="simulations.html">Simulations</a> <span>/</span> <span>Photoelectric
-        Effect</span>
+      <a href="./">Home</a><span class="sep">/</span>
+      <a href="simulations.html">Simulations</a><span class="sep">/</span>
+      <span class="current">Photoelectric Effect</span>
     </div>
 
     <header class="page-header">
-      <h1>The Photo Electric Effect</h1>
+      <div class="eyebrow">Chapter 01 · Section 1.1</div>
+      <h1>The Photoelectric <i>Effect.</i></h1>
     </header>
 
-    <main class="dashboard">
-      <aside class="controls-panel glass-panel">
-        <div class="control-group">
+    <div class="fig-caption">Figure 1.1 · Interactive</div>
+    <div class="sim-canvas-wrap dark">
+      <canvas id="sim-canvas"></canvas>
+    </div>
+
+    <div class="readouts">
+      <div>
+        <div class="k">Photon Energy</div>
+        <div class="v" id="photon-energy">0.00<span class="unit">eV</span></div>
+      </div>
+      <div>
+        <div class="k">Work Function</div>
+        <div class="v" id="work-function">2.10<span class="unit">eV</span></div>
+      </div>
+      <div>
+        <div class="k">Max KE</div>
+        <div class="v" id="max-ke">0.00<span class="unit">eV</span></div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-group">
+        <div class="control-row">
           <label for="intensity">Light Intensity</label>
-          <input type="range" id="intensity" min="1" max="100" value="50">
           <span class="value-display" id="intensity-val">50%</span>
         </div>
+        <input type="range" id="intensity" class="qc-slider" min="1" max="100" value="50">
+      </div>
 
-        <div class="control-group">
-          <label for="wavelength">Light Wavelength (Color)</label>
-          <input type="range" id="wavelength" min="250" max="850" value="500" step="5">
-          <div class="color-preview" id="color-preview"></div>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="wavelength">Wavelength</label>
           <span class="value-display" id="wavelength-val">500 nm</span>
         </div>
+        <input type="range" id="wavelength" class="qc-slider spectrum" min="250" max="850" value="500" step="5">
+      </div>
 
-        <div class="control-group">
-          <label for="metal">Target Metal</label>
-          <select id="metal">
-            <option value="2.1">Cesium (2.1 eV)</option>
-            <option value="2.3">Sodium (2.3 eV)</option>
-            <option value="4.7">Copper (4.7 eV)</option>
-            <option value="5.1">Gold (5.1 eV)</option>
-          </select>
+      <div class="control-group">
+        <label>Target Metal</label>
+        <div class="chip-group">
+          <button class="qc-chip metal-chip on" data-work="2.1" data-name="Cesium">Cs · 2.1 eV</button>
+          <button class="qc-chip metal-chip" data-work="2.3" data-name="Sodium">Na · 2.3 eV</button>
+          <button class="qc-chip metal-chip" data-work="4.7" data-name="Copper">Cu · 4.7 eV</button>
+          <button class="qc-chip metal-chip" data-work="5.1" data-name="Gold">Au · 5.1 eV</button>
         </div>
+      </div>
+    </div>
 
-        <div class="stats-group">
-          <div class="stat-item">
-            <span class="stat-label">Photon Energy</span>
-            <span class="stat-value" id="photon-energy">0.00 eV</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Work Function</span>
-            <span class="stat-value" id="work-function">2.10 eV</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Max. KE</span>
-            <span class="stat-value" id="max-ke">0.00 eV</span>
-          </div>
-        </div>
-      </aside>
-
-      <section class="simulation-container glass-panel">
-        <canvas id="sim-canvas"></canvas>
-
-      </section>
-
-      <section class="graph-panel glass-panel">
-        <div class="graph-controls">
-          <select id="graph-axis-select" class="glass-input">
-            <option value="wavelength">Wavelength (nm)</option>
-            <option value="frequency">Frequency (Hz)</option>
-          </select>
-          <button id="reset-graph-btn" class="glass-btn">Reset Graph</button>
-        </div>
+    <div class="fig-caption">Figure 1.2 · KE vs Frequency</div>
+    <div class="graph-wrap">
+      <div class="graph-controls">
+        <button class="qc-chip axis-chip on" data-axis="wavelength">λ (nm)</button>
+        <button class="qc-chip axis-chip" data-axis="frequency">ν (Hz)</button>
+        <button id="reset-graph-btn" class="qc-chip">Reset</button>
+      </div>
+      <div class="chart-container">
         <canvas id="ke-freq-chart"></canvas>
-      </section>
-
-    </main>
-
-
+      </div>
+    </div>
   </div>
-  <script>
-    document.querySelector('.hamburger').addEventListener('click', function () {
-      var open = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', String(!open));
-      this.classList.toggle('is-open');
-      document.querySelector('.nav-links').classList.toggle('nav-open');
-    });
-  </script>
 </body>
-
 </html>
