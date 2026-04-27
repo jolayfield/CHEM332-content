@@ -5,10 +5,10 @@
   <link rel="icon" type="image/svg+xml" href="./logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bohr Model — QuantumChem</title>
-  <script type="module" crossorigin src="./assets/bohr-DfPtSRyQ.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/style-DxoHAauW.js">
+  <script type="module" crossorigin src="./assets/bohr-3I5uqUWx.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/style-Bhy3gBjx.js">
   <link rel="modulepreload" crossorigin href="./assets/theme-manager-DYMd5c2H.js">
-  <link rel="stylesheet" crossorigin href="./assets/style-C8I79n8g.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-D-yxDhwo.css">
 </head>
 <body>
   <div id="app">
@@ -32,6 +32,9 @@
     <div class="fig-caption">Figure 4.1 · Interactive</div>
     <div class="sim-canvas-wrap dark">
       <canvas id="bohr-canvas"></canvas>
+    </div>
+    <div class="fig-desc">
+      Quantized orbits with radii <span style="font-family:'Lato',sans-serif;font-style:normal;font-size:12px;font-weight:600">r&#8345; = n²a₀/Z</span>. Electron relaxation emits a photon of energy ΔE = hν.
     </div>
 
     <div class="readouts">
@@ -71,7 +74,42 @@
       </div>
     </div>
 
-    <div class="fig-caption">Figure 4.2 · Energy Level Diagram</div>
+    <div class="fig-caption">Figure 4.2 · Emission Spectrum &nbsp;·&nbsp; Balmer Series</div>
+    <div class="sim-canvas-wrap dark" style="padding:0;overflow:hidden">
+      <svg viewBox="0 0 360 60" style="display:block;width:100%;height:60px" aria-label="Balmer series emission spectrum showing four visible lines">
+        <defs>
+          <linearGradient id="visgrad" x1="0%" x2="100%">
+            <stop offset="0%"   stop-color="#4b0082"/>
+            <stop offset="20%"  stop-color="#4f46e5"/>
+            <stop offset="40%"  stop-color="#06b6d4"/>
+            <stop offset="60%"  stop-color="#22c55e"/>
+            <stop offset="80%"  stop-color="#eab308"/>
+            <stop offset="100%" stop-color="#dc2626"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="10" width="340" height="24" fill="#0a0612"/>
+        <rect x="10" y="10" width="340" height="24" fill="url(#visgrad)" opacity="0.12"/>
+        <!-- 410 nm violet -->
+        <line x1="61"   y1="10" x2="61"   y2="34" stroke="#a855f7" stroke-width="1.8"/>
+        <text x="61"   y="48" font-family="'Lato',sans-serif" font-size="8" fill="#a855f7" text-anchor="middle">410</text>
+        <!-- 434 nm indigo -->
+        <line x1="105"  y1="10" x2="105"  y2="34" stroke="#818cf8" stroke-width="1.8"/>
+        <text x="105"  y="48" font-family="'Lato',sans-serif" font-size="8" fill="#818cf8" text-anchor="middle">434</text>
+        <!-- 486 nm cyan -->
+        <line x1="173"  y1="10" x2="173"  y2="34" stroke="#38bdf8" stroke-width="1.8"/>
+        <text x="173"  y="48" font-family="'Lato',sans-serif" font-size="8" fill="#38bdf8" text-anchor="middle">486</text>
+        <!-- 656 nm red -->
+        <line x1="275"  y1="10" x2="275"  y2="34" stroke="#ef4444" stroke-width="1.8"/>
+        <text x="275"  y="48" font-family="'Lato',sans-serif" font-size="8" fill="#ef4444" text-anchor="middle">656</text>
+        <text x="10"   y="58" font-family="'Lato',sans-serif" font-size="7" fill="#7b7681">400 nm</text>
+        <text x="350"  y="58" font-family="'Lato',sans-serif" font-size="7" fill="#7b7681" text-anchor="end">700 nm</text>
+      </svg>
+    </div>
+    <div class="fig-desc">
+      Four visible lines of the Balmer series (transitions to n = 2). Adjust the sliders above to see which transition produces each line.
+    </div>
+
+    <div class="fig-caption">Figure 4.3 · Energy Level Diagram</div>
     <div class="graph-wrap">
       <div class="chart-container">
         <canvas id="energy-level-canvas"></canvas>
