@@ -86,7 +86,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
   const height = canvas.height;
 
   // Clear canvas
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--glass-bg').trim();
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f4f1ec';
   ctx.fillRect(0, 0, width, height);
 
   // Calculate spectrum data
@@ -137,7 +137,7 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
         const normalizedRadiance = radiance / peakRadiance;
 
         const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-        const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+        const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
         if (i === 0) {
           ctx.moveTo(x, y);
@@ -155,8 +155,23 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
     const visibleMax = 700e-9;
     const xVisibleMin = (width * 0.1) + (width * 0.8) * ((visibleMin - wavelengthMin) / (wavelengthMax - wavelengthMin));
     const xVisibleMax = (width * 0.1) + (width * 0.8) * ((visibleMax - wavelengthMin) / (wavelengthMax - wavelengthMin));
+    const xPlotLeft = width * 0.1;
+    const xPlotRight = width * 0.9;
 
-    ctx.fillStyle = 'rgba(255, 255, 0, 0.1)';
+    // Shade non-visible regions (UV left, IR right)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';
+    ctx.fillRect(xPlotLeft, 0, xVisibleMin - xPlotLeft, height);
+    ctx.fillRect(xVisibleMax, 0, xPlotRight - xVisibleMax, height);
+
+    const spectrumGrad = ctx.createLinearGradient(xVisibleMin, 0, xVisibleMax, 0);
+    spectrumGrad.addColorStop(0.00, 'rgba(100,  0, 180, 0.18)'); // 380 nm — violet
+    spectrumGrad.addColorStop(0.14, 'rgba( 60, 60, 220, 0.18)'); // 450 nm — blue
+    spectrumGrad.addColorStop(0.28, 'rgba(  0,180, 200, 0.18)'); // 490 nm — cyan
+    spectrumGrad.addColorStop(0.42, 'rgba(  0,210,  80, 0.18)'); // 530 nm — green
+    spectrumGrad.addColorStop(0.60, 'rgba(230,220,  0, 0.18)'); // 570 nm — yellow
+    spectrumGrad.addColorStop(0.75, 'rgba(255,130,  0, 0.18)'); // 610 nm — orange
+    spectrumGrad.addColorStop(1.00, 'rgba(220,  0,  0, 0.18)'); // 700 nm — red
+    ctx.fillStyle = spectrumGrad;
     ctx.fillRect(xVisibleMin, 0, xVisibleMax - xVisibleMin, height);
 
     // Mark peak wavelength
@@ -170,30 +185,30 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
     ctx.stroke();
     ctx.setLineDash([]);
   } else {
-    // Frequency mode
-    const frequencyMin = c / wavelengthMax; // Lower frequency (larger wavelength)
-    const frequencyMax = c / wavelengthMin; // Higher frequency (smaller wavelength)
+    // Frequency mode — x-axis runs from 0 to frequencyMax
+    const frequencyMax = c / wavelengthMin;
 
-    // Find peak radiance for normalization
+    // Find peak radiance for normalization (skip f=0 to avoid 0/0)
     let peakRadiance = 0;
-    for (let i = 0; i < dataPoints; i++) {
-      const frequency = frequencyMin + (frequencyMax - frequencyMin) * (i / dataPoints);
+    for (let i = 1; i < dataPoints; i++) {
+      const frequency = frequencyMax * (i / (dataPoints - 1));
       const radiance = plancksLawFrequency(frequency, temperature);
       peakRadiance = Math.max(peakRadiance, radiance);
     }
 
-    // Draw Planck's law curve
+    // Draw Planck's law curve — both curves are 0 at f=0 (L'Hôpital)
     ctx.strokeStyle = '#b84dcd';
     ctx.lineWidth = 2;
     ctx.beginPath();
 
     for (let i = 0; i < dataPoints; i++) {
-      const frequency = frequencyMin + (frequencyMax - frequencyMin) * (i / dataPoints);
-      const radiance = plancksLawFrequency(frequency, temperature);
-      const normalizedRadiance = radiance / peakRadiance;
+      const frequency = frequencyMax * (i / (dataPoints - 1));
+      const normalizedRadiance = frequency > 0
+        ? plancksLawFrequency(frequency, temperature) / peakRadiance
+        : 0;
 
-      const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-      const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+      const x = (width * 0.1) + (width * 0.8) * (frequency / frequencyMax);
+      const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
       if (i === 0) {
         ctx.moveTo(x, y);
@@ -212,12 +227,13 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
       ctx.beginPath();
 
       for (let i = 0; i < dataPoints; i++) {
-        const frequency = frequencyMin + (frequencyMax - frequencyMin) * (i / dataPoints);
-        const radiance = rayleighJeansLawFrequency(frequency, temperature);
-        const normalizedRadiance = radiance / peakRadiance;
+        const frequency = frequencyMax * (i / (dataPoints - 1));
+        const normalizedRadiance = frequency > 0
+          ? rayleighJeansLawFrequency(frequency, temperature) / peakRadiance
+          : 0;
 
-        const x = (width * 0.1) + (width * 0.8) * (i / dataPoints);
-        const y = height * 0.85 - (height * 0.7) * Math.min(normalizedRadiance, 1);
+        const x = (width * 0.1) + (width * 0.8) * (frequency / frequencyMax);
+        const y = height * 0.85 - (height * 0.7) * normalizedRadiance;
 
         if (i === 0) {
           ctx.moveTo(x, y);
@@ -262,15 +278,14 @@ function drawAxes(ctx: CanvasRenderingContext2D, width: number, height: number, 
     labels = ['100', '500', '1000', '1500', '2000', '2500'];
     positions = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
   } else {
-    // Frequency mode: convert wavelengths to frequencies
-    const frequencyMin = c / wavelengthMax;
+    // Frequency mode: axis runs 0 → frequencyMax
     const frequencyMax = c / wavelengthMin;
     labels = [
-      (frequencyMin * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.2) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.4) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.6) * 1e-14).toFixed(1),
-      ((frequencyMin + (frequencyMax - frequencyMin) * 0.8) * 1e-14).toFixed(1),
+      '0',
+      (frequencyMax * 0.2 * 1e-14).toFixed(1),
+      (frequencyMax * 0.4 * 1e-14).toFixed(1),
+      (frequencyMax * 0.6 * 1e-14).toFixed(1),
+      (frequencyMax * 0.8 * 1e-14).toFixed(1),
       (frequencyMax * 1e-14).toFixed(1)
     ];
     positions = [0, 0.2, 0.4, 0.6, 0.8, 1.0];

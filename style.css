@@ -446,6 +446,49 @@ a.toc-row, .toc-row {
 }
 .cp-label { display: none; }
 
+/* ─── SPECTRAL HERO PLATE ─── */
+:root { --plate-paper: #ede4d0; }
+
+.hero-cap {
+  padding: 10px var(--s-5) 6px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Lato', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.hero-vintage {
+  background: var(--plate-paper);
+  margin: 0 var(--s-5);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.hero-vintage svg { display: block; width: 100%; height: auto; }
+.hero-vintage .corner {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-family: 'Lato', sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--ink-3);
+  background: rgba(237,228,208,0.85);
+  padding: 2px 5px;
+}
+.hero-belowcap {
+  padding: 8px var(--s-5) 0;
+  font-family: 'Lato', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
 /* ─── SIM SHELL ─── */
 #app {
   display: block;
