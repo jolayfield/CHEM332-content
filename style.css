@@ -404,9 +404,9 @@ a.toc-row, .toc-row {
 
 /* Resume card */
 .resume-card {
-  margin: 0 var(--s-5) var(--s-4);
-  border: 1px solid var(--line);
-  background: var(--paper-2);
+  margin: 6px var(--s-5) var(--s-6);
+  background: #fff;
+  border-left: 3px solid var(--accent);
 }
 .resume-inner { padding: var(--s-4) var(--s-5); }
 .resume-inner .eyebrow { margin-bottom: var(--s-2); }
@@ -493,8 +493,9 @@ a.toc-row, .toc-row {
 }
 
 .fig-desc {
-  padding: var(--s-2) var(--s-5) var(--s-3);
-  font-size: 14px;
+  padding: var(--s-2) var(--s-5) var(--s-4);
+  font-size: 13px;
+  font-style: italic;
   color: var(--ink-2);
   line-height: 1.5;
 }
@@ -983,6 +984,59 @@ select:focus {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.einstein-quote {
+  padding: var(--s-6) var(--s-5);
+  text-align: center;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.6;
+}
+.einstein-quote .attribution {
+  display: block;
+  margin-top: var(--s-2);
+  font-family: 'Lato', sans-serif;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ─── Band table (IR characteristic frequencies) ─── */
+.band-table {
+  margin: 0 var(--s-5) var(--s-4);
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.band-table-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 1fr;
+  padding: 10px var(--s-3);
+  border-bottom: 1px solid var(--line);
+  align-items: baseline;
+}
+.band-table-row:last-child { border-bottom: none; }
+.band-table-row .bond {
+  font-family: 'Lora', serif;
+  font-weight: 500;
+  font-size: 13px;
+}
+.band-table-row .range {
+  font-family: 'Lato', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+}
+.band-table-row .note {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-3);
+  text-align: right;
 }
 
 /* ─── Markdown/lecture styles ─── */
