@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>QuantumChem · Direction A (v2)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"/>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{--ink:#1a1520;--ink-2:#4b4554;--ink-3:#7b7681;--paper:#f4f1ec;--paper-2:#ece7df;--line:#d9d2c5;--purple:#340E51;--purple-2:#5b2a84;--accent:#340E51;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Newsreader',serif;-webkit-font-smoothing:antialiased}
+body{padding:48px 56px 96px;min-height:100vh}
+.page-head{max-width:1400px;margin:0 auto 40px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;display:flex;gap:16px;align-items:center}
+.eyebrow .dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+h1.page-title{font-family:'Fraunces',serif;font-weight:500;font-size:52px;line-height:1.04;letter-spacing:-.02em;margin:0 0 18px;max-width:900px}
+h1.page-title i{font-style:italic;color:var(--purple-2)}
+.deck{font-family:'Newsreader',serif;font-size:18px;line-height:1.55;color:var(--ink-2);max-width:760px}
+.byline{margin-top:20px;display:flex;gap:28px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0}
+.byline span b{color:var(--ink);font-weight:600}
+.section-head{max-width:1400px;margin:40px auto 28px;padding:24px 0 0;border-top:1px solid var(--line);display:flex;gap:24px;align-items:baseline}
+.section-head .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:6px 10px}
+.section-head h2{font-family:'Fraunces',serif;font-weight:500;font-size:30px;margin:0;letter-spacing:-.01em}
+.section-head h2 em{font-style:italic;color:var(--purple-2)}
+.section-head .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-left:auto;text-align:right;line-height:1.6}
+.desc{max-width:880px;margin:0 auto 36px;font-family:'Newsreader',serif;font-size:16px;line-height:1.55;color:var(--ink-2);padding:0}
+.phones{max-width:1600px;margin:0 auto;display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start}
+.phone-wrap{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.phone-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;align-items:center}
+.phone-label .num{color:var(--paper);background:var(--ink);width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px;font-weight:600}
+footer{max-width:1400px;margin:80px auto 0;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+
+/* Tweaks */
+.tweaks{position:fixed;bottom:20px;right:20px;z-index:9999;width:260px;background:#fff;border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,0.12);padding:16px;font-family:'Newsreader',serif;font-size:13px;display:none}
+.tweaks.on{display:block}
+.tweaks h4{margin:0 0 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;display:flex;justify-content:space-between}
+.tweaks h4 .x{cursor:pointer;color:var(--ink-3)}
+.tweaks label{display:block;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.12em;color:var(--ink-3);margin-bottom:6px;text-transform:uppercase}
+.tweaks .row{margin-bottom:12px}
+.tweaks .swatches{display:flex;gap:6px}
+.tweaks .sw{width:28px;height:28px;border:1px solid var(--line);cursor:pointer;position:relative}
+.tweaks .sw.on::after{content:"";position:absolute;inset:-3px;border:1.5px solid var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="eyebrow"><span class="dot"></span><span>QuantumChem · v2</span><span>Direction A · Editorial textbook</span></div>
+  <h1 class="page-title">Direction A, <i>extended</i>: polished home plus three sim archetypes.</h1>
+  <p class="deck">You picked the editorial textbook direction. This round pushes the Home screen to a course‑progress dashboard and introduces three simulation scenes that test whether the system travels: the atomic‑physics hero (Bohr), a 3D visualisation (Orbitals) and a graph‑dominant one (IR spectra). If these three feel right, the remaining eight sims fall out cleanly.</p>
+  <div class="byline">
+    <span>Type · <b>Fraunces · Newsreader · JetBrains Mono</b></span>
+    <span>Accent · <b>St. Thomas Purple</b></span>
+    <span>Screens · <b>05</b></span>
+    <span>Format · <b>iOS · 380 × 820</b></span>
+  </div>
+</header>
+
+<div class="section-head">
+  <span class="tag">01 · Home</span>
+  <h2>Course <em>dashboard</em></h2>
+  <div class="meta">Resume card · progress strip · TOC</div>
+</div>
+<p class="desc">Home is now a real dashboard. The resume card shows session progress, a horizontal strip plots completion across all 5 chapters at once (weighted by sim count), and each TOC row carries its own micro‑bar. The Einstein pull‑quote at the bottom is decorative but reinforces the textbook‑companion framing.</p>
+<div class="phones" id="phones-home"></div>
+
+<div class="section-head">
+  <span class="tag">02 · Photoelectric</span>
+  <h2>Energy <em>threshold</em></h2>
+  <div class="meta">Interactive figure · KE graph</div>
+</div>
+<p class="desc">The original — restated for reference.</p>
+<div class="phones" id="phones-photo"></div>
+
+<div class="section-head">
+  <span class="tag">03 · Bohr</span>
+  <h2>Quantized <em>orbits</em></h2>
+  <div class="meta">Element · transition · spectrum</div>
+</div>
+<p class="desc">A sim with two visual outputs: the atomic diagram (hero) and the emission spectrum below. Controls split into an element chip row, a paired n<sub>i</sub>→n<sub>f</sub> selector, and a series slider. This is the pattern other multi‑output sims can follow.</p>
+<div class="phones" id="phones-bohr"></div>
+
+<div class="section-head">
+  <span class="tag">04 · Orbitals</span>
+  <h2>Probability <em>density</em></h2>
+  <div class="meta">3D scene · iso value · radial</div>
+</div>
+<p class="desc">A 3D-leaning sim. SVG here stands in for a real three.js canvas; the key move is the orbital grid (n,ℓ,mℓ readouts on top) and rotate/slice micro‑controls directly above the readouts so the canvas stays the hero.</p>
+<div class="phones" id="phones-orb"></div>
+
+<div class="section-head">
+  <span class="tag">05 · IR Spectra</span>
+  <h2>Vibrational <em>fingerprint</em></h2>
+  <div class="meta">Molecule picker · k/μ sliders · band table</div>
+</div>
+<p class="desc">A graph‑dominant sim. The spectrum is the figure, controls are below, and a characteristic‑band reference table closes the page. Molecule chips use a two‑line format (name + formula) that generalizes to any multi‑option grid.</p>
+<div class="phones" id="phones-ir"></div>
+
+<footer>
+  <span>QuantumChem · v2 · 2026</span>
+  <span>Tweaks toolbar: swap accent</span>
+</footer>
+
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks <span class="x" id="tw-x">close</span></h4>
+  <div class="row">
+    <label>Accent</label>
+    <div class="swatches" id="accent-sw">
+      <div class="sw on" data-c="#340E51" style="background:#340E51"></div>
+      <div class="sw" data-c="#982EB4" style="background:#982EB4"></div>
+      <div class="sw" data-c="#0b4d6b" style="background:#0b4d6b"></div>
+      <div class="sw" data-c="#8a2e1a" style="background:#8a2e1a"></div>
+      <div class="sw" data-c="#2c4a2a" style="background:#2c4a2a"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="lib/ios-frame.jsx"></script>
+<script type="text/babel" src="lib/shared.jsx"></script>
+<script type="text/babel" src="lib/dir-a-v2.jsx"></script>
+
+<script type="text/babel">
+/*EDITMODE-BEGIN*/const TWEAKS_V2 = {"accent":"#340E51"}/*EDITMODE-END*/;
+const state = {...TWEAKS_V2};
+function applyAccent(c){
+  document.documentElement.style.setProperty('--accent',c);
+  document.querySelectorAll('[data-accent]').forEach(el=>{
+    const kind=el.getAttribute('data-accent');
+    if(kind==='bg') el.style.background=c;
+    else if(kind==='color') el.style.color=c;
+    else if(kind==='border') el.style.borderColor=c;
+  });
+}
+function mountPhone(host, node, label){
+  const wrap=document.createElement('div');
+  wrap.className='phone-wrap';
+  wrap.innerHTML=`<div class="phone-label"><span class="num">${label.slice(0,2)}</span><span>${label.slice(5)}</span></div><div class="phone-mount"></div>`;
+  host.appendChild(wrap);
+  ReactDOM.createRoot(wrap.querySelector('.phone-mount')).render(node);
+}
+function boot(){
+  applyAccent(state.accent);
+  mountPhone(document.getElementById('phones-home'), <A_Home/>, '01 · Dashboard');
+  mountPhone(document.getElementById('phones-photo'), <A_Photo/>, '02 · Photoelectric');
+  mountPhone(document.getElementById('phones-bohr'), <A_Bohr/>, '03 · Bohr Model');
+  mountPhone(document.getElementById('phones-orb'), <A_Orbitals/>, '04 · Orbitals');
+  mountPhone(document.getElementById('phones-ir'), <A_IR/>, '05 · IR Spectra');
+
+  document.querySelectorAll('#accent-sw .sw').forEach(el=>{
+    el.addEventListener('click',()=>{
+      document.querySelectorAll('#accent-sw .sw').forEach(x=>x.classList.remove('on'));
+      el.classList.add('on');
+      state.accent=el.dataset.c;
+      applyAccent(state.accent);
+      window.parent.postMessage({type:'__edit_mode_set_keys',edits:state},'*');
+    });
+  });
+  document.getElementById('tw-x').addEventListener('click',()=>{
+    document.getElementById('tweaks').classList.remove('on');
+    window.parent.postMessage({type:'__deactivate_edit_mode'},'*');
+  });
+}
+window.addEventListener('message',e=>{
+  if(!e.data) return;
+  if(e.data.type==='__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+  if(e.data.type==='__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+});
+window.parent.postMessage({type:'__edit_mode_available'},'*');
+if(document.readyState==='complete'){ setTimeout(boot,50); } else { window.addEventListener('load',()=>setTimeout(boot,50)); }
+</script>
+</body>
+</html>

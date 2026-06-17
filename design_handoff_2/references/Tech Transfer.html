@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>QuantumChem · Tech Transfer · Direction A v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#1a1520; --ink-2:#4b4554; --ink-3:#7b7681;
+  --paper:#f4f1ec; --paper-2:#ece7df; --paper-3:#e4dccb;
+  --line:#d9d2c5; --purple:#340E51; --purple-2:#5b2a84; --amber:#c8892a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Newsreader',Georgia,serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{padding:56px 72px 120px;max-width:1100px;margin:0 auto}
+.hd{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:40px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.eyebrow .dot{width:6px;height:6px;background:var(--purple);border-radius:50%}
+h1{font-family:'Fraunces',serif;font-weight:500;font-size:52px;line-height:1.04;letter-spacing:-.02em;margin:0 0 14px;max-width:760px}
+h1 i{color:var(--purple-2)}
+.deck{font-size:18px;color:var(--ink-2);max-width:720px;margin:0}
+.meta{display:flex;gap:28px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;margin-top:22px}
+.meta b{color:var(--ink);font-weight:600}
+
+h2{font-family:'Fraunces',serif;font-weight:500;font-size:30px;letter-spacing:-.01em;margin:56px 0 6px;padding-top:32px;border-top:1px solid var(--line)}
+h2 em{font-style:italic;color:var(--purple-2)}
+h2 .num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--ink-3);display:block;margin-bottom:8px;text-transform:uppercase;font-weight:400}
+h3{font-family:'Fraunces',serif;font-weight:500;font-size:20px;letter-spacing:-.01em;margin:28px 0 8px;color:var(--ink)}
+h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:20px 0 8px;font-weight:600}
+
+p{margin:0 0 14px;max-width:720px}
+p.lead{font-size:17px;color:var(--ink-2)}
+ul,ol{margin:0 0 16px;padding-left:20px;max-width:720px}
+li{margin-bottom:6px}
+code, .mono{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--paper-2);padding:1px 6px;border:1px solid var(--line);border-radius:2px}
+pre{background:#15111e;color:#e8e4d8;padding:18px 20px;border-radius:2px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.55;margin:10px 0 20px;border-left:3px solid var(--purple-2)}
+pre .c{color:#7b7681}
+pre .k{color:#c8892a}
+pre .s{color:#b4c8a8}
+pre .p{color:#e8e4d8}
+
+blockquote{border-left:3px solid var(--purple);background:#fff;margin:16px 0 20px;padding:14px 18px;font-style:italic;color:var(--ink-2);max-width:720px}
+
+table{width:100%;max-width:100%;border-collapse:collapse;margin:12px 0 24px;font-size:14px}
+table th,table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1.5px solid var(--ink)}
+table td.mono-cell{font-family:'JetBrains Mono',monospace;font-size:12.5px;white-space:nowrap}
+table td.note{color:var(--ink-3);font-style:italic}
+
+.swatch-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:14px 0 24px}
+.swatch{background:#fff;border:1px solid var(--line);padding:0;overflow:hidden}
+.swatch .chip{height:52px}
+.swatch .meta-row{padding:8px 10px}
+.swatch .name{font-family:'Fraunces',serif;font-weight:500;font-size:13px;color:var(--ink)}
+.swatch .hex{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+.type-demo{background:#fff;border:1px solid var(--line);padding:16px 20px;margin:10px 0 20px;display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:baseline}
+.type-demo:nth-child(even){background:var(--paper-2)}
+.type-demo .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.type-demo .sample{color:var(--ink)}
+
+.callout{background:var(--paper-2);border-left:3px solid var(--amber);padding:14px 18px;margin:16px 0 24px;max-width:760px;font-size:14px}
+.callout h4{margin-top:0}
+.callout p{margin:6px 0}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:14px 0}
+.card{background:#fff;border:1px solid var(--line);padding:16px 18px}
+.card h4{margin:0 0 8px}
+.card p{font-size:14px;margin:0}
+.card .tag{display:inline-block;background:var(--ink);color:var(--paper);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:2px 6px;margin-bottom:8px}
+
+.fig-caption{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 12px}
+
+.checklist{list-style:none;padding:0}
+.checklist li{padding-left:28px;position:relative;margin-bottom:10px}
+.checklist li::before{content:"☐";position:absolute;left:4px;top:-2px;font-size:18px;color:var(--ink-3)}
+.checklist li.done::before{content:"☑";color:var(--purple-2)}
+
+.kbd{font-family:'JetBrains Mono',monospace;font-size:11px;background:#fff;border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;border-radius:2px;color:var(--ink-2)}
+
+footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+
+@media print {
+  body{padding:0.75in;max-width:none}
+  pre{break-inside:avoid}
+  h2{break-before:page}
+  h2:first-of-type{break-before:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="eyebrow"><span class="dot"></span><span>QuantumChem · Mobile</span><span>Tech Transfer Document</span><span>v2 · Apr 2026</span></div>
+  <h1>Direction A — <i>editorial textbook</i>, handed off to the codebase.</h1>
+  <p class="deck">How to apply the Direction A v2 design to the existing Vite + TypeScript codebase without changing simulation logic. Written for an engineer taking the Figma‑equivalent (the HTML mockup) into production. Keep this doc next to the PR.</p>
+  <div class="meta">
+    <span>Target · <b>photoelectric‑effect repo</b></span>
+    <span>Stack · <b>Vite · TS · Capacitor</b></span>
+    <span>Scope · <b>style.css + 15 HTML shells + landing.ts</b></span>
+    <span>Typography · <b>Lora + Lato (existing, kept)</b></span>
+  </div>
+</header>
+
+<h2><span class="num">§ 1</span>Overview &amp; <em>non‑goals</em></h2>
+<p class="lead">This is a styling + layout refresh, not a rewrite. Every simulation's math, canvas, and event‑handler logic stays intact. What changes is the chrome around it: nav pattern, color tokens, type scale, spacing rhythm, and a handful of reused UI components.</p>
+
+<h4>In scope</h4>
+<ul>
+  <li>Rewrite <code>style.css</code> tokens (colors, spacing, radius, shadows)</li>
+  <li>Restyle existing component classes (<code>.main-nav</code>, <code>.glass-panel</code>, <code>.control-panel</code>, sliders, cards)</li>
+  <li>Update each <code>*.html</code> shell's nav + header markup to breadcrumb + figure pattern</li>
+  <li>Extend <code>landing.ts</code> rendering: resume card, progress strip, chapter TOC</li>
+  <li>Add 2 new classes: <code>.fig-caption</code>, <code>.readouts</code></li>
+</ul>
+
+<h4>Out of scope</h4>
+<ul>
+  <li>Simulation math (<code>photoelectric.ts</code>, <code>bohrSimulation.ts</code>, etc.) — unchanged</li>
+  <li>Canvas rendering logic (<code>graph.ts</code>, <code>transmissionGraph.ts</code>) — only stroke colors via CSS vars</li>
+  <li>Capacitor plugins and <code>app-init</code> — unchanged</li>
+  <li>Font files — keep Lora &amp; Lato, already self‑hosted for offline mobile</li>
+</ul>
+
+<div class="callout">
+  <h4>Principle</h4>
+  <p>If a <code>.ts</code> file changes, you're doing it wrong. Everything here is CSS, HTML markup, and template rendering in <code>landing.ts</code>/<code>simulations.ts</code>. The simulation engines themselves don't know the redesign happened.</p>
+</div>
+
+<h2><span class="num">§ 2</span>Design <em>tokens</em></h2>
+<p class="lead">Replace the color block at the top of <code>style.css</code> with these tokens. Everything downstream references them.</p>
+
+<h3>Color</h3>
+<div class="swatch-row">
+  <div class="swatch"><div class="chip" style="background:#f4f1ec"></div><div class="meta-row"><div class="name">Paper</div><div class="hex">#F4F1EC · --paper</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#ece7df"></div><div class="meta-row"><div class="name">Paper 2</div><div class="hex">#ECE7DF · --paper-2</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#e4dccb"></div><div class="meta-row"><div class="name">Paper 3</div><div class="hex">#E4DCCB · --paper-3</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#d9d2c5"></div><div class="meta-row"><div class="name">Line</div><div class="hex">#D9D2C5 · --line</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#7b7681"></div><div class="meta-row"><div class="name">Ink 3</div><div class="hex">#7B7681 · --ink-3</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#4b4554"></div><div class="meta-row"><div class="name">Ink 2</div><div class="hex">#4B4554 · --ink-2</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#1a1520"></div><div class="meta-row"><div class="name">Ink</div><div class="hex">#1A1520 · --ink</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#340E51"></div><div class="meta-row"><div class="name">Purple</div><div class="hex">#340E51 · --accent</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#5b2a84"></div><div class="meta-row"><div class="name">Purple 2</div><div class="hex">#5B2A84 · --accent-2</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#c8892a"></div><div class="meta-row"><div class="name">Amber</div><div class="hex">#C8892A · --amber</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#0a0612"></div><div class="meta-row"><div class="name">Canvas BG</div><div class="hex">#0A0612 · --canvas-bg</div></div></div>
+</div>
+
+<h4>CSS · drop into top of <code>style.css</code></h4>
+<pre><span class="c">/* ─── Design tokens ─── */</span>
+<span class="k">:root</span> {
+  <span class="c">/* Paper palette */</span>
+  <span class="k">--paper</span>: <span class="s">#f4f1ec</span>;
+  <span class="k">--paper-2</span>: <span class="s">#ece7df</span>;
+  <span class="k">--paper-3</span>: <span class="s">#e4dccb</span>;
+  <span class="k">--line</span>: <span class="s">#d9d2c5</span>;
+
+  <span class="c">/* Ink */</span>
+  <span class="k">--ink</span>: <span class="s">#1a1520</span>;
+  <span class="k">--ink-2</span>: <span class="s">#4b4554</span>;
+  <span class="k">--ink-3</span>: <span class="s">#7b7681</span>;
+
+  <span class="c">/* Accent — keep existing St Thomas purple */</span>
+  <span class="k">--accent</span>: <span class="s">#340E51</span>;
+  <span class="k">--accent-2</span>: <span class="s">#5b2a84</span>;
+  <span class="k">--amber</span>: <span class="s">#c8892a</span>;
+
+  <span class="c">/* Dark canvas (sim viewports only) */</span>
+  <span class="k">--canvas-bg</span>: <span class="s">#0a0612</span>;
+
+  <span class="c">/* Radius · mostly flat */</span>
+  <span class="k">--r-sm</span>: <span class="s">0</span>;
+  <span class="k">--r-md</span>: <span class="s">2px</span>;
+  <span class="k">--r-pill</span>: <span class="s">999px</span>;
+
+  <span class="c">/* Spacing · 4px base */</span>
+  <span class="k">--s-1</span>: <span class="s">4px</span>; <span class="k">--s-2</span>: <span class="s">8px</span>; <span class="k">--s-3</span>: <span class="s">12px</span>;
+  <span class="k">--s-4</span>: <span class="s">16px</span>; <span class="k">--s-5</span>: <span class="s">20px</span>; <span class="k">--s-6</span>: <span class="s">24px</span>;
+  <span class="k">--s-8</span>: <span class="s">32px</span>; <span class="k">--s-10</span>: <span class="s">40px</span>;
+}</pre>
+
+<h3>Typography scale (Lora + Lato)</h3>
+<p>Keeps both existing families. Lora becomes <b>display + serif body</b>; Lato becomes <b>UI labels + mono‑style readouts</b>. Mono readouts use <code>font-variant-numeric: tabular-nums</code> so numbers don't jitter.</p>
+
+<div class="type-demo"><div class="tag">Display · Lora 500</div><div class="sample" style="font-family:'Lora',serif;font-weight:500;font-size:32px;line-height:1.05;letter-spacing:-0.7px">The Photoelectric <i style="color:var(--accent-2)">Effect.</i></div></div>
+<div class="type-demo"><div class="tag">H2 · Lora 500</div><div class="sample" style="font-family:'Lora',serif;font-weight:500;font-size:24px;letter-spacing:-0.4px">Quantized orbits</div></div>
+<div class="type-demo"><div class="tag">Body · Lora 400</div><div class="sample" style="font-family:'Lora',serif;font-size:16px;line-height:1.55">Monochromatic light impinges on a caesium cathode. Electrons eject when <i>hν ≥ Φ</i>.</div></div>
+<div class="type-demo"><div class="tag">Label · Lato 600</div><div class="sample" style="font-family:'Lato',sans-serif;font-size:14px;font-weight:600">Target metal</div></div>
+<div class="type-demo"><div class="tag">Eyebrow · Lato 600 tracked</div><div class="sample" style="font-family:'Lato',sans-serif;font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-3)">Chapter 01 · Section 2.1</div></div>
+<div class="type-demo"><div class="tag">Readout · Lora 500 tnum</div><div class="sample" style="font-family:'Lora',serif;font-weight:500;font-size:20px;font-variant-numeric:tabular-nums">0.38 <span style="font-size:12px;color:var(--ink-3)">eV</span></div></div>
+
+<h4>CSS · type classes</h4>
+<pre><span class="k">body</span> { <span class="k">font-family</span>: <span class="s">'Lora', Georgia, serif</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink</span>); <span class="k">line-height</span>: <span class="s">1.55</span>; }
+
+<span class="k">.display</span>       { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">32px</span>; <span class="k">line-height</span>: <span class="s">1.05</span>; <span class="k">letter-spacing</span>: <span class="s">-0.7px</span>; }
+<span class="k">.display em, .display i</span> { <span class="k">color</span>: <span class="k">var</span>(<span class="s">--accent-2</span>); <span class="k">font-style</span>: <span class="s">italic</span>; }
+<span class="k">.h2</span>            { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">24px</span>; <span class="k">letter-spacing</span>: <span class="s">-0.4px</span>; }
+<span class="k">.lead</span>          { <span class="k">font-size</span>: <span class="s">16px</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-2</span>); <span class="k">line-height</span>: <span class="s">1.55</span>; }
+<span class="k">.eyebrow</span>       { <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">10px</span>; <span class="k">font-weight</span>: <span class="s">600</span>; <span class="k">letter-spacing</span>: <span class="s">0.22em</span>; <span class="k">text-transform</span>: <span class="s">uppercase</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>); }
+<span class="k">.label</span>         { <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">14px</span>; <span class="k">font-weight</span>: <span class="s">600</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink</span>); }
+<span class="k">.readout</span>       { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">20px</span>; <span class="k">font-variant-numeric</span>: <span class="s">tabular-nums</span>; <span class="k">letter-spacing</span>: <span class="s">-0.3px</span>; }
+<span class="k">.readout .unit</span> { <span class="k">font-size</span>: <span class="s">12px</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>); <span class="k">margin-left</span>: <span class="s">4px</span>; }
+<span class="k">.byline</span>        { <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">10px</span>; <span class="k">font-weight</span>: <span class="s">600</span>; <span class="k">letter-spacing</span>: <span class="s">0.12em</span>; <span class="k">text-transform</span>: <span class="s">uppercase</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>); <span class="k">font-variant-numeric</span>: <span class="s">tabular-nums</span>; }</pre>
+
+<div class="callout">
+  <h4>Why Lato carries mono duty</h4>
+  <p>The mockup uses JetBrains Mono for readouts + eyebrows. You don't have it self‑hosted and we agreed (B) no new fonts. Lato at <b>600 weight + tabular‑nums + wide tracking</b> reads as monospace‑adjacent for short labels. Reserve it for 10–14px; longer technical strings stay Lora.</p>
+</div>
+
+<h3>Spacing &amp; radius</h3>
+<table>
+  <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+  <tbody>
+    <tr><td class="mono-cell">--s-2</td><td class="mono-cell">8px</td><td>Icon/label gap, chip padding</td></tr>
+    <tr><td class="mono-cell">--s-4</td><td class="mono-cell">16px</td><td>Card interior, row height</td></tr>
+    <tr><td class="mono-cell">--s-5</td><td class="mono-cell">20px</td><td>Page gutter (mobile)</td></tr>
+    <tr><td class="mono-cell">--s-6</td><td class="mono-cell">24px</td><td>Section gap</td></tr>
+    <tr><td class="mono-cell">--s-10</td><td class="mono-cell">40px</td><td>Section break (desktop)</td></tr>
+    <tr><td class="mono-cell">--r-md</td><td class="mono-cell">2px</td><td>Default radius — chips, sliders, buttons. Cards/panels flat (0).</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">§ 3</span>Existing class <em>remapping</em></h2>
+<p class="lead">Your codebase already has stable class names. This table maps each one to its new styling. Rename nothing — just restyle.</p>
+
+<table>
+  <thead><tr><th>Existing class</th><th>Where it lives</th><th>New treatment</th></tr></thead>
+  <tbody>
+    <tr><td class="mono-cell">.main-nav</td><td>every <code>*.html</code></td><td>Drop pill bg. Becomes a 48px bar with breadcrumb on the left, brand centered, icon actions right. Bottom border <code>1px solid var(--line)</code>.</td></tr>
+    <tr><td class="mono-cell">.glass-panel</td><td>simulation control cards</td><td>Flatten. Remove blur/gradient. Become <code>background:#fff; border:1px solid var(--line); border-radius:var(--r-md)</code>.</td></tr>
+    <tr><td class="mono-cell">.control-panel</td><td>sim HTML shells</td><td>No card chrome; inline <code>padding:0 var(--s-5)</code>. Each control is a stacked label + value + control row.</td></tr>
+    <tr><td class="mono-cell">.slider-group</td><td>all sims</td><td>Custom <code>&lt;input type="range"&gt;</code> styling below. Remove existing track/thumb CSS.</td></tr>
+    <tr><td class="mono-cell">.value-display</td><td>readouts next to sliders</td><td>Apply <code>.readout</code> class; becomes right‑aligned Lato 11px tnum for inline values.</td></tr>
+    <tr><td class="mono-cell">.metal-selector, .element-chips</td><td>photoelectric, bohr</td><td>Flat chips; see <b>Chip</b> component below.</td></tr>
+    <tr><td class="mono-cell">.sim-canvas-wrap</td><td>every sim</td><td>Frame as a textbook figure: <code>border:1px solid var(--line); background:var(--canvas-bg)</code>. Caption above with <code>.fig-caption</code>.</td></tr>
+    <tr><td class="mono-cell">.chapter-card</td><td><code>landing.ts</code></td><td>Becomes a TOC row, not a card. See § 5.</td></tr>
+    <tr><td class="mono-cell">.hero, .hero-title</td><td><code>index.html</code></td><td>Replace with resume card + course-progress strip. See § 5.</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">§ 4</span>Component <em>library</em></h2>
+<p class="lead">Eight building blocks. Everything in the mockup is one of these. Copy the CSS verbatim; the HTML markup is given per sim.</p>
+
+<div class="grid-2">
+  <div class="card"><span class="tag">01</span><h4>Breadcrumb</h4><p>Eyebrow‑tracked crumbs, <code>/</code> separator. Last crumb ink, rest ink‑3.</p></div>
+  <div class="card"><span class="tag">02</span><h4>Page header</h4><p>Accent eyebrow (chapter · section) + Lora 32 title with italic accent word.</p></div>
+  <div class="card"><span class="tag">03</span><h4>Fig caption</h4><p>Mono eyebrow above every framed figure: "Figure 2.1 · Interactive".</p></div>
+  <div class="card"><span class="tag">04</span><h4>Readout row</h4><p>3‑cell strip with top+bottom hairline. Each cell: Lato label + Lora tnum value + unit.</p></div>
+  <div class="card"><span class="tag">05</span><h4>Slider</h4><p>2px track, 14px circular thumb, accent fill. Gradient variant for wavelength picker.</p></div>
+  <div class="card"><span class="tag">06</span><h4>Chip</h4><p>Flat 2px‑radius option button. Ink border + transparent default; accent fill when selected.</p></div>
+  <div class="card"><span class="tag">07</span><h4>Progress bar</h4><p>Flat rectangle. Used inline in resume card and course dashboard strip.</p></div>
+  <div class="card"><span class="tag">08</span><h4>TOC row</h4><p>Fraunces italic numeral (Lora works) + title + meta + micro‑progress ticks.</p></div>
+</div>
+
+<h4>CSS · component styles</h4>
+<pre><span class="c">/* ─── 01 Breadcrumb ─── */</span>
+<span class="k">.breadcrumb</span> { <span class="k">display</span>: <span class="s">flex</span>; <span class="k">gap</span>: <span class="k">var</span>(<span class="s">--s-2</span>); <span class="k">padding</span>: <span class="s">0 var(--s-5) var(--s-3)</span>;
+  <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">10px</span>; <span class="k">font-weight</span>: <span class="s">600</span>; <span class="k">letter-spacing</span>: <span class="s">0.14em</span>;
+  <span class="k">text-transform</span>: <span class="s">uppercase</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>); }
+<span class="k">.breadcrumb .sep</span> { <span class="k">opacity</span>: <span class="s">0.45</span>; }
+<span class="k">.breadcrumb .current</span> { <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink</span>); }
+
+<span class="c">/* ─── 02 Page header ─── */</span>
+<span class="k">.page-header</span> { <span class="k">padding</span>: <span class="s">0 var(--s-5) var(--s-4)</span>; }
+<span class="k">.page-header .eyebrow</span> { <span class="k">color</span>: <span class="k">var</span>(<span class="s">--accent</span>); <span class="k">margin-bottom</span>: <span class="s">var(--s-2)</span>; }
+<span class="k">.page-header h1</span> { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">32px</span>;
+  <span class="k">line-height</span>: <span class="s">1.05</span>; <span class="k">letter-spacing</span>: <span class="s">-0.7px</span>; <span class="k">margin</span>: <span class="s">0</span>; }
+<span class="k">.page-header h1 i</span> { <span class="k">color</span>: <span class="k">var</span>(<span class="s">--accent-2</span>); }
+
+<span class="c">/* ─── 03 Figure caption ─── */</span>
+<span class="k">.fig-caption</span> { <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">10px</span>; <span class="k">font-weight</span>: <span class="s">600</span>;
+  <span class="k">letter-spacing</span>: <span class="s">0.18em</span>; <span class="k">text-transform</span>: <span class="s">uppercase</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>);
+  <span class="k">padding</span>: <span class="s">var(--s-3) var(--s-5) var(--s-2)</span>; }
+
+<span class="c">/* ─── 04 Readout row ─── */</span>
+<span class="k">.readouts</span> { <span class="k">display</span>: <span class="s">flex</span>; <span class="k">margin</span>: <span class="s">0 var(--s-5) var(--s-4)</span>;
+  <span class="k">border-top</span>: <span class="s">1px solid var(--line)</span>; <span class="k">border-bottom</span>: <span class="s">1px solid var(--line)</span>;
+  <span class="k">padding</span>: <span class="s">var(--s-3) 0</span>; }
+<span class="k">.readouts > div</span> { <span class="k">flex</span>: <span class="s">1</span>; <span class="k">padding-left</span>: <span class="s">var(--s-3)</span>;
+  <span class="k">border-left</span>: <span class="s">1px solid var(--line)</span>; }
+<span class="k">.readouts > div:first-child</span> { <span class="k">padding-left</span>: <span class="s">0</span>; <span class="k">border-left</span>: <span class="s">0</span>; }
+<span class="k">.readouts .k</span> { <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">9px</span>; <span class="k">font-weight</span>: <span class="s">600</span>;
+  <span class="k">letter-spacing</span>: <span class="s">0.18em</span>; <span class="k">text-transform</span>: <span class="s">uppercase</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink-3</span>); }
+<span class="k">.readouts .v</span> { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">20px</span>;
+  <span class="k">font-variant-numeric</span>: <span class="s">tabular-nums</span>; }
+
+<span class="c">/* ─── 05 Slider ─── */</span>
+<span class="k">input[type="range"].qc-slider</span> { <span class="k">-webkit-appearance</span>: <span class="s">none</span>; <span class="k">appearance</span>: <span class="s">none</span>;
+  <span class="k">width</span>: <span class="s">100%</span>; <span class="k">height</span>: <span class="s">2px</span>; <span class="k">background</span>: <span class="k">var</span>(<span class="s">--line</span>); <span class="k">outline</span>: <span class="s">none</span>; }
+<span class="k">input[type="range"].qc-slider::-webkit-slider-thumb</span> {
+  <span class="k">-webkit-appearance</span>: <span class="s">none</span>; <span class="k">width</span>: <span class="s">14px</span>; <span class="k">height</span>: <span class="s">14px</span>;
+  <span class="k">border-radius</span>: <span class="s">50%</span>; <span class="k">background</span>: <span class="k">var</span>(<span class="s">--accent</span>); <span class="k">cursor</span>: <span class="s">pointer</span>; }
+<span class="k">input[type="range"].qc-slider::-moz-range-thumb</span> {
+  <span class="k">width</span>: <span class="s">14px</span>; <span class="k">height</span>: <span class="s">14px</span>; <span class="k">border</span>: <span class="s">0</span>;
+  <span class="k">border-radius</span>: <span class="s">50%</span>; <span class="k">background</span>: <span class="k">var</span>(<span class="s">--accent</span>); }
+
+<span class="c">/* Gradient track for wavelength */</span>
+<span class="k">.qc-slider.spectrum</span> { <span class="k">height</span>: <span class="s">8px</span>;
+  <span class="k">background</span>: <span class="s">linear-gradient(90deg,#4b0082,#0000ff,#00ff00,#ffff00,#ff8000,#ff0000)</span>; }
+
+<span class="c">/* ─── 06 Chip ─── */</span>
+<span class="k">.qc-chip</span> { <span class="k">padding</span>: <span class="s">6px 10px</span>; <span class="k">border</span>: <span class="s">1px solid var(--line)</span>;
+  <span class="k">background</span>: <span class="s">transparent</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--ink</span>);
+  <span class="k">font-family</span>: <span class="s">'Lato'</span>; <span class="k">font-size</span>: <span class="s">11px</span>; <span class="k">font-weight</span>: <span class="s">500</span>;
+  <span class="k">border-radius</span>: <span class="s">var(--r-md)</span>; <span class="k">cursor</span>: <span class="s">pointer</span>; <span class="k">font-variant-numeric</span>: <span class="s">tabular-nums</span>; }
+<span class="k">.qc-chip.on</span> { <span class="k">background</span>: <span class="k">var</span>(<span class="s">--accent</span>); <span class="k">color</span>: <span class="s">#fff</span>; <span class="k">border-color</span>: <span class="k">var</span>(<span class="s">--accent</span>); }
+
+<span class="c">/* ─── 07 Progress bar ─── */</span>
+<span class="k">.qc-prog</span> { <span class="k">display</span>: <span class="s">flex</span>; <span class="k">gap</span>: <span class="s">2px</span>; <span class="k">height</span>: <span class="s">8px</span>; }
+<span class="k">.qc-prog .tick</span> { <span class="k">flex</span>: <span class="s">1</span>; <span class="k">background</span>: <span class="k">var</span>(<span class="s">--line</span>); }
+<span class="k">.qc-prog .tick.done</span> { <span class="k">background</span>: <span class="k">var</span>(<span class="s">--accent</span>); }
+
+<span class="c">/* ─── 08 TOC row ─── */</span>
+<span class="k">.toc-row</span> { <span class="k">display</span>: <span class="s">flex</span>; <span class="k">gap</span>: <span class="s">var(--s-4)</span>; <span class="k">align-items</span>: <span class="s">baseline</span>;
+  <span class="k">padding</span>: <span class="s">var(--s-4) var(--s-5)</span>; <span class="k">border-bottom</span>: <span class="s">1px solid var(--line)</span>; }
+<span class="k">.toc-row .num</span> { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-style</span>: <span class="s">italic</span>; <span class="k">font-weight</span>: <span class="s">400</span>;
+  <span class="k">font-size</span>: <span class="s">28px</span>; <span class="k">color</span>: <span class="k">var</span>(<span class="s">--accent</span>); <span class="k">min-width</span>: <span class="s">36px</span>; }
+<span class="k">.toc-row .title</span> { <span class="k">font-family</span>: <span class="s">'Lora'</span>; <span class="k">font-weight</span>: <span class="s">500</span>; <span class="k">font-size</span>: <span class="s">17px</span>;
+  <span class="k">line-height</span>: <span class="s">1.18</span>; <span class="k">letter-spacing</span>: <span class="s">-0.2px</span>; }
+<span class="k">.toc-row .meta</span> { <span class="k">margin-top</span>: <span class="s">4px</span>; }</pre>
+
+<h2><span class="num">§ 5</span>Home <em>screen</em></h2>
+<p class="lead">Replace the current <code>index.html</code> hero + chapter grid. Three regions in order: resume card, course‑progress strip, table of contents.</p>
+
+<h4>HTML · <code>index.html</code> body structure</h4>
+<pre><span class="k">&lt;nav</span> <span class="s">class="main-nav"</span><span class="k">&gt;</span>
+  <span class="k">&lt;button</span> <span class="s">class="nav-menu"</span><span class="k">&gt;</span>Contents<span class="k">&lt;/button&gt;</span>
+  <span class="k">&lt;div</span> <span class="s">class="brand"</span><span class="k">&gt;</span>QuantumChem<span class="k">&lt;/div&gt;</span>
+  <span class="k">&lt;button</span> <span class="s">class="nav-search"</span> <span class="s">aria-label="Search"</span><span class="k">&gt;</span>…<span class="k">&lt;/button&gt;</span>
+<span class="k">&lt;/nav&gt;</span>
+
+<span class="k">&lt;div</span> <span class="s">class="breadcrumb"</span><span class="k">&gt;</span>
+  <span class="k">&lt;span&gt;</span>Home<span class="k">&lt;/span&gt;</span><span class="k">&lt;span</span> <span class="s">class="sep"</span><span class="k">&gt;</span>/<span class="k">&lt;/span&gt;</span>
+  <span class="k">&lt;span</span> <span class="s">class="current"</span><span class="k">&gt;</span>Course Library<span class="k">&lt;/span&gt;</span>
+<span class="k">&lt;/div&gt;</span>
+
+<span class="k">&lt;header</span> <span class="s">class="page-header"</span><span class="k">&gt;</span>
+  <span class="k">&lt;div</span> <span class="s">class="eyebrow"</span><span class="k">&gt;</span>Course · Phys Chem II · Spring 2026<span class="k">&lt;/div&gt;</span>
+  <span class="k">&lt;h1&gt;</span>Quantum Mechanics, from <span class="k">&lt;i&gt;</span>first failures<span class="k">&lt;/i&gt;</span> to molecular orbitals.<span class="k">&lt;/h1&gt;</span>
+<span class="k">&lt;/header&gt;</span>
+
+<span class="c">&lt;!-- Resume card — rendered by landing.ts --&gt;</span>
+<span class="k">&lt;div</span> <span class="s">id="resume-card"</span> <span class="s">class="resume-card"</span><span class="k">&gt;&lt;/div&gt;</span>
+
+<span class="c">&lt;!-- Course progress strip --&gt;</span>
+<span class="k">&lt;div</span> <span class="s">id="course-progress"</span> <span class="s">class="course-progress"</span><span class="k">&gt;&lt;/div&gt;</span>
+
+<span class="c">&lt;!-- TOC --&gt;</span>
+<span class="k">&lt;div</span> <span class="s">class="toc-heading"</span><span class="k">&gt;</span>Table of Contents<span class="k">&lt;/div&gt;</span>
+<span class="k">&lt;div</span> <span class="s">id="toc"</span><span class="k">&gt;&lt;/div&gt;</span></pre>
+
+<h4>TypeScript · <code>landing.ts</code> render functions to add</h4>
+<pre><span class="k">interface</span> <span class="s">Chapter</span> { num: <span class="s">string</span>; title: <span class="s">string</span>; weeks: <span class="s">string</span>; sims: <span class="s">Sim[]</span>; }
+<span class="k">interface</span> <span class="s">Sim</span> { id: <span class="s">string</span>; title: <span class="s">string</span>; href: <span class="s">string</span>; done: <span class="s">boolean</span>; }
+
+<span class="k">function</span> <span class="s">renderResume</span>(last: <span class="s">ResumeState</span>) {
+  <span class="k">const</span> pct = Math.round((last.step / last.total) * 100);
+  <span class="k">return</span> <span class="s">`
+    &lt;div class="resume-inner"&gt;
+      &lt;div class="eyebrow"&gt;Continue reading&lt;/div&gt;
+      &lt;div class="resume-title"&gt;§ ${last.section} · ${last.title}&lt;/div&gt;
+      &lt;div class="resume-sub"&gt;You stopped on "${last.bookmark}".&lt;/div&gt;
+      &lt;div class="qc-prog"&gt;
+        ${Array.from({length: last.total}, (_, i) =&gt;
+          \`&lt;div class="tick ${i &lt; last.step ? 'done' : ''}"&gt;&lt;/div&gt;\`
+        ).join('')}
+      &lt;/div&gt;
+      &lt;div class="byline"&gt;${last.step} / ${last.total} min&lt;/div&gt;
+    &lt;/div&gt;`</span>;
+}
+
+<span class="k">function</span> <span class="s">renderProgressStrip</span>(chapters: <span class="s">Chapter[]</span>) {
+  <span class="k">return</span> chapters.map(c =&gt; {
+    <span class="k">const</span> done = c.sims.filter(s =&gt; s.done).length;
+    <span class="k">const</span> pct = (done / c.sims.length) * 100;
+    <span class="k">return</span> <span class="s">`
+      &lt;div class="cp-seg" style="flex:${c.sims.length}"&gt;
+        &lt;div class="cp-fill" style="width:${pct}%"&gt;&lt;/div&gt;
+        &lt;span class="cp-label"&gt;${c.num}&lt;/span&gt;
+      &lt;/div&gt;`</span>;
+  }).join('');
+}
+
+<span class="k">function</span> <span class="s">renderTOC</span>(chapters: <span class="s">Chapter[]</span>) {
+  <span class="k">return</span> chapters.map(c =&gt; {
+    <span class="k">const</span> done = c.sims.filter(s =&gt; s.done).length;
+    <span class="k">return</span> <span class="s">`
+      &lt;a class="toc-row" href="#ch-${c.num}"&gt;
+        &lt;span class="num"&gt;${c.num}&lt;/span&gt;
+        &lt;div class="body"&gt;
+          &lt;div class="title"&gt;${c.title}&lt;/div&gt;
+          &lt;div class="meta byline"&gt;${c.weeks} · ${done}/${c.sims.length} done&lt;/div&gt;
+          &lt;div class="qc-prog micro meta"&gt;
+            ${c.sims.map(s =&gt;
+              \`&lt;div class="tick ${s.done ? 'done' : ''}"&gt;&lt;/div\&gt;\`
+            ).join('')}
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;span class="chev"&gt;›&lt;/span&gt;
+      &lt;/a&gt;`</span>;
+  }).join('');
+}</pre>
+
+<h2><span class="num">§ 6</span>Simulation shell <em>pattern</em></h2>
+<p class="lead">Every sim page follows the same skeleton. Copy this into each of the 12 shells (see § 7 checklist); only the eyebrow, title, canvas target, and control list change.</p>
+
+<h4>HTML · universal sim shell</h4>
+<pre><span class="k">&lt;nav</span> <span class="s">class="main-nav sim-nav"</span><span class="k">&gt;</span>
+  <span class="k">&lt;a</span> <span class="s">class="nav-back"</span> <span class="s">href="/simulations.html"</span><span class="k">&gt;</span>‹ Back<span class="k">&lt;/a&gt;</span>
+  <span class="k">&lt;div</span> <span class="s">class="nav-section byline"</span><span class="k">&gt;</span>§ 2.1<span class="k">&lt;/div&gt;</span>
+  <span class="k">&lt;button</span> <span class="s">class="nav-bookmark"</span> <span class="s">aria-label="Bookmark"</span><span class="k">&gt;</span>+<span class="k">&lt;/button&gt;</span>
+<span class="k">&lt;/nav&gt;</span>
+
+<span class="k">&lt;div</span> <span class="s">class="breadcrumb"</span><span class="k">&gt;</span>…<span class="k">&lt;/div&gt;</span>
+
+<span class="k">&lt;header</span> <span class="s">class="page-header"</span><span class="k">&gt;</span>
+  <span class="k">&lt;div</span> <span class="s">class="eyebrow"</span><span class="k">&gt;</span>Chapter 01 · Section 2.1<span class="k">&lt;/div&gt;</span>
+  <span class="k">&lt;h1&gt;</span>The Photoelectric <span class="k">&lt;i&gt;</span>Effect.<span class="k">&lt;/i&gt;</span><span class="k">&lt;/h1&gt;</span>
+<span class="k">&lt;/header&gt;</span>
+
+<span class="k">&lt;div</span> <span class="s">class="fig-caption"</span><span class="k">&gt;</span>Figure 2.1 · Interactive<span class="k">&lt;/div&gt;</span>
+<span class="k">&lt;div</span> <span class="s">class="sim-canvas-wrap"</span><span class="k">&gt;</span>
+  <span class="k">&lt;canvas</span> <span class="s">id="sim-canvas"</span><span class="k">&gt;&lt;/canvas&gt;</span>
+<span class="k">&lt;/div&gt;</span>
+<span class="k">&lt;p</span> <span class="s">class="fig-desc"</span><span class="k">&gt;</span>Monochromatic light impinges on a caesium cathode…<span class="k">&lt;/p&gt;</span>
+
+<span class="k">&lt;div</span> <span class="s">class="readouts"</span><span class="k">&gt;</span>
+  <span class="k">&lt;div&gt;&lt;div</span> <span class="s">class="k"</span><span class="k">&gt;</span>Intensity<span class="k">&lt;/div&gt;&lt;div</span> <span class="s">class="v"</span><span class="k">&gt;</span>50<span class="k">&lt;span</span> <span class="s">class="unit"</span><span class="k">&gt;</span>%<span class="k">&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;</span>
+  <span class="k">&lt;div&gt;&lt;div</span> <span class="s">class="k"</span><span class="k">&gt;</span>λ<span class="k">&lt;/div&gt;&lt;div</span> <span class="s">class="v"</span><span class="k">&gt;</span>500<span class="k">&lt;span</span> <span class="s">class="unit"</span><span class="k">&gt;</span>nm<span class="k">&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;</span>
+  <span class="k">&lt;div&gt;&lt;div</span> <span class="s">class="k"</span><span class="k">&gt;</span>KEmax<span class="k">&lt;/div&gt;&lt;div</span> <span class="s">class="v"</span><span class="k">&gt;</span>0.38<span class="k">&lt;span</span> <span class="s">class="unit"</span><span class="k">&gt;</span>eV<span class="k">&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;</span>
+<span class="k">&lt;/div&gt;</span>
+
+<span class="k">&lt;div</span> <span class="s">class="control-panel"</span><span class="k">&gt;</span>
+  <span class="c">&lt;!-- stacked controls: label + value + input --&gt;</span>
+<span class="k">&lt;/div&gt;</span>
+
+<span class="c">&lt;!-- Secondary figure --&gt;</span>
+<span class="k">&lt;div</span> <span class="s">class="fig-caption"</span><span class="k">&gt;</span>Figure 2.2 · KE vs Frequency<span class="k">&lt;/div&gt;</span>
+<span class="k">&lt;div</span> <span class="s">class="graph-wrap"</span><span class="k">&gt;&lt;canvas</span> <span class="s">id="graph"</span><span class="k">&gt;&lt;/canvas&gt;&lt;/div&gt;</span></pre>
+
+<h2><span class="num">§ 7</span>Applying to the <em>other 11 sims</em></h2>
+<p class="lead">Each sim is one of three archetypes. Assign, then apply the matching shell.</p>
+
+<table>
+  <thead><tr><th>Sim</th><th>File</th><th>Archetype</th><th>Canvas BG</th></tr></thead>
+  <tbody>
+    <tr><td>Photoelectric</td><td class="mono-cell">photoelectric.html</td><td>Diagram + KE graph</td><td>dark</td></tr>
+    <tr><td>Blackbody</td><td class="mono-cell">blackbody.html</td><td>Graph‑dominant</td><td>light</td></tr>
+    <tr><td>Bohr</td><td class="mono-cell">bohr.html</td><td>Diagram + spectrum strip</td><td>dark</td></tr>
+    <tr><td>Particle in a Box (1D)</td><td class="mono-cell">particlebox.html</td><td>Diagram + graph</td><td>light</td></tr>
+    <tr><td>Particle in a Box (2D)</td><td class="mono-cell">particlebox2d.html</td><td>3D scene</td><td>dark</td></tr>
+    <tr><td>Barrier tunneling</td><td class="mono-cell">barrier.html</td><td>Diagram + T/R graph</td><td>dark</td></tr>
+    <tr><td>Atomic Orbitals</td><td class="mono-cell">atomic-orbitals.html</td><td>3D scene</td><td>dark</td></tr>
+    <tr><td>Hybridization</td><td class="mono-cell">hybridization.html</td><td>3D scene</td><td>dark</td></tr>
+    <tr><td>Basis set</td><td class="mono-cell">basis-set.html</td><td>Graph‑dominant</td><td>light</td></tr>
+    <tr><td>MO scheme</td><td class="mono-cell">mo-scheme.html</td><td>Diagram (level lines)</td><td>light</td></tr>
+    <tr><td>IR Spectra</td><td class="mono-cell">ir-spectra.html</td><td>Graph‑dominant</td><td>dark</td></tr>
+    <tr><td>Rot Spectra</td><td class="mono-cell">rot-spectra.html</td><td>Graph‑dominant</td><td>dark</td></tr>
+    <tr><td>VibRot Spectra</td><td class="mono-cell">vibrot-spectra.html</td><td>Graph‑dominant</td><td>dark</td></tr>
+  </tbody>
+</table>
+
+<h4>Archetype rules</h4>
+<ul>
+  <li><b>Diagram + graph:</b> framed diagram first, readouts, controls, then secondary graph with its own fig‑caption. (Photoelectric, Bohr, Particle 1D, Barrier)</li>
+  <li><b>3D scene:</b> dark canvas is hero. Controls collapse to chip grids for quantum numbers, two sliders max. (Orbitals, Hybridization, Particle 2D)</li>
+  <li><b>Graph‑dominant:</b> graph is the figure itself. Molecule/parameter chips above, band/characteristic table below. (IR, Rot, VibRot, Blackbody, Basis)</li>
+</ul>
+
+<h2><span class="num">§ 8</span>Rollout <em>checklist</em></h2>
+<ol class="checklist">
+  <li>Replace <code>:root</code> color + spacing block in <code>style.css</code> (§ 2)</li>
+  <li>Add 8 component styles (§ 4) to <code>style.css</code></li>
+  <li>Remove existing <code>.glass-panel</code> blur/gradient rules</li>
+  <li>Restyle <code>.main-nav</code> to the new 48px bar</li>
+  <li>Restyle <code>input[type="range"]</code> globally via <code>.qc-slider</code></li>
+  <li>Update <code>index.html</code> body to resume + progress + TOC markup (§ 5)</li>
+  <li>Extend <code>landing.ts</code> with <code>renderResume</code>, <code>renderProgressStrip</code>, <code>renderTOC</code></li>
+  <li>Add per‑sim <code>done</code> flag and <code>step/total</code> state (localStorage <code>qc.progress</code>)</li>
+  <li>Apply universal sim shell (§ 6) to <code>photoelectric.html</code>, verify canvas still mounts</li>
+  <li>Apply to <code>bohr.html</code>, <code>atomic-orbitals.html</code>, <code>ir-spectra.html</code> next — they represent the three archetypes</li>
+  <li>Apply to remaining 8 sim HTMLs (§ 7 table)</li>
+  <li>Update <code>simulations.html</code> index grid to TOC‑row style</li>
+  <li>Smoke test on iOS + Android via Capacitor — verify fonts, dark canvases, slider thumbs</li>
+  <li>Light/dark canvas sniff: every dark viewport has <code>--canvas-bg</code>; body stays paper</li>
+  <li>Accessibility: check 4.5:1 on <code>--ink-3</code> over <code>--paper</code> (it passes)</li>
+</ol>
+
+<h2><span class="num">§ 9</span>Gotchas</h2>
+<ul>
+  <li><b>Canvas stroke colors:</b> any <code>.ts</code> file that hardcodes stroke colors (e.g. <code>graph.ts</code>) needs two changes — default stroke becomes <code>getComputedStyle(document.documentElement).getPropertyValue('--accent')</code>, and axis/grid lines use <code>--line</code> or <code>rgba(255,255,255,.15)</code> for dark viewports.</li>
+  <li><b>KaTeX:</b> the existing <code>@import "katex/dist/katex.min.css"</code> at the top of <code>style.css</code> stays; override <code>.katex</code> color to <code>var(--ink)</code>.</li>
+  <li><b>Italic accent word:</b> the Lora italic variant is weight 400 only. If you want italic at 500, the redesign uses upright 500 accent‑coloured instead — do not fake italic.</li>
+  <li><b>Mobile gutters:</b> always <code>var(--s-5)</code> (20px). The one exception is the sim canvas wrapper, which extends to gutters but its <code>&lt;canvas&gt;</code> keeps its internal margin.</li>
+  <li><b>Capacitor:</b> no network font calls. The design uses only Lora + Lato, already bundled in <code>public/fonts/</code>. Do not introduce Fraunces / Newsreader / JetBrains Mono.</li>
+  <li><b>Status bar:</b> iOS status bar needs <code>safe-area-inset-top</code> padding on <code>.main-nav</code>. Already present in your <code>style.css</code> — keep it.</li>
+</ul>
+
+<h2><span class="num">§ 10</span>What to <em>push back on</em></h2>
+<p class="lead">If any of these look wrong during implementation, stop and flag — they're design calls, not bugs.</p>
+
+<blockquote>
+  <b>Flat cards.</b> The redesign removes shadows and rounded corners from panels. If a stakeholder says "it looks unfinished," the answer is <i>that's the editorial‑textbook brief</i>. The interaction affordance comes from the 1px line, not depth.
+</blockquote>
+<blockquote>
+  <b>No hover states on touch.</b> Chips and TOC rows use <code>:active</code> (invert colors) only. Do not add <code>:hover</code> shadows for desktop parity.
+</blockquote>
+<blockquote>
+  <b>Italic accent word.</b> Every screen title has one italic word in <code>--accent-2</code>. This is the single display flourish — don't italicize more words or the rhythm breaks.
+</blockquote>
+
+<footer>
+  <span>QuantumChem · Tech Transfer · Direction A v2</span>
+  <span>Pair with QuantumChem Mobile v2.html</span>
+</footer>
+
+</body>
+</html>

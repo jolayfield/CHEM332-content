@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>QuantumChem · Home · Spectral hero (spot highlight)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#1a1520; --ink-2:#4b4554; --ink-3:#7b7681;
+  --paper:#f4f1ec; --paper-2:#ece7df; --paper-3:#e4dccb;
+  --line:#d9d2c5; --accent:#340E51; --accent-2:#5b2a84; --amber:#c8892a;
+  --plate-paper:#ede4d0;
+  --tint-red:#8a3a2a; --tint-amber:#9a6a1e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Newsreader',Georgia,serif;-webkit-font-smoothing:antialiased}
+body{padding:48px 56px 96px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+
+.page-head{max-width:900px;margin:0 auto 36px;text-align:center}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;display:flex;gap:16px;align-items:center;justify-content:center}
+.eyebrow .dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+h1.page-title{font-family:'Fraunces',serif;font-weight:500;font-size:40px;line-height:1.05;letter-spacing:-.02em;margin:0 0 14px}
+h1.page-title i{font-style:italic;color:var(--accent-2)}
+.deck{font-size:16px;line-height:1.55;color:var(--ink-2);margin:0 auto;max-width:640px}
+
+.phone{width:380px;height:820px;background:#000;border-radius:46px;padding:10px;box-shadow:0 24px 60px rgba(20,15,25,0.18),0 4px 12px rgba(20,15,25,0.08);position:relative;margin:0 auto}
+.phone::before{content:"";position:absolute;top:24px;left:50%;transform:translateX(-50%);width:120px;height:30px;background:#000;border-radius:18px;z-index:5}
+.screen{width:100%;height:100%;background:var(--paper);border-radius:36px;overflow:hidden;position:relative}
+.screen-inner{width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen-inner::-webkit-scrollbar{display:none}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:54px 20px 14px}
+.topbar button{background:none;border:0;padding:0;display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
+.brand{font-family:'Fraunces',serif;font-weight:500;font-size:14px;letter-spacing:.02em}
+.brand i{color:var(--accent-2);font-style:italic}
+
+.breadcrumb{padding:0 20px 12px;display:flex;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.breadcrumb .sep{opacity:.45}
+.breadcrumb .current{color:var(--ink)}
+
+.hd{padding:0 20px 14px}
+.hd .eb{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.hd h1{font-family:'Fraunces',serif;font-weight:500;font-size:26px;line-height:1.05;letter-spacing:-.5px;margin:0}
+.hd h1 i{color:var(--accent-2);font-style:italic}
+
+.hero-cap{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);padding:10px 20px 6px;display:flex;justify-content:space-between}
+.hero-vintage{background:var(--plate-paper);margin:0 20px;border:1px solid var(--line);position:relative;overflow:hidden}
+.hero-vintage svg{display:block;width:100%;height:auto}
+.hero-vintage .corner{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.16em;color:var(--ink-3);background:rgba(237,228,208,0.85);padding:2px 5px}
+.hero-belowcap{padding:8px 20px 0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+
+.resume{margin:14px 20px 20px;padding:14px 16px;background:#fff;border-left:3px solid var(--accent)}
+.resume .row1{display:flex;justify-content:space-between;align-items:baseline}
+.resume .eb{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.resume .ago{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3)}
+.resume .t{font-family:'Fraunces',serif;font-weight:500;font-size:18px;letter-spacing:-.3px;margin-top:4px}
+.resume .s{font-size:13px;color:var(--ink-2);font-style:italic;line-height:1.5;margin-top:4px}
+.resume .pbar{display:flex;gap:8px;align-items:center;margin-top:12px}
+.resume .ticks{flex:1;display:flex;gap:2px}
+.resume .tick{flex:1;height:8px;background:var(--line)}
+.resume .tick.on{background:var(--accent)}
+.resume .pct{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3)}
+
+.toc-h{padding:0 20px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line)}
+.toc-row{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:baseline}
+.toc-row .num{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;color:var(--accent);min-width:32px;line-height:1}
+.toc-row .body{flex:1}
+.toc-row .title{font-family:'Fraunces',serif;font-weight:500;font-size:15px;line-height:1.18;letter-spacing:-.2px}
+.toc-row .meta{display:flex;gap:8px;align-items:center;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.toc-row .meta .dot{opacity:.4}
+.toc-row .micro{display:flex;gap:2px;margin-top:5px}
+.toc-row .micro .t{flex:1;height:3px;background:var(--line)}
+.toc-row .micro .t.on{background:var(--accent)}
+
+footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);width:100%;max-width:900px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="eyebrow"><span class="dot"></span><span>QuantumChem · Home</span><span>Spectral hero · spot highlight</span></div>
+  <h1 class="page-title">Final: spectral plate, <i>annotated</i>.</h1>
+  <p class="deck">Black engraved lines as default; Hα and the Na D doublet picked out in tinted ink with bracketed annotations — reads as the spectroscopist's own marked-up plate.</p>
+</header>
+
+<div class="phone">
+  <div class="screen"><div class="screen-inner">
+    <div class="topbar">
+      <button>
+        <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 1h12M1 5h12M1 9h12" stroke="currentColor" stroke-width="1.2"/></svg>
+        Contents
+      </button>
+      <div class="brand">Quantum<i>Chem</i></div>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="9.5" y1="9.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="1.2"/></svg>
+    </div>
+    <div class="breadcrumb">
+      <span>Home</span><span class="sep">/</span><span class="current">Course Library</span>
+    </div>
+    <div class="hd">
+      <div class="eb">Phys Chem II · Spring 2026</div>
+      <h1>Quantum mechanics, from <i>first failures</i> to molecular orbitals.</h1>
+    </div>
+
+    <div class="hero-cap"><span>Plate I · Frontispiece</span><span>Balmer · after Fraunhofer</span></div>
+    <div class="hero-vintage">
+      <span class="corner">FIG. 1</span>
+      <svg viewBox="0 0 340 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="stipple" width="6" height="6" patternUnits="userSpaceOnUse">
+            <circle cx="1.5" cy="1.5" r="0.35" fill="#1a1520" opacity="0.4"/>
+            <circle cx="4" cy="4" r="0.35" fill="#1a1520" opacity="0.4"/>
+          </pattern>
+          <radialGradient id="vig" cx="50%" cy="50%" r="65%">
+            <stop offset="60%" stop-color="#ede4d0" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#5a4a32" stop-opacity="0.18"/>
+          </radialGradient>
+        </defs>
+        <rect width="340" height="240" fill="#ede4d0"/>
+        <rect width="340" height="240" fill="url(#stipple)"/>
+        <circle cx="306" cy="32" r="11" fill="#c4a878" opacity="0.18"/>
+        <circle cx="32" cy="206" r="14" fill="#c4a878" opacity="0.16"/>
+        <rect x="12" y="12" width="316" height="216" fill="none" stroke="#1a1520" stroke-width="0.6"/>
+        <rect x="16" y="16" width="308" height="208" fill="none" stroke="#1a1520" stroke-width="0.3"/>
+
+        <!-- Hydrogen Balmer — Hα highlighted -->
+        <g transform="translate(36 54)">
+          <text x="0" y="-8" font-family="Fraunces,serif" font-style="italic" font-size="9" fill="#1a1520">H — Balmer series</text>
+          <rect x="0" y="0" width="268" height="22" fill="#ede4d0" stroke="#1a1520" stroke-width="0.5"/>
+          <rect x="52" y="0" width="8" height="22" fill="#8a3a2a" opacity="0.12"/>
+          <line x1="56" y1="0" x2="56" y2="22" stroke="#8a3a2a" stroke-width="2.4"/>
+          <line x1="92" y1="0" x2="92" y2="22" stroke="#1a1520" stroke-width="1.6"/>
+          <line x1="142" y1="0" x2="142" y2="22" stroke="#1a1520" stroke-width="1"/>
+          <line x1="172" y1="0" x2="172" y2="22" stroke="#1a1520" stroke-width="0.8"/>
+          <line x1="190" y1="0" x2="190" y2="22" stroke="#1a1520" stroke-width="0.6"/>
+          <line x1="202" y1="0" x2="202" y2="22" stroke="#1a1520" stroke-width="0.5"/>
+          <text x="56" y="-1" font-family="JetBrains Mono,monospace" font-size="6" fill="#8a3a2a" text-anchor="middle" font-weight="600">Hα</text>
+          <text x="92" y="-1" font-family="JetBrains Mono,monospace" font-size="6" fill="#1a1520" text-anchor="middle">Hβ</text>
+          <text x="142" y="-1" font-family="JetBrains Mono,monospace" font-size="6" fill="#1a1520" text-anchor="middle">Hγ</text>
+          <g stroke="#8a3a2a" stroke-width="0.5" fill="none">
+            <path d="M 50 26 L 50 30 L 62 30 L 62 26"/>
+          </g>
+          <text x="56" y="38" font-family="Fraunces,serif" font-style="italic" font-size="6" fill="#8a3a2a" text-anchor="middle">656.3 nm</text>
+        </g>
+
+        <!-- Sodium D — highlighted -->
+        <g transform="translate(36 104)">
+          <text x="0" y="-8" font-family="Fraunces,serif" font-style="italic" font-size="9" fill="#1a1520">Na — D doublet</text>
+          <rect x="0" y="0" width="268" height="22" fill="#ede4d0" stroke="#1a1520" stroke-width="0.5"/>
+          <rect x="114" y="0" width="14" height="22" fill="#9a6a1e" opacity="0.14"/>
+          <line x1="118" y1="0" x2="118" y2="22" stroke="#9a6a1e" stroke-width="2.4"/>
+          <line x1="123" y1="0" x2="123" y2="22" stroke="#9a6a1e" stroke-width="2.4"/>
+          <text x="120" y="-1" font-family="JetBrains Mono,monospace" font-size="6" fill="#9a6a1e" text-anchor="middle" font-weight="600">D₁ D₂</text>
+          <g stroke="#9a6a1e" stroke-width="0.5" fill="none">
+            <path d="M 112 26 L 112 30 L 130 30 L 130 26"/>
+          </g>
+          <text x="121" y="38" font-family="Fraunces,serif" font-style="italic" font-size="6" fill="#9a6a1e" text-anchor="middle">589.0 / 589.6 nm</text>
+        </g>
+
+        <!-- Iron arc — all black -->
+        <g transform="translate(36 154)">
+          <text x="0" y="-8" font-family="Fraunces,serif" font-style="italic" font-size="9" fill="#1a1520">Fe — arc spectrum</text>
+          <rect x="0" y="0" width="268" height="22" fill="#ede4d0" stroke="#1a1520" stroke-width="0.5"/>
+          <g stroke="#1a1520" stroke-width="0.4">
+            <line x1="14" y1="0" x2="14" y2="22"/><line x1="22" y1="0" x2="22" y2="22"/><line x1="29" y1="0" x2="29" y2="22"/>
+            <line x1="38" y1="0" x2="38" y2="22"/><line x1="44" y1="0" x2="44" y2="22"/><line x1="52" y1="0" x2="52" y2="22"/>
+            <line x1="61" y1="0" x2="61" y2="22"/><line x1="68" y1="0" x2="68" y2="22"/><line x1="76" y1="0" x2="76" y2="22"/>
+            <line x1="84" y1="0" x2="84" y2="22"/><line x1="91" y1="0" x2="91" y2="22"/><line x1="100" y1="0" x2="100" y2="22"/>
+            <line x1="108" y1="0" x2="108" y2="22"/><line x1="116" y1="0" x2="116" y2="22"/><line x1="124" y1="0" x2="124" y2="22"/>
+            <line x1="133" y1="0" x2="133" y2="22"/><line x1="142" y1="0" x2="142" y2="22"/><line x1="150" y1="0" x2="150" y2="22"/>
+            <line x1="158" y1="0" x2="158" y2="22"/><line x1="167" y1="0" x2="167" y2="22"/><line x1="174" y1="0" x2="174" y2="22"/>
+            <line x1="182" y1="0" x2="182" y2="22"/><line x1="190" y1="0" x2="190" y2="22"/><line x1="198" y1="0" x2="198" y2="22"/>
+            <line x1="208" y1="0" x2="208" y2="22"/><line x1="216" y1="0" x2="216" y2="22"/><line x1="225" y1="0" x2="225" y2="22"/>
+            <line x1="234" y1="0" x2="234" y2="22"/><line x1="244" y1="0" x2="244" y2="22"/><line x1="252" y1="0" x2="252" y2="22"/>
+            <line x1="260" y1="0" x2="260" y2="22"/>
+          </g>
+          <line x1="60" y1="0" x2="60" y2="22" stroke="#1a1520" stroke-width="1.4"/>
+          <line x1="142" y1="0" x2="142" y2="22" stroke="#1a1520" stroke-width="1.6"/>
+          <line x1="208" y1="0" x2="208" y2="22" stroke="#1a1520" stroke-width="1.2"/>
+        </g>
+
+        <!-- Wavelength scale -->
+        <g transform="translate(36 196)">
+          <line x1="0" y1="0" x2="268" y2="0" stroke="#1a1520" stroke-width="0.6"/>
+          <g font-family="JetBrains Mono,monospace" font-size="7" fill="#1a1520">
+            <line x1="0" y1="0" x2="0" y2="4" stroke="#1a1520" stroke-width="0.6"/><text x="0" y="14" text-anchor="middle">700</text>
+            <line x1="67" y1="0" x2="67" y2="4" stroke="#1a1520" stroke-width="0.6"/><text x="67" y="14" text-anchor="middle">600</text>
+            <line x1="134" y1="0" x2="134" y2="4" stroke="#1a1520" stroke-width="0.6"/><text x="134" y="14" text-anchor="middle">500</text>
+            <line x1="201" y1="0" x2="201" y2="4" stroke="#1a1520" stroke-width="0.6"/><text x="201" y="14" text-anchor="middle">400</text>
+            <line x1="268" y1="0" x2="268" y2="4" stroke="#1a1520" stroke-width="0.6"/><text x="268" y="14" text-anchor="middle">λ/nm</text>
+          </g>
+        </g>
+
+        <rect width="340" height="240" fill="url(#vig)"/>
+      </svg>
+    </div>
+    <div class="hero-belowcap">Spectroscopic plate · Hα + Na D annotated</div>
+
+    <div class="resume">
+      <div class="row1"><div class="eb">Continue reading</div><div class="ago">5 min ago</div></div>
+      <div class="t">§ 2.1 · Photoelectric Effect</div>
+      <div class="s">You stopped on Einstein's explanation; two more interactions remain.</div>
+      <div class="pbar"><div class="ticks"><div class="tick on"></div><div class="tick on"></div><div class="tick on"></div><div class="tick on"></div><div class="tick on"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div></div><div class="pct">05 / 14</div></div>
+    </div>
+
+    <div class="toc-h">Table of Contents</div>
+    <div class="toc-row"><span class="num">01</span><div class="body"><div class="title">Failure of Classical Mechanics</div><div class="meta"><span>Wk 01–02</span><span class="dot">·</span><span>2/2 done</span></div><div class="micro"><div class="t on"></div><div class="t on"></div></div></div></div>
+    <div class="toc-row"><span class="num">02</span><div class="body"><div class="title">Idealized Quantum Systems</div><div class="meta"><span>Wk 03–05</span><span class="dot">·</span><span>2/3 done</span></div><div class="micro"><div class="t on"></div><div class="t on"></div><div class="t"></div></div></div></div>
+    <div class="toc-row"><span class="num">03</span><div class="body"><div class="title">Nuclear Spectroscopy</div><div class="meta"><span>Wk 06–08</span><span class="dot">·</span><span>1/3 done</span></div><div class="micro"><div class="t on"></div><div class="t"></div><div class="t"></div></div></div></div>
+  </div></div>
+</div>
+
+<footer>
+  <span>QuantumChem · Spectral hero · Spot highlight (final)</span>
+  <span>Apr 2026</span>
+</footer>
+
+</body>
+</html>

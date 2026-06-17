@@ -85,6 +85,33 @@ export class Simulation {
             this.plateH = Math.round(this.height * 0.5);
             this.metalY = this.plateY;
             this.buildGrid();
+            this.warmStart();
+        }
+    }
+
+    warmStart(): void {
+        this.photons = [];
+        const spawnRate = this.intensity / 20;
+        const count = Math.round(spawnRate * MAX_PHOTONS * 0.4);
+        const plateRightX = this.plateX + this.plateW;
+        const spawnX = this.width - 10;
+
+        for (let i = 0; i < count; i++) {
+            const progress = (i + 0.5) / count; // evenly spread 0→1 along path
+            const plateMidY = this.plateY + this.plateH / 2;
+            const targetY = plateMidY + (Math.random() - 0.5) * this.plateH * 0.7;
+            const originY = this.plateY * 0.5 + Math.random() * (targetY - this.plateY * 0.5) * 0.4;
+            const ddx = plateRightX - spawnX;
+            const ddy = targetY - originY;
+            const len = Math.sqrt(ddx * ddx + ddy * ddy);
+            const speed = 5 + Math.random() * 2;
+            this.photons.push({
+                x: spawnX + ddx * progress,
+                y: originY + ddy * progress,
+                dx: speed * ddx / len,
+                dy: speed * ddy / len,
+                energy: this.hc_eV_nm / this.wavelength,
+            });
         }
     }
 
@@ -112,10 +139,12 @@ export class Simulation {
     }
 
     updateParams(wavelength: number, intensity: number, workFunc: number, metalName: string): void {
+        const intensityChanged = Math.abs(intensity - this.intensity) > 15;
         this.wavelength = wavelength;
         this.intensity = intensity;
         this.workFunction = workFunc;
         this.metalName = metalName;
+        if (intensityChanged) this.warmStart();
     }
 
     getPhotonEnergy(): number {
