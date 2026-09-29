@@ -3,7 +3,7 @@ import { initializeCapacitor } from './src/app-init';
 import { initializeAppLifecycle } from './src/app-lifecycle';
 import { initializeStorage } from './src/storage-manager';
 import { initializeTheme } from './src/theme-manager';
-import { CHAPTERS, ALL_SIMS, type Chapter, type SimEntry } from './src/chapters';
+import { CHAPTERS, ALL_SIMS, chapterWeeks, type Chapter, type SimEntry } from './src/chapters';
 import { loadProgress, type Progress } from './src/progress';
 
 console.log('QuantumChem Landing Page Loaded');
@@ -67,7 +67,7 @@ function renderTOC(chapters: ChapterView[]): string {
         <span class="num">${c.num}</span>
         <div class="body">
           <div class="title">${c.title}</div>
-          <div class="meta byline">${c.weeks} &nbsp;·&nbsp; ${doneCount}/${c.sims.length} done</div>
+          <div class="meta byline">${chapterWeeks(c)} &nbsp;·&nbsp; ${doneCount}/${c.sims.length} done</div>
           <div class="qc-prog micro meta">${ticks}</div>
         </div>
         <span class="chev">›</span>

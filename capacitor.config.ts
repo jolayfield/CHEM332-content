@@ -7,14 +7,8 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https'
   },
-  // Allow both portrait and landscape orientation
-  // Simulations work best in landscape, but allow user rotation
-  ios: {
-    orientation: ['portrait', 'landscape']
-  },
-  android: {
-    orientation: 'unspecified' // Allow system to choose based on user settings
-  },
+  // Screen orientation is not a Capacitor config option; it is set in the native
+  // projects (ios/App/App/Info.plist, android/app/src/main/AndroidManifest.xml)
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,

@@ -17,7 +17,8 @@ const animationFrameIds: Set<number> = new Set();
 export function initializeAppLifecycle(): void {
   App.addListener('pause', handleAppPause);
   App.addListener('resume', handleAppResume);
-  App.addListener('destroy', handleAppDestroy);
+  // Capacitor's App plugin has no 'destroy' event; pagehide fires when the page is torn down
+  window.addEventListener('pagehide', handleAppDestroy);
 
   // Set initial state
   isAppActive = true;
