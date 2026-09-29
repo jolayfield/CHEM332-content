@@ -1,6 +1,6 @@
 import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
-import { ParticleBox2DSimulation } from './particleBox2DSimulation';
+import { ParticleBox2DSimulation, findDegenerateStates } from './particleBox2DSimulation';
 
 
 /**
@@ -52,24 +52,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update value displays with subscripts
         nxVal.innerHTML = `n<sub>x</sub> = ${nx}`;
         nyVal.innerHTML = `n<sub>y</sub> = ${ny}`;
-        lxVal.innerHTML = `L<sub>x</sub> = ${Lx.toFixed(1)}`;
-        lyVal.innerHTML = `L<sub>y</sub> = ${Ly.toFixed(1)}`;
+        lxVal.innerHTML = `L<sub>x</sub> = ${Lx.toFixed(1)} L`;
+        lyVal.innerHTML = `L<sub>y</sub> = ${Ly.toFixed(1)} L`;
 
         // Update simulation
         sim.update({ nx, ny, Lx, Ly, showProbability });
 
-        // Stats
+        // Stats — energy in units of h²/8mL² (L = reference length for Lx, Ly)
         const energy = sim.energy();
-        energyValEl.textContent = `${energy.toFixed(2)} E₁`;
+        energyValEl.innerHTML = `${energy.toFixed(2)}<span class="unit">h²/8mL²</span>`;
         nodesXValEl.textContent = `${nx - 1}`;
         nodesYValEl.textContent = `${ny - 1}`;
 
-        // Degeneracy check: for a square box (Lx ≈ Ly), swapping nx↔ny gives same energy
-        if (Math.abs(Lx - Ly) < 0.01 && nx !== ny) {
-            degeneracyValEl.textContent = `2-fold (${nx},${ny}) ↔ (${ny},${nx})`;
-        } else {
-            degeneracyValEl.textContent = '—';
-        }
+        // Degeneracy: every (nx', ny') in 1…15 with the same energy (incl. accidental)
+        const states = findDegenerateStates(nx, ny, Lx, Ly);
+        const g = states.length;
+        degeneracyValEl.textContent = g === 1
+            ? 'Non-degenerate'
+            : `${g}-fold: ${states.map(([a, b]) => `(${a},${b})`).join(' ')}`;
     };
 
     // Wire up listeners

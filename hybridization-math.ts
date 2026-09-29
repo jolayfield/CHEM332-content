@@ -136,43 +136,54 @@ function getSp3Hybrids(): HybridOrbital[] {
 
 /**
  * Simple orbital wavefunction models for visualization
- * These are simplified Slater-type orbitals (normalized Gaussian-like)
+ * These are normalized Gaussian-type orbitals (GTOs), not Slater (e^(−ζr)) orbitals.
+ * All four share the same exponent ζ and are individually normalized, so the
+ * squared hybrid coefficient c_s² is exactly the s character of the drawn lobe.
  */
 
+/** s normalization: N_s = (2ζ/π)^(3/4) */
+function gaussianNormS(zeta: number): number {
+    return Math.pow((2 * zeta) / Math.PI, 0.75);
+}
+
+/** p normalization: N_p = (2ζ/π)^(3/4) · 2√ζ */
+function gaussianNormP(zeta: number): number {
+    return gaussianNormS(zeta) * 2 * Math.sqrt(zeta);
+}
+
 /**
- * S orbital wavefunction (1s): e^(-ζr)
- * Normalized Gaussian: (ζ/π)^(3/4) * e^(-ζr²)
+ * S orbital wavefunction: N_s e^(−ζr²)
  */
 export function sOrbital(x: number, y: number, z: number, zeta: number = 1.0): number {
     const r2 = x * x + y * y + z * z;
-    const coeff = Math.pow(zeta / Math.PI, 0.75);
+    const coeff = gaussianNormS(zeta);
     return coeff * Math.exp(-zeta * r2);
 }
 
 /**
- * Px orbital wavefunction: x * e^(-ζr²)
+ * Px orbital wavefunction: N_p x e^(−ζr²)
  */
 export function pxOrbital(x: number, y: number, z: number, zeta: number = 1.0): number {
     const r2 = x * x + y * y + z * z;
-    const coeff = Math.pow(zeta / Math.PI, 0.75) * Math.sqrt(3 * zeta);
+    const coeff = gaussianNormP(zeta);
     return coeff * x * Math.exp(-zeta * r2);
 }
 
 /**
- * Py orbital wavefunction: y * e^(-ζr²)
+ * Py orbital wavefunction: N_p y e^(−ζr²)
  */
 export function pyOrbital(x: number, y: number, z: number, zeta: number = 1.0): number {
     const r2 = x * x + y * y + z * z;
-    const coeff = Math.pow(zeta / Math.PI, 0.75) * Math.sqrt(3 * zeta);
+    const coeff = gaussianNormP(zeta);
     return coeff * y * Math.exp(-zeta * r2);
 }
 
 /**
- * Pz orbital wavefunction: z * e^(-ζr²)
+ * Pz orbital wavefunction: N_p z e^(−ζr²)
  */
 export function pzOrbital(x: number, y: number, z: number, zeta: number = 1.0): number {
     const r2 = x * x + y * y + z * z;
-    const coeff = Math.pow(zeta / Math.PI, 0.75) * Math.sqrt(3 * zeta);
+    const coeff = gaussianNormP(zeta);
     return coeff * z * Math.exp(-zeta * r2);
 }
 

@@ -3,7 +3,34 @@
  *
  * ψ(x,y) = (2 / √(Lx·Ly)) · sin(nx·π·x/Lx) · sin(ny·π·y/Ly)
  * |ψ|²    = (4 / (Lx·Ly)) · sin²(nx·π·x/Lx) · sin²(ny·π·y/Ly)
+ * E       = (h²/8mL²) · (nx²/Lx² + ny²/Ly²)
+ *
+ * Lx and Ly are dimensionless, in units of a reference length L, so
+ * energies are reported in units of h²/8mL².
  */
+
+/** Reduced energy E / (h²/8mL²) for state (nx, ny) in a box Lx × Ly (units of L) */
+export function reducedEnergy(nx: number, ny: number, Lx: number, Ly: number): number {
+    return (nx * nx) / (Lx * Lx) + (ny * ny) / (Ly * Ly);
+}
+
+/**
+ * All states (nx, ny) with 1 ≤ nx, ny ≤ nMax whose energy equals that of
+ * (nx0, ny0) within a relative tolerance. Includes (nx0, ny0) itself, so
+ * the degeneracy g is the length of the returned list.
+ */
+export function findDegenerateStates(
+    nx0: number, ny0: number, Lx: number, Ly: number, nMax = 15, relTol = 1e-9,
+): [number, number][] {
+    const E0 = reducedEnergy(nx0, ny0, Lx, Ly);
+    const states: [number, number][] = [];
+    for (let nx = 1; nx <= nMax; nx++) {
+        for (let ny = 1; ny <= nMax; ny++) {
+            if (Math.abs(reducedEnergy(nx, ny, Lx, Ly) - E0) <= relTol * E0) states.push([nx, ny]);
+        }
+    }
+    return states;
+}
 
 export interface PIB2DParams {
     nx: number;
@@ -76,9 +103,10 @@ export class ParticleBox2DSimulation {
         return v * v;
     }
 
+    /** Energy in units of h²/8mL² */
     energy(): number {
         const { nx, ny, Lx, Ly } = this.params;
-        return (nx * nx) / (Lx * Lx) + (ny * ny) / (Ly * Ly);
+        return reducedEnergy(nx, ny, Lx, Ly);
     }
 
     // ── Colormaps ──────────────────────────────────────────────────
@@ -234,8 +262,12 @@ export class ParticleBox2DSimulation {
             ctx.restore();
         }
 
+        // Ink colors for the dark canvas background
+        const inkLabel = 'rgba(255,255,255,0.75)';
+        const inkSecondary = 'rgba(255,255,255,0.5)';
+
         // ── Box border ──
-        ctx.strokeStyle = '#2d3436';
+        ctx.strokeStyle = inkSecondary;
         ctx.lineWidth = 2;
         ctx.strokeRect(this.plotLeft, this.plotTop, this.plotW, this.plotH);
 
@@ -243,8 +275,8 @@ export class ParticleBox2DSimulation {
         this.drawContourLines(ctx);
 
         // ── Axis labels ──
-        ctx.fillStyle = '#636e72';
-        ctx.font = '13px Lato, sans-serif';
+        ctx.fillStyle = inkSecondary;
+        ctx.font = '12px Lato, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 
@@ -259,7 +291,7 @@ export class ParticleBox2DSimulation {
             ctx.beginPath();
             ctx.moveTo(xPos, this.plotTop + this.plotH);
             ctx.lineTo(xPos, this.plotTop + this.plotH + 5);
-            ctx.strokeStyle = '#636e72';
+            ctx.strokeStyle = inkSecondary;
             ctx.lineWidth = 1;
             ctx.stroke();
         }
@@ -275,33 +307,33 @@ export class ParticleBox2DSimulation {
             ctx.beginPath();
             ctx.moveTo(this.plotLeft - 5, yPos);
             ctx.lineTo(this.plotLeft, yPos);
-            ctx.strokeStyle = '#636e72';
+            ctx.strokeStyle = inkSecondary;
             ctx.lineWidth = 1;
             ctx.stroke();
         }
 
         // Axis titles
-        ctx.fillStyle = '#2d3436';
-        ctx.font = 'bold 14px Lato, sans-serif';
+        ctx.fillStyle = inkLabel;
+        ctx.font = 'italic 600 14px Lato, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText('x', this.plotLeft + this.plotW / 2, this.plotTop + this.plotH + 28);
+        ctx.fillText('x / L', this.plotLeft + this.plotW / 2, this.plotTop + this.plotH + 28);
 
         ctx.save();
         ctx.translate(this.plotLeft - 40, this.plotTop + this.plotH / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.textBaseline = 'middle';
-        ctx.fillText('y', 0, 0);
+        ctx.fillText('y / L', 0, 0);
         ctx.restore();
 
         // ── Title ──
-        ctx.fillStyle = '#2d3436';
-        ctx.font = 'bold 15px Lora, serif';
+        ctx.fillStyle = inkLabel;
+        ctx.font = '600 14px Lato, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         const title = showProbability
-            ? `|ψ(x,y)|²   nx=${nx}, ny=${ny}`
-            : `ψ(x,y)   nx=${nx}, ny=${ny}`;
+            ? `|ψ(x,y)|²   nx = ${nx}, ny = ${ny}`
+            : `ψ(x,y)   nx = ${nx}, ny = ${ny}`;
         ctx.fillText(title, this.plotLeft + this.plotW / 2, this.plotTop - 12);
 
         // ── Color bar ──
@@ -309,7 +341,7 @@ export class ParticleBox2DSimulation {
     }
 
     private drawContourLines(ctx: CanvasRenderingContext2D) {
-        const { Lx, Ly, nx, ny, showProbability } = this.params;
+        const { Lx, Ly, showProbability } = this.params;
         const N = 150; // lighter grid for contours
 
         // Compute field values
@@ -514,23 +546,32 @@ export class ParticleBox2DSimulation {
         }
 
         // Border
-        ctx.strokeStyle = '#2d3436';
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
         ctx.lineWidth = 1;
         ctx.strokeRect(barLeft, barTop, barWidth, barHeight);
 
-        // Labels
-        ctx.fillStyle = '#636e72';
+        // Numeric tick labels: analytic extrema ψ_max = 2/√(LxLy), |ψ|²_max = 4/(LxLy)
+        const { Lx, Ly } = this.params;
+        const psiMax = 2 / Math.sqrt(Lx * Ly);
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
         ctx.font = '11px Lato, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
+        const tx = barLeft + barWidth + 5;
 
         if (showProbability) {
-            ctx.fillText('max', barLeft + barWidth + 5, barTop + 6);
-            ctx.fillText('0', barLeft + barWidth + 5, barTop + barHeight - 2);
+            ctx.fillText((psiMax * psiMax).toFixed(2), tx, barTop + 6);
+            ctx.fillText('0', tx, barTop + barHeight - 2);
         } else {
-            ctx.fillText('+', barLeft + barWidth + 5, barTop + 6);
-            ctx.fillText('0', barLeft + barWidth + 5, barTop + barHeight / 2);
-            ctx.fillText('−', barLeft + barWidth + 5, barTop + barHeight - 2);
+            ctx.fillText(`+${psiMax.toFixed(2)}`, tx, barTop + 6);
+            ctx.fillText('0', tx, barTop + barHeight / 2);
+            ctx.fillText(`−${psiMax.toFixed(2)}`, tx, barTop + barHeight - 2);
         }
+
+        // Units above the bar
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(showProbability ? '|ψ|² (L⁻²)' : 'ψ (L⁻¹)', barLeft + barWidth / 2, barTop - 6);
     }
 }

@@ -1,8 +1,8 @@
 import Chart from 'chart.js/auto';
 import katex from 'katex';
+// @ts-expect-error — katex's auto-render module ships without type declarations
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
-import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 function refreshMath() {
     (window as any).katex = katex;
@@ -21,22 +21,31 @@ const KB   = 1.381e-23;
 const C_CM = 2.998e10;
 
 // ─── Molecules ────────────────────────────────────────────────────────────────
+// Spectroscopic constants (Huber & Herzberg), most abundant isotopologue.
+// Derived quantities:
+//   band origin      ν̃₀ = ωₑ − 2ωₑxₑ           (v = 0 → 1 fundamental)
+//   rot. constants   B_v = Bₑ − αₑ(v + ½)
 interface VibRotMolecule {
     name: string;
     formula: string;
-    nu_e: number;     // vibrational frequency cm⁻¹
-    B0: number;       // ground state rotational constant cm⁻¹
-    B1: number;       // v=1 rotational constant cm⁻¹ (B1 ≈ B0 - αe)
-    hasQBranch: boolean;  // linear symmetric molecules have no Q branch
+    omegaE: number;   // harmonic wavenumber ωₑ, cm⁻¹
+    omegaExe: number; // anharmonicity ωₑxₑ, cm⁻¹
+    Be: number;       // equilibrium rotational constant, cm⁻¹
+    alphaE: number;   // vibration–rotation coupling constant, cm⁻¹
+    hasQBranch: boolean;  // ¹Σ diatomics: no Q branch; ²Π NO (Λ = 1): Q branch allowed
+    groundState: string;
 }
 
 const MOLECULES: Record<string, VibRotMolecule> = {
-    hcl: { name: 'HCl (1H³⁵Cl)', formula: 'HCl', nu_e: 2886, B0: 10.440, B1: 10.136, hasQBranch: false },
-    hbr: { name: 'HBr (1H⁷⁹Br)', formula: 'HBr', nu_e: 2559, B0: 8.465,  B1: 8.226,  hasQBranch: false },
-    co:  { name: 'CO',            formula: 'CO',  nu_e: 2143, B0: 1.9225, B1: 1.9050, hasQBranch: false },
-    no:  { name: 'NO',            formula: 'NO',  nu_e: 1876, B0: 1.7042, B1: 1.6875, hasQBranch: true  },
-    hf:  { name: 'HF',            formula: 'HF',  nu_e: 3962, B0: 20.560, B1: 19.786, hasQBranch: false },
+    hcl: { name: 'HCl (¹H³⁵Cl)', formula: 'HCl', omegaE: 2990.9,  omegaExe: 52.82, Be: 10.5934, alphaE: 0.3072,  hasQBranch: false, groundState: 'X ¹Σ⁺' },
+    hbr: { name: 'HBr (¹H⁷⁹Br)', formula: 'HBr', omegaE: 2648.98, omegaExe: 45.22, Be: 8.4649,  alphaE: 0.2333,  hasQBranch: false, groundState: 'X ¹Σ⁺' },
+    hf:  { name: 'HF',            formula: 'HF',  omegaE: 4138.32, omegaExe: 89.88, Be: 20.9557, alphaE: 0.798,   hasQBranch: false, groundState: 'X ¹Σ⁺' },
+    co:  { name: 'CO',            formula: 'CO',  omegaE: 2169.81, omegaExe: 13.29, Be: 1.93128, alphaE: 0.01750, hasQBranch: false, groundState: 'X ¹Σ⁺' },
+    no:  { name: 'NO',            formula: 'NO',  omegaE: 1904.20, omegaExe: 14.08, Be: 1.67195, alphaE: 0.0171,  hasQBranch: true,  groundState: 'X ²Π' },
 };
+
+function bandOrigin(m: VibRotMolecule): number { return m.omegaE - 2 * m.omegaExe; }
+function Bv(m: VibRotMolecule, v: number): number { return m.Be - m.alphaE * (v + 0.5); }
 
 // ─── State ────────────────────────────────────────────────────────────────────
 let mol        = MOLECULES['hcl'];
@@ -87,43 +96,36 @@ const tempVal        = document.getElementById('temp-val')!;
 const resVal         = document.getElementById('res-val')!;
 const statsPanel     = document.getElementById('stats-panel')!;
 const branchNote     = document.getElementById('branch-note')!;
+const qLegend        = document.getElementById('q-legend');
 
 // ─── Chart ───────────────────────────────────────────────────────────────────
 const ctx = (document.getElementById('vibrot-chart') as HTMLCanvasElement).getContext('2d')!;
-const chart = new Chart(ctx, {
+type XY = { x: number; y: number | null };
+
+const BRANCH_STYLE = {
+    P: { label: 'P Branch (ΔJ = −1)', borderColor: '#e74c3c' },
+    Q: { label: 'Q Branch (ΔJ = 0)',  borderColor: '#2ecc71' },
+    R: { label: 'R Branch (ΔJ = +1)', borderColor: '#3498db' },
+} as const;
+type Branch = keyof typeof BRANCH_STYLE;
+
+function makeDataset(branch: Branch, data: XY[]) {
+    return {
+        label: BRANCH_STYLE[branch].label,
+        data,
+        borderColor: BRANCH_STYLE[branch].borderColor,
+        backgroundColor: BRANCH_STYLE[branch].borderColor,
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        spanGaps: false,
+        tension: 0,
+    };
+}
+
+const chart = new Chart<'line', XY[]>(ctx, {
     type: 'line',
-    data: { labels: [], datasets: [
-        {
-            label: 'P Branch',
-            data: [],
-            borderColor: '#e74c3c',
-            backgroundColor: 'rgba(231,76,60,0.10)',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            fill: false,
-            tension: 0.15,
-        },
-        {
-            label: 'Q Branch',
-            data: [],
-            borderColor: '#2ecc71',
-            backgroundColor: 'rgba(46,204,113,0.10)',
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: false,
-            tension: 0.15,
-        },
-        {
-            label: 'R Branch',
-            data: [],
-            borderColor: '#3498db',
-            backgroundColor: 'rgba(52,152,219,0.10)',
-            borderWidth: 1.5,
-            pointRadius: 0,
-            fill: false,
-            tension: 0.15,
-        },
-    ]},
+    data: { datasets: [] },
     options: {
         animation: false,
         responsive: true,
@@ -149,8 +151,8 @@ const chart = new Chart(ctx, {
             legend: { display: true, position: 'top', labels: { color: 'rgba(255,255,255,0.7)', font: { size: 11 } } },
             tooltip: {
                 callbacks: {
-                    title: (items) => `${Number(items[0].label).toFixed(2)} cm⁻¹`,
-                    label: (item) => `${item.dataset.label}: ${(item.raw as number).toFixed(displayMode === 'transmission' ? 1 : 4)}${displayMode === 'transmission' ? '%' : ''}`,
+                    title: (items) => `${(items[0].parsed.x ?? 0).toFixed(2)} cm⁻¹`,
+                    label: (item) => `${displayMode === 'transmission' ? 'Transmittance' : 'Absorbance'} (${item.dataset.label}): ${(item.parsed.y ?? 0).toFixed(displayMode === 'transmission' ? 1 : 3)}${displayMode === 'transmission' ? '%' : ''}`,
                 }
             }
         }
@@ -163,118 +165,134 @@ function boltzmann(J: number, B: number, T: number): number {
     return (2 * J + 1) * Math.exp(-E / (KB * T));
 }
 
-// ΔJ = -1  P branch: ν = ν_e + (B1+B0)J + (B1-B0)J²  where J = J''=1,2,3…
+// Line positions (J = J″, lower-state J), with ν̃₀ the band origin:
+// ΔJ = −1  P(J):  ν̃ = ν̃₀ − (B₁+B₀)J + (B₁−B₀)J²          J = 1, 2, 3 …
 function pBranchFreq(J: number): number {
-    return mol.nu_e - (mol.B1 + mol.B0) * J + (mol.B1 - mol.B0) * J * J;
+    const B0 = Bv(mol, 0), B1 = Bv(mol, 1);
+    return bandOrigin(mol) - (B1 + B0) * J + (B1 - B0) * J * J;
 }
-// ΔJ = 0   Q branch: ν = ν_e + (B1-B0)J(J+1)
+// ΔJ = 0   Q(J):  ν̃ = ν̃₀ + (B₁−B₀)J(J+1)
 function qBranchFreq(J: number): number {
-    return mol.nu_e + (mol.B1 - mol.B0) * J * (J + 1);
+    const B0 = Bv(mol, 0), B1 = Bv(mol, 1);
+    return bandOrigin(mol) + (B1 - B0) * J * (J + 1);
 }
-// ΔJ = +1  R branch: ν = ν_e + (B1+B0)(J+1) + (B1-B0)(J+1)²  where J = J''=0,1,2…
+// ΔJ = +1  R(J):  ν̃ = ν̃₀ + (B₁+B₀)(J+1) + (B₁−B₀)(J+1)²   J = 0, 1, 2 …
 function rBranchFreq(J: number): number {
-    return mol.nu_e + (mol.B1 + mol.B0) * (J + 1) + (mol.B1 - mol.B0) * (J + 1) * (J + 1);
+    const B0 = Bv(mol, 0), B1 = Bv(mol, 1);
+    return bandOrigin(mol) + (B1 + B0) * (J + 1) + (B1 - B0) * (J + 1) * (J + 1);
 }
+
+// Relative line strengths: Hönl–London factor × e^{−E_J/kT} (E_J from B₀).
+//   R(J): (J+1)   P(J): J
+//   Q(J): (2J+1)/(J(J+1)) — the Λ = 1 (²Π) Q-branch factor, which falls off as
+//         ≈ 2/J; a qualitative stand-in (spin–orbit & Λ-doubling not modelled).
+function boltzFactor(J: number): number {
+    return Math.exp(-Bv(mol, 0) * J * (J + 1) * H * C_CM / (KB * temperature));
+}
+function rStrength(J: number): number { return (J + 1) * boltzFactor(J); }
+function pStrength(J: number): number { return J * boltzFactor(J); }
+function qStrength(J: number): number { return (2 * J + 1) / (J * (J + 1)) * boltzFactor(J); }
 
 function lorentzian(x: number, center: number, fwhm: number): number {
     const g = fwhm / 2;
     return g * g / ((x - center) ** 2 + g * g);
 }
 
-function generateBranch(
+function branchAbsorbance(
     freqFn: (J: number) => number,
+    strengthFn: (J: number) => number,
     minJ: number,
     xs: number[]
 ): number[] {
-    const ys = new Array(xs.length).fill(0);
-    const pops = Array.from({ length: jMax + 1 }, (_, J) => boltzmann(J, mol.B0, temperature));
-    const maxPop = Math.max(...pops);
-
+    const ys = new Array<number>(xs.length).fill(0);
     for (let J = minJ; J <= jMax; J++) {
         const freq = freqFn(J);
-        const intensity = (pops[J] / maxPop);
+        const s = strengthFn(J);
         for (let i = 0; i < xs.length; i++) {
-            ys[i] += intensity * lorentzian(xs[i], freq, resolution);
+            ys[i] += s * lorentzian(xs[i], freq, resolution);
         }
     }
     return ys;
 }
 
+// Strongest feature of the summed spectrum is scaled to this absorbance;
+// %T = 100·10^(−A) then bottoms out near 3 %T instead of clipping at 0.
+const A_PEAK = 1.5;
+
 // ─── Update ───────────────────────────────────────────────────────────────────
 function update() {
-    // Determine plot range
-    const center = mol.nu_e;
-    const halfWidth = Math.max(mol.B0 * jMax * 2.5, 200);
-    const xMin = center - halfWidth;
-    const xMax = center + halfWidth;
-    const N = 800;
+    const nu0 = bandOrigin(mol);
+    const B0 = Bv(mol, 0);
+    const B1 = Bv(mol, 1);
 
+    // Common wavenumber grid, fine enough to resolve the narrowest lines
+    const halfWidth = Math.max(B0 * jMax * 2.5, 200);
+    const xMin = nu0 - halfWidth;
+    const xMax = nu0 + halfWidth;
+    const N = Math.min(8000, Math.max(800, Math.ceil((xMax - xMin) / (resolution / 4))));
     const xs: number[] = [];
     for (let i = 0; i <= N; i++) xs.push(xMin + (xMax - xMin) * i / N);
 
-    const pBranchAbs = generateBranch(pBranchFreq, 1, xs);
-    const rBranchAbs = generateBranch(rBranchFreq, 0, xs);
-    const qBranchAbs = mol.hasQBranch ? generateBranch(qBranchFreq, 1, xs) : new Array(xs.length).fill(0);
+    const pAbs = branchAbsorbance(pBranchFreq, pStrength, 1, xs);
+    const rAbs = branchAbsorbance(rBranchFreq, rStrength, 0, xs);
+    const qAbs = mol.hasQBranch ? branchAbsorbance(qBranchFreq, qStrength, 1, xs) : null;
 
-    // Convert to transmittance if needed
-    function toDisplay(ys: number[]): number[] {
-        if (displayMode === 'transmission') {
-            // Combine all branches to get total absorbance, then invert
-            return ys.map(v => 100 * (1 - Math.min(v, 1.0)));
-        }
-        return ys;
-    }
+    // Total absorbance = sum over all branches, scaled so the strongest feature is A_PEAK
+    const total = xs.map((_, i) => pAbs[i] + rAbs[i] + (qAbs ? qAbs[i] : 0));
+    const scale = A_PEAK / (Math.max(...total) || 1);
+    const A = total.map(v => v * scale);
+    const yVals = displayMode === 'transmission' ? A.map(a => 100 * Math.pow(10, -a)) : A;
 
-    // For transmission, combine all branches before inverting
-    let pDisplay: number[], qDisplay: number[], rDisplay: number[];
-    if (displayMode === 'transmission') {
-        // Sum contributions then split for display (show individual branch contributions on T scale)
-        pDisplay = pBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
-        qDisplay = qBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
-        rDisplay = rBranchAbs.map((v, i) => 100 * (1 - Math.min(v, 1.0)));
-    } else {
-        pDisplay = pBranchAbs;
-        qDisplay = qBranchAbs;
-        rDisplay = rBranchAbs;
-    }
+    // Colour the single summed trace by whichever branch contributes most at each point.
+    const dominant: Branch[] = xs.map((_, i) => {
+        const q = qAbs ? qAbs[i] : -1;
+        if (q >= pAbs[i] && q >= rAbs[i]) return 'Q';
+        return pAbs[i] >= rAbs[i] ? 'P' : 'R';
+    });
+    const masked = (b: Branch): XY[] => xs.map((x, i) => {
+        const on = dominant[i] === b || dominant[i - 1] === b || dominant[i + 1] === b;
+        return { x, y: on ? yVals[i] : null };
+    });
+    const branches: Branch[] = mol.hasQBranch ? ['P', 'Q', 'R'] : ['P', 'R'];
+    chart.data.datasets = branches.map(b => makeDataset(b, masked(b)));
 
-    // Update y-axis
+    // Axes
     const yScale = chart.options.scales!['y']!;
     if (displayMode === 'transmission') {
         (yScale as any).title.text = 'Transmittance (%)';
-        (yScale as any).min = 0;
-        (yScale as any).max = 105;
+        yScale.min = 0;
+        yScale.max = 105;
     } else {
-        (yScale as any).title.text = 'Absorbance (a.u.)';
-        (yScale as any).min = 0;
-        (yScale as any).max = undefined;
+        (yScale as any).title.text = 'Absorbance';
+        yScale.min = 0;
+        yScale.max = 1.7;
     }
-
-    chart.data.labels = xs as any;
-    chart.data.datasets[0].data = pDisplay;
-    chart.data.datasets[1].data = qDisplay;
-    chart.data.datasets[2].data = rDisplay;
     chart.options.scales!['x']!.min = xMin;
     chart.options.scales!['x']!.max = xMax;
     chart.update();
 
+    if (qLegend) qLegend.style.display = mol.hasQBranch ? '' : 'none';
+
     // Stats
-    const pops = Array.from({ length: jMax + 1 }, (_, J) => boltzmann(J, mol.B0, temperature));
+    const pops = Array.from({ length: jMax + 1 }, (_, J) => boltzmann(J, B0, temperature));
     const Jmax = pops.indexOf(Math.max(...pops));
     statsPanel.innerHTML = `
-        <div><div class="k">ν̃<sub>e</sub> (vib. freq.)</div><div class="v">${mol.nu_e}<span class="unit">cm⁻¹</span></div></div>
-        <div><div class="k">B₀ (ground state)</div><div class="v">${mol.B0.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
-        <div><div class="k">B₁ (v=1 state)</div><div class="v">${mol.B1.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
-        <div><div class="k">αe = B₀ − B₁</div><div class="v">${(mol.B0 - mol.B1).toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
-        <div><div class="k">Most populated J</div><div class="v">J = ${Jmax} at ${temperature} K</div></div>
-        <div><div class="k">P/R spacing (~2B₀)</div><div class="v">${(2 * mol.B0).toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">Molecule</div><div class="v">${mol.formula}<span class="unit">${mol.groundState}</span></div></div>
+        <div><div class="k">ν̃₀ (band origin)</div><div class="v">${nu0.toFixed(1)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">ω<sub>e</sub> (harmonic)</div><div class="v">${mol.omegaE.toFixed(2)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">ω<sub>e</sub>x<sub>e</sub> (anharmonicity)</div><div class="v">${mol.omegaExe.toFixed(2)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">B₀ (v = 0)</div><div class="v">${B0.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">B₁ (v = 1)</div><div class="v">${B1.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">αe = B₀ − B₁</div><div class="v">${(B0 - B1).toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">Most populated J at ${temperature} K</div><div class="v">J = ${Jmax}</div></div>
+        <div><div class="k">P/R spacing (~2B₀)</div><div class="v">${(2 * B0).toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
     `;
 
     // Branch note
     if (mol.hasQBranch) {
-        branchNote.innerHTML = `<strong>${mol.formula}</strong> is a <strong>non-linear</strong> or open-shell molecule — the Q branch (ΔJ = 0) is allowed.`;
+        branchNote.innerHTML = `<strong>${mol.formula}</strong> is linear, but its ${mol.groundState} ground state has <strong>Λ = 1</strong> (electronic orbital angular momentum about the bond axis), so the Q branch (ΔJ = 0) is allowed and appears near ν̃₀. Spin–orbit splitting and Λ-doubling are not shown.`;
     } else {
-        branchNote.innerHTML = `<strong>${mol.formula}</strong> is a <strong>linear molecule</strong> — the Q branch (ΔJ = 0) is forbidden by symmetry. Only P and R branches appear.`;
+        branchNote.innerHTML = `<strong>${mol.formula}</strong> has a ${mol.groundState} ground state (Λ = 0) — the Q branch (ΔJ = 0) is forbidden. Only P and R branches appear.`;
     }
 }
 
@@ -290,7 +308,7 @@ document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
         document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         mol = MOLECULES[chip.dataset.mol!];
-        jMax = calculateJMax(mol.B0, temperature);
+        jMax = calculateJMax(Bv(mol, 0), temperature);
         update();
         refreshMath();
     });
@@ -308,7 +326,7 @@ document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
 tempSlider.addEventListener('input', () => {
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
-    jMax = calculateJMax(mol.B0, temperature);
+    jMax = calculateJMax(Bv(mol, 0), temperature);
     scheduleUpdate();
 });
 
@@ -320,6 +338,6 @@ resSlider.addEventListener('input', () => {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 // Calculate initial jMax based on starting temperature
-jMax = calculateJMax(mol.B0, temperature);
+jMax = calculateJMax(Bv(mol, 0), temperature);
 update();
 refreshMath();

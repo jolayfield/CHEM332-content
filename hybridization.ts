@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
 import katex from 'katex';
+// @ts-ignore — auto-render ships without type declarations
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import {
     getHybridOrbitalSet,
@@ -11,12 +12,12 @@ import {
     HybridOrbital
 } from './hybridization-math';
 import './style.css';
-import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 // ─── KaTeX ───────────────────────────────────────────────────────────────────
-function refreshMath() {
+/** Render math in `root` (whole page once at boot, then only the equation box) */
+function refreshMath(root: HTMLElement = document.body) {
     (window as any).katex = katex;
-    renderMathInElement(document.body, {
+    renderMathInElement(root, {
         delimiters: [
             { left: '$$', right: '$$', display: true },
             { left: '$', right: '$', display: false },
@@ -38,6 +39,8 @@ const resetBtn        = document.getElementById('reset-camera') as HTMLButtonEle
 const equationEl      = document.getElementById('equation-display')!;
 const compositionEl   = document.getElementById('composition-display')!;
 const orbitalLabelEl  = document.getElementById('orbital-label')!;
+const hybTypeLabelEl  = document.getElementById('hyb-type-label')!;
+const HYB_TYPE_NAMES  = { sp: 'sp', sp2: 'sp²', sp3: 'sp³' } as const;
 
 // ─── Three.js ────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
@@ -45,8 +48,9 @@ scene.background = new THREE.Color(0x0a0a1a);
 
 const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.01, 200);
 // X out of plane (Three.js +Z), Y horizontal (Three.js +X), Z vertical (Three.js +Y)
-// Start looking from slightly along Three.js +Z (chemistry X) with slight elevation
-camera.position.set(1.5, 3, 10);
+// Oblique, elevated view between chem X and chem Y: hybrids along chem X would
+// otherwise point straight at the camera and look like spheres
+camera.position.set(-7, 3.5, 7);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -143,22 +147,28 @@ function findScatterThreshold(hybrid: HybridOrbital): number {
     return densities[Math.floor(densities.length * 0.005)] || 0.0001;
 }
 
-/** Find isosurface threshold enclosing ~90 % of the probability density */
+/**
+ * Find the |ψ| isovalue whose surface encloses 90 % of the probability ∫ψ² dV.
+ * Grid points are sorted by ψ² and accumulated until 90 % of Σψ² is reached;
+ * the |ψ| at that point is the isovalue for the ±ψ marching-cubes fields.
+ */
 function findSurfaceThreshold(hybrid: HybridOrbital): number {
     const densities: number[] = [];
     const step = EXTENT * 2 / 28;
     for (let x = -EXTENT; x < EXTENT; x += step)
         for (let y = -EXTENT; y < EXTENT; y += step)
-            for (let z = -EXTENT; z < EXTENT; z += step)
-                densities.push(Math.abs(hybridOrbitalWavefunction(x, y, z, hybrid)));
+            for (let z = -EXTENT; z < EXTENT; z += step) {
+                const psi = hybridOrbitalWavefunction(x, y, z, hybrid);
+                densities.push(psi * psi);
+            }
     densities.sort((a, b) => b - a);
     const total = densities.reduce((a, b) => a + b, 0);
     let cumul = 0;
     for (const d of densities) {
         cumul += d;
-        if (cumul >= total * 0.90) return d;
+        if (cumul >= total * 0.90) return Math.sqrt(d);
     }
-    return densities[densities.length - 1];
+    return Math.sqrt(densities[densities.length - 1]);
 }
 
 // ─── Scatter rendering ────────────────────────────────────────────────────────
@@ -227,12 +237,14 @@ function buildSurface(hybrid: HybridOrbital) {
     fieldPos.fill(0);
     fieldNeg.fill(0);
 
+    // MarchingCubes places cell (i, j, k) at local ((i − h)/h, …), h = GRID_RES/2
+    const half = GRID_RES / 2;
     for (let i = 0; i < GRID_RES; i++) {
         for (let j = 0; j < GRID_RES; j++) {
             for (let k = 0; k < GRID_RES; k++) {
-                const x = ((i / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
-                const y = ((j / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
-                const z = ((k / (GRID_RES - 1)) - 0.5) * EXTENT * 2;
+                const x = ((i - half) / half) * EXTENT;
+                const y = ((j - half) / half) * EXTENT;
+                const z = ((k - half) / half) * EXTENT;
                 const psi = hybridOrbitalWavefunction(x, y, z, hybrid);
                 const idx = i + j * GRID_RES + k * GRID_RES * GRID_RES;
                 fieldPos[idx] =  psi;
@@ -273,6 +285,7 @@ function updateViz() {
             equationEl.innerHTML = `\\(|\\psi_{h}\\rangle = ${eq}\\)`;
 
             orbitalLabelEl.textContent = hybrid.name;
+            hybTypeLabelEl.textContent = HYB_TYPE_NAMES[hybridType];
 
             compositionEl.innerHTML = `
                 <div class="stat-item"><span class="stat-label">Geometry</span>
@@ -287,7 +300,7 @@ function updateViz() {
             console.error('Hybridization render error:', e);
         } finally {
             loadingOverlay.style.display = 'none';
-            refreshMath();
+            refreshMath(equationEl);
         }
     }, 80);
 }
@@ -371,6 +384,7 @@ function animate() {
 }
 
 // ─── Boot ────────────────────────────────────────────────────────────────────
+refreshMath();
 populateOrbitalSelector();
 updateCounter();
 animate();

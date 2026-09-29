@@ -34,22 +34,23 @@ export class EnergyDiagram {
 
     /**
      * Visually-spaced Y positions.
-     * Uses sqrt scaling on -1/n² so levels are well separated
-     * even for higher n. Not numerically proportional to energy,
-     * but far more readable.
+     * The axis is linear in log|E| (|E_n| ∝ 1/n², so y ∝ ln n), NOT linear
+     * in E: on a linear axis n = 4, 5, 6 would sit only a few px apart and
+     * be unreadable. The compression is disclosed on the canvas.
+     * n = ∞ (E = 0) cannot sit on a log axis, so it is drawn as a separate
+     * dashed line a fixed gap above the highest level (axis break).
      */
     getY(n: number): number {
         const paddingTop = 35;
         const paddingBot = 35;
-        const usable = this.height - paddingTop - paddingBot;
+        const infGap = 20; // gap between n = ∞ and the highest drawn level
+        if (!isFinite(n)) return paddingTop;
 
-        // sqrt mapping: spread out the compressed upper levels
-        const e = -1 / (n * n);        // -1 … 0
-        const raw = (e - (-1)) / (0 - (-1)); // 0 (n=1) … 1 (n=∞)
-        const spread = Math.sqrt(raw);  // stretch upper levels
-
-        // bottom = n=1, top = n=∞
-        return this.height - paddingBot - spread * usable;
+        const nMax = Math.max(...this.levels);
+        const bottom = this.height - paddingBot;          // n = 1
+        const top = paddingTop + infGap;                  // n = nMax
+        const frac = Math.log(n) / Math.log(nMax);        // 0 (n=1) … 1 (n=nMax)
+        return bottom - frac * (bottom - top);
     }
 
     updateState(n: number, target: number | null) {
@@ -63,7 +64,28 @@ export class EnergyDiagram {
         const ctx = this.ctx;
 
         const paddingLeft = 55;
-        const lineW = this.width - 80;
+        const lineW = this.width - paddingLeft - 64; // leave room for eV labels on the right
+
+        // ── Ionization limit n = ∞ (E = 0) ──
+        const yInf = this.getY(Infinity);
+        ctx.beginPath();
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(paddingLeft, yInf);
+        ctx.lineTo(paddingLeft + lineW, yInf);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#666';
+        ctx.font = '12px Lato, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('n=∞', paddingLeft - 8, yInf);
+        ctx.textAlign = 'left';
+        ctx.fillText('0 eV', paddingLeft + lineW + 8, yInf);
+        ctx.font = 'italic 10px Lato, sans-serif';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('ionization', paddingLeft + 4, yInf - 2);
 
         // ── Draw each energy level ──
         this.levels.forEach(n => {
@@ -147,6 +169,11 @@ export class EnergyDiagram {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText('E = −13.6 / n²  eV', this.width / 2, 5);
+
+        // ── Scale disclosure ──
+        ctx.font = 'italic 10px Lato, sans-serif';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('energy axis compressed (log |E| scale) — not linear in E', this.width / 2, this.height - 2);
     }
 }
 

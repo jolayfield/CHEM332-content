@@ -2,27 +2,22 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
 import katex from 'katex';
-import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
-import { getWavefunction, getProbabilityDensity } from './orbitals-math';
+import {
+    getWavefunction,
+    getProbabilityDensity,
+    radialPart,
+    angularPart,
+    radialExtent,
+    realOrbitalName
+} from './orbitals-math';
 import './style.css';
-import { initializeTheme, toggleTheme } from './src/theme-manager';
 
 /**
- * Re-renders math equations on the page using KaTeX auto-render
+ * Renders a LaTeX string into a single element (only the readouts that change,
+ * rather than re-scanning the whole page on every slider move)
  */
-function refreshMath() {
-    // Make katex global for auto-render if needed
-    (window as any).katex = katex;
-
-    renderMathInElement(document.body, {
-        delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false },
-            { left: '\\(', right: '\\)', display: false },
-            { left: '\\[', right: '\\]', display: true }
-        ],
-        throwOnError: false
-    });
+function setMath(el: HTMLElement, tex: string) {
+    katex.render(tex, el, { throwOnError: false });
 }
 
 // Visualization State
@@ -35,6 +30,8 @@ const valN = document.getElementById('val-n')!;
 const valL = document.getElementById('val-l')!;
 const valML = document.getElementById('val-ml')!;
 const valZ = document.getElementById('val-z')!;
+const valZCtrl = document.getElementById('val-z-ctrl')!;
+const vizModeLabel = document.getElementById('viz-mode-label')!;
 const orbitalName = document.getElementById('orbital-name')!;
 
 const inputN = document.getElementById('param-n') as HTMLInputElement;
@@ -51,7 +48,8 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a1a);
 
 const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-camera.position.set(20, 20, 30);
+// X out of plane (Three.js +Z), Y horizontal (Three.js +X), Z vertical (Three.js +Y)
+camera.position.set(5, 10, 30);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -69,19 +67,60 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 directionalLight.position.set(10, 20, 10);
 scene.add(directionalLight);
 
-// Grid and Axis
-const gridHelper = new THREE.GridHelper(40, 40, 0x333333, 0x222222);
-gridHelper.rotation.x = Math.PI / 2;
+// Every orbital is drawn scaled so its 99.5% radius maps to DISPLAY_HALF world
+// units, so the view is filled regardless of n and Z (physical size ∝ n²/Z).
+const DISPLAY_HALF = 15;
+
+// Chemistry convention (matches hybridization page):
+//   chem X = out of plane (Three.js +Z, blue axis)
+//   chem Y = horizontal    (Three.js +X, red axis)
+//   chem Z = vertical      (Three.js +Y, green axis)
+// Grid lies in the Three.js XZ plane = chem XY (horizontal) plane.
+const gridHelper = new THREE.GridHelper(DISPLAY_HALF * 2, 20, 0x333333, 0x222222);
 scene.add(gridHelper);
 
-const axesHelper = new THREE.AxesHelper(5);
+const axesHelper = new THREE.AxesHelper(DISPLAY_HALF);
 scene.add(axesHelper);
+
+// Axis labels
+function makeAxisLabel(text: string, color: string): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = color;
+    ctx.font = 'bold 80px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 64, 64);
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(3, 3, 3);
+    return sprite;
+}
+
+const labelOffset = DISPLAY_HALF * 1.1;
+const labelX = makeAxisLabel('X', '#4488ff');
+labelX.position.set(0, 0, labelOffset);   // Three.js +Z
+scene.add(labelX);
+
+const labelY = makeAxisLabel('Y', '#ff4444');
+labelY.position.set(labelOffset, 0, 0);   // Three.js +X
+scene.add(labelY);
+
+const labelZ = makeAxisLabel('Z', '#44cc44');
+labelZ.position.set(0, labelOffset, 0);   // Three.js +Y
+scene.add(labelZ);
 
 // Simulation Objects
 let points: THREE.Points | null = null;
 let surfaceGroup: THREE.Group | null = null;
 const MAX_POINTS = 30000;
 const GRID_RES = 48; // Resolution for Marching Cubes
+
+// Hydrogen-like ions for each nuclear charge (one electron)
+const IONS = ['H', 'He⁺', 'Li²⁺', 'Be³⁺', 'B⁴⁺', 'C⁵⁺', 'N⁶⁺', 'O⁷⁺', 'F⁸⁺', 'Ne⁹⁺'];
 
 /**
  * Calculates the threshold value for 90% probability volume
@@ -123,18 +162,16 @@ function updateOrbital() {
         const ml = parseInt(inputML.value);
         const Z = parseInt(inputZ.value);
 
-        // Update UI Text with LaTeX delimiters
-        valN.textContent = `$n = ${n}$`;
-        valL.textContent = `$l = ${l}$`;
-        valML.textContent = `$m_l = ${ml}$`;
+        // Update readouts (only these elements are re-rendered)
+        setMath(valN, `n = ${n}`);
+        setMath(valL, `l = ${l}`);
+        setMath(valML, `m_l = ${ml}`);
+        setMath(orbitalName, realOrbitalName(n, l, ml));
 
-        const elements: Record<number, string> = {
-            1: 'Hydrogen', 2: 'Helium+', 3: 'Lithium++', 4: 'Beryllium+++'
-        };
-        valZ.textContent = `$Z = ${Z}$ (${elements[Z] || 'Ion'})`;
-
-        const lNames = ['s', 'p', 'd', 'f'];
-        orbitalName.textContent = `${n}${lNames[l]}${ml !== 0 ? ` (${ml})` : ''}`;
+        const zLabel = `${Z} — ${IONS[Z - 1] ?? 'Ion'}`;
+        valZ.textContent = zLabel;
+        valZCtrl.textContent = zLabel;
+        vizModeLabel.textContent = visualizationMode === 'scatter' ? 'Scatter' : '90% Surface';
 
         // Cleanup old objects
         if (points) {
@@ -154,7 +191,8 @@ function updateOrbital() {
             surfaceGroup = null;
         }
 
-        const extent = (n * n * 5) / Math.sqrt(Z);
+        // Physical half-width of the sampled box (a₀): radius enclosing 99.5% of the probability
+        const extent = radialExtent(n, l, Z, 0.995);
 
         try {
             if (visualizationMode === 'scatter') {
@@ -166,43 +204,80 @@ function updateOrbital() {
             console.error("Orbital render error:", err);
         } finally {
             loadingOverlay.style.display = 'none';
-            refreshMath();
         }
     }, 100);
 }
 
+/**
+ * Draws MAX_POINTS samples from |ψ|² exactly, independent of n, l, Z:
+ *   r from the radial distribution R²r² (inverse CDF of a tabulated integral),
+ *   direction by rejection against the maximum of Y² (estimated on a θ,φ grid).
+ * Since |ψ|² dV = R²r² dr · Y² dΩ, this is sampling relative to the orbital's own
+ * maximum density, so every orbital gets the same point count.
+ */
 function generateScatter(n: number, l: number, ml: number, Z: number, extent: number) {
     const positions = new Float32Array(MAX_POINTS * 3);
     const colors = new Float32Array(MAX_POINTS * 3);
+    const scale = DISPLAY_HALF / extent;
+
+    // Radial CDF table on [0, extent]
+    const RSTEPS = 2000;
+    const dr = extent / RSTEPS;
+    const cdf = new Float64Array(RSTEPS + 1);
+    for (let i = 1; i <= RSTEPS; i++) {
+        const r = (i - 0.5) * dr;
+        const R = radialPart(n, l, Z, r);
+        cdf[i] = cdf[i - 1] + R * R * r * r * dr;
+    }
+    const cdfTotal = cdf[RSTEPS];
+
+    // Max of Y² over the sphere (small safety margin for grid under-estimation)
+    let maxY2 = 0;
+    for (let a = 0; a <= 90; a++) {
+        for (let b = 0; b < 180; b++) {
+            const Y = angularPart(l, ml, (a / 90) * Math.PI, (b / 180) * 2 * Math.PI);
+            maxY2 = Math.max(maxY2, Y * Y);
+        }
+    }
+    maxY2 *= 1.02;
 
     let count = 0;
     let attempts = 0;
-    const threshold = 0.0001 / Math.pow(n, 3);
-
-    while (count < MAX_POINTS && attempts < MAX_POINTS * 15) {
+    while (count < MAX_POINTS && attempts < MAX_POINTS * 50) {
         attempts++;
-        const x = (Math.random() - 0.5) * extent * 2;
-        const y = (Math.random() - 0.5) * extent * 2;
-        const z = (Math.random() - 0.5) * extent * 2;
-        const r = Math.sqrt(x * x + y * y + z * z);
-        const theta = Math.acos(z / (r || 1));
-        const phi = Math.atan2(y, x);
+        const cosT = 2 * Math.random() - 1;
+        const phi = Math.random() * 2 * Math.PI;
+        const theta = Math.acos(cosT);
+        const Y = angularPart(l, ml, theta, phi);
+        if (Math.random() * maxY2 > Y * Y) continue;
 
-        const psi = getWavefunction(n, l, ml, Z, r, theta, phi);
-        const prob = psi * psi;
-
-        if (Math.random() < prob / threshold) {
-            positions[count * 3] = x;
-            positions[count * 3 + 1] = y;
-            positions[count * 3 + 2] = z;
-
-            if (psi > 0) {
-                colors[count * 3] = 0.4; colors[count * 3 + 1] = 0.6; colors[count * 3 + 2] = 1.0;
-            } else {
-                colors[count * 3] = 1.0; colors[count * 3 + 1] = 0.4; colors[count * 3 + 2] = 0.4;
-            }
-            count++;
+        // Invert the radial CDF by binary search + linear interpolation
+        const u = Math.random() * cdfTotal;
+        let lo = 0, hi = RSTEPS;
+        while (hi - lo > 1) {
+            const mid = (lo + hi) >> 1;
+            if (cdf[mid] < u) lo = mid; else hi = mid;
         }
+        const frac = (u - cdf[lo]) / ((cdf[hi] - cdf[lo]) || 1);
+        const r = (lo + frac) * dr;
+
+        const sinT = Math.sqrt(1 - cosT * cosT);
+        const cx = r * sinT * Math.cos(phi);  // chem x
+        const cy = r * sinT * Math.sin(phi);  // chem y
+        const cz = r * cosT;                  // chem z
+        const psi = radialPart(n, l, Z, r) * Y;
+
+        // chem (x, y, z) → Three.js (y, z, x), scaled to the display box
+        positions[count * 3] = cy * scale;
+        positions[count * 3 + 1] = cz * scale;
+        positions[count * 3 + 2] = cx * scale;
+
+        if (psi > 0) {
+            colors[count * 3] = 0.4; colors[count * 3 + 1] = 0.6; colors[count * 3 + 2] = 1.0;
+        } else {
+            colors[count * 3] = 1.0; colors[count * 3 + 1] = 0.4; colors[count * 3 + 2] = 0.4;
+        }
+        count++;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -210,7 +285,7 @@ function generateScatter(n: number, l: number, ml: number, Z: number, extent: nu
     geometry.setAttribute('color', new THREE.BufferAttribute(colors.slice(0, count * 3), 3));
 
     const material = new THREE.PointsMaterial({
-        size: 0.15,
+        size: 0.2,
         vertexColors: true,
         transparent: true,
         opacity: 0.8,
@@ -247,8 +322,8 @@ function generateSurface(n: number, l: number, ml: number, Z: number, extent: nu
     const mcPos = new MarchingCubes(GRID_RES, matPos, true, true, 100000);
     const mcNeg = new MarchingCubes(GRID_RES, matNeg, true, true, 100000);
 
-    mcPos.scale.set(extent, extent, extent);
-    mcNeg.scale.set(extent, extent, extent);
+    mcPos.scale.set(DISPLAY_HALF, DISPLAY_HALF, DISPLAY_HALF);
+    mcNeg.scale.set(DISPLAY_HALF, DISPLAY_HALF, DISPLAY_HALF);
 
     // Standard Three.js MarchingCubes field manipulation
     // @ts-ignore
@@ -258,13 +333,16 @@ function generateSurface(n: number, l: number, ml: number, Z: number, extent: nu
     field.fill(0);
     fieldNeg.fill(0);
 
-    // Fill the grid
+    // Fill the grid. MarchingCubes places cell (i, j, k) at local
+    // ((i − h)/h, (j − h)/h, (k − h)/h) along Three.js (X, Y, Z), h = GRID_RES/2.
+    // Map Three.js → chem: X → chem y, Y → chem z, Z → chem x.
+    const half = GRID_RES / 2;
     for (let i = 0; i < GRID_RES; i++) {
         for (let j = 0; j < GRID_RES; j++) {
             for (let k = 0; k < GRID_RES; k++) {
-                const x = ((i / (GRID_RES - 1)) - 0.5) * extent * 2;
-                const y = ((j / (GRID_RES - 1)) - 0.5) * extent * 2;
-                const z = ((k / (GRID_RES - 1)) - 0.5) * extent * 2;
+                const y = ((i - half) / half) * extent;
+                const z = ((j - half) / half) * extent;
+                const x = ((k - half) / half) * extent;
 
                 const r = Math.sqrt(x * x + y * y + z * z);
                 const theta = Math.acos(z / (r || 1));
@@ -296,15 +374,15 @@ function generateSurface(n: number, l: number, ml: number, Z: number, extent: nu
 // UI Handlers
 btnScatter.onclick = () => {
     visualizationMode = 'scatter';
-    btnScatter.classList.add('active');
-    btnSurface.classList.remove('active');
+    btnScatter.classList.add('on');
+    btnSurface.classList.remove('on');
     updateOrbital();
 };
 
 btnSurface.onclick = () => {
     visualizationMode = 'surface';
-    btnSurface.classList.add('active');
-    btnScatter.classList.remove('active');
+    btnSurface.classList.add('on');
+    btnScatter.classList.remove('on');
     updateOrbital();
 };
 

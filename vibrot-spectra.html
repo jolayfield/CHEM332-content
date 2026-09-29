@@ -80,7 +80,7 @@
         <label>Branch Legend</label>
         <div class="branch-legend">
           <span><span class="branch-dot" style="background:#e74c3c"></span>P Branch (ΔJ = −1)</span>
-          <span><span class="branch-dot" style="background:#2ecc71"></span>Q Branch (ΔJ = 0)</span>
+          <span id="q-legend"><span class="branch-dot" style="background:#2ecc71"></span>Q Branch (ΔJ = 0)</span>
           <span><span class="branch-dot" style="background:#3498db"></span>R Branch (ΔJ = +1)</span>
         </div>
       </div>
@@ -90,22 +90,24 @@
     <div class="info-grid">
       <div class="glass-panel">
         <h3>P, Q, R Branch Origin</h3>
-        <p>The vibrational transition $v=0\to1$ is accompanied by simultaneous rotational changes ($\Delta J = 0, \pm 1$):</p>
+        <p>The vibrational transition $v=0\to1$ is accompanied by simultaneous rotational changes ($\Delta J = \pm 1$, plus $\Delta J = 0$ when allowed). With $J$ the lower-state quantum number and band origin $\tilde{\nu}_0 = \omega_e - 2\omega_e x_e$:</p>
         <div class="math-block">
-          $$\tilde{\nu}_P = \tilde{\nu}_e - (B_1+B_0)J + (B_1-B_0)J^2$$
-          $$\tilde{\nu}_R = \tilde{\nu}_e + (B_1+B_0)(J{+}1) + (B_1-B_0)(J{+}1)^2$$
+          $$\tilde{\nu}_P = \tilde{\nu}_0 - (B_1+B_0)J + (B_1-B_0)J^2$$
+          $$\tilde{\nu}_R = \tilde{\nu}_0 + (B_1+B_0)(J{+}1) + (B_1-B_0)(J{+}1)^2$$
+          $$\tilde{\nu}_Q = \tilde{\nu}_0 + (B_1-B_0)J(J{+}1)$$
         </div>
+        <p>Line intensities: $R(J) \propto (J+1)\,e^{-E_J/k_BT}$ and $P(J) \propto J\,e^{-E_J/k_BT}$ (Hönl–London factors), so the R branch is slightly stronger than the P branch.</p>
       </div>
       <div class="glass-panel">
-        <h3>Why No Q Branch for Linear Molecules?</h3>
-        <p>For linear molecules (e.g. HCl, CO), the <strong>Q branch is forbidden</strong> because there is no rotational angular momentum along the molecular axis, requiring $\Delta J = \pm 1$ only.</p>
-        <p>Non-linear molecules or those with electronic orbital angular momentum (like NO) allow $\Delta J = 0$, producing a Q branch at $\tilde{\nu}_e$.</p>
+        <h3>Why No Q Branch for HCl?</h3>
+        <p>HCl, HBr, HF and CO have $^1\Sigma^+$ ground states: no electronic orbital angular momentum about the bond axis ($\Lambda = 0$). The photon carries one unit of angular momentum, which must change the rotation, so $\Delta J = \pm 1$ only — the <strong>Q branch ($\Delta J = 0$) is forbidden</strong>.</p>
+        <p>NO is also linear, but its $^2\Pi$ ground state has $\Lambda = 1$, so $\Delta J = 0$ is allowed and a (weak) Q branch appears near $\tilde{\nu}_0$. Linear polyatomics also show Q branches in perpendicular bands (e.g. the CO₂ bend $\nu_2$).</p>
       </div>
       <div class="glass-panel">
-        <h3>Centrifugal Distortion &amp; α<sub>e</sub></h3>
-        <p>Because the bond stretches at $v=1$, the rotational constant decreases:</p>
-        <div class="math-block">$$B_v = B_e - \alpha_e\left(v + \tfrac{1}{2}\right)$$</div>
-        <p>This causes P and R branch lines to be unequally spaced — R converges at high $J$ while P opens up.</p>
+        <h3>Vibration–Rotation Coupling (α<sub>e</sub>)</h3>
+        <p>In $v=1$ the anharmonic bond is longer on average, so $\langle 1/r^2 \rangle$ is smaller and the rotational constant decreases ($B_1 \lt B_0$):</p>
+        <div class="math-block">$$B_v = B_e - \alpha_e\left(v + \tfrac{1}{2}\right), \qquad \alpha_e = B_0 - B_1$$</div>
+        <p>Because $B_1 - B_0 &lt; 0$, R-branch lines crowd together at high $J$ while P-branch lines spread apart. Centrifugal distortion ($-DJ^2(J+1)^2$, with $D \approx 5\times10^{-4}$ cm⁻¹ for HCl) is a separate, much smaller effect and is neglected here.</p>
       </div>
       <div class="glass-panel">
         <h3>Temperature Effects</h3>

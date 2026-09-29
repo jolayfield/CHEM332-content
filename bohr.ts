@@ -1,6 +1,6 @@
 import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
-import { BohrSimulation } from './bohrSimulation';
+import { BohrSimulation, OrbitScale, transitionWavelengthNm } from './bohrSimulation';
 import { EnergyDiagram } from './energyDiagram';
 
 
@@ -42,16 +42,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const wlStat = document.getElementById('photon-wl') as HTMLElement;
     const seriesStat = document.getElementById('series-name') as HTMLElement;
 
+    const descEl = document.getElementById('bohr-desc') as HTMLElement | null;
+
+    // True while the simulation is animating a transition
+    let busy = false;
+
     // Helper to calculate physics
     const updateStats = (ni: number, nf: number) => {
+        if (ni === nf) {
+            // No transition: ΔE = 0, no photon
+            if (deltaEStat) deltaEStat.textContent = '—';
+            if (wlStat) wlStat.textContent = '—';
+            if (seriesStat) seriesStat.textContent = '—';
+            return;
+        }
+
         // E = -13.6 / n^2
         const Ei = -13.6 / (ni * ni);
         const Ef = -13.6 / (nf * nf);
         const dE = Math.abs(Ef - Ei);
 
-        // Wavelength: E = hc / lambda -> lambda = hc / E
-        // hc = 1240 eV nm
-        const wl = 1240 / dE;
+        // Rydberg formula: 1/λ = R_H (1/n_lower² − 1/n_upper²)
+        const wl = transitionWavelengthNm(ni, nf);
 
         // Series Name
         let series = "Unknown";
@@ -62,24 +74,27 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (lower === 4) series = "Brackett (IR)";
         else if (lower === 5) series = "Pfund (IR)";
 
-        if (deltaEStat) deltaEStat.textContent = `${dE.toFixed(2)} eV`;
-        if (wlStat) wlStat.textContent = `${wl.toFixed(0)} nm`;
+        if (deltaEStat) deltaEStat.innerHTML = `${dE.toFixed(2)}<span class="unit">eV</span>`;
+        if (wlStat) wlStat.innerHTML = `${wl.toFixed(wl < 1000 ? 1 : 0)}<span class="unit">nm</span>`;
         if (seriesStat) seriesStat.textContent = series;
     };
 
-    // UI Update Helper
-    const updateUI = () => {
+    // UI Update Helper (keepStats: leave the readouts showing the last transition)
+    const updateUI = (keepStats = false) => {
         const ni = parseInt(niInput.value);
         const nf = parseInt(nfInput.value);
 
         if (niVal) niVal.textContent = `n = ${ni}`;
         if (nfVal) nfVal.textContent = `n = ${nf}`;
 
-        // Pre-calculate stats for preview?
-        updateStats(ni, nf);
+        if (!keepStats) updateStats(ni, nf);
 
-        // Visual validation: Disable button if ni == nf?
-        if (ni === nf) {
+        niInput.disabled = busy;
+        if (busy) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.textContent = "Transitioning…";
+        } else if (ni === nf) {
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.textContent = "Same Level";
@@ -88,10 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.style.opacity = '1';
             btn.textContent = ni > nf ? "Emit Photon" : "Absorb Photon";
         }
-
-        // Sync initial state visually?
-        // Only if not animating?
-        // For now, let's trust the simulation state is separate until button click
     };
 
     // Initial State Sync
@@ -102,46 +113,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners
     niInput.addEventListener('input', () => {
+        // Changing n_i mid-transition would corrupt the sim state: revert and ignore
+        if (busy) {
+            niInput.value = bohrSim.n.toString();
+            return;
+        }
         updateUI();
-        // optionally update sim immediately?
-        // bohrSim.n = parseInt(niInput.value); // Snap to new N
-        // energyDiagram.currentN = parseInt(niInput.value); 
-        // energyDiagram.draw(); 
-        // Better to wait for button? No, immediate feedback is better for "Initial Level"
+        // Immediate feedback: snap the electron to the new initial level
         const n = parseInt(niInput.value);
         bohrSim.n = n;
         energyDiagram.currentN = n;
         energyDiagram.draw();
     });
 
-    nfInput.addEventListener('input', updateUI);
+    nfInput.addEventListener('input', () => updateUI());
 
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
         const ni = parseInt(niInput.value);
         const nf = parseInt(nfInput.value);
 
-        if (ni === nf) return;
+        if (busy || ni === nf) return;
 
-        // Trigger
-        bohrSim.transitionTo(nf);
+        busy = true;
+        updateStats(ni, nf);
+        updateUI(true);
 
-        // Update Energy Diagram to show transition arrow?
+        // Show transition arrow on the energy diagram
         energyDiagram.targetN = nf;
         energyDiagram.draw();
 
-        // Update stats
-        updateStats(ni, nf);
+        // Wait for the simulation to report that the electron has settled
+        const completed = await bohrSim.transitionTo(nf);
 
-        // After animation completes (timeout approximation), update inputs?
-        // Or keep inputs independent?
-        // Let's update inputs to reflect new state after transition
-        setTimeout(() => {
-            niInput.value = nf.toString();
-            updateUI();
-            energyDiagram.currentN = nf; // Settle
-            energyDiagram.targetN = null;
-            energyDiagram.draw();
-        }, 2000); // 2 seconds for animation roughly?
+        busy = false;
+        // Settle the diagram and sliders on the sim's actual level
+        niInput.value = bohrSim.n.toString();
+        energyDiagram.currentN = bohrSim.n;
+        energyDiagram.targetN = null;
+        energyDiagram.draw();
+        // Keep the readouts on the completed transition until a slider moves
+        updateUI(completed);
+    });
+
+    // Orbit scale toggle
+    const scaleDesc: Record<OrbitScale, string> = {
+        true: 'Orbits drawn to true scale, r<sub>n</sub> = n²a₀/Z (so r<sub>6</sub> = 36 r<sub>1</sub>). Electron relaxation emits a photon of energy ΔE = hν.',
+        schematic: 'Schematic view — orbits evenly spaced, <b>not to scale</b> (true radii grow as r<sub>n</sub> = n²a₀/Z). Electron relaxation emits a photon of energy ΔE = hν.',
+    };
+    document.querySelectorAll<HTMLButtonElement>('.scale-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.scale-chip').forEach(c => c.classList.remove('on'));
+            chip.classList.add('on');
+            const mode = chip.dataset.scale as OrbitScale;
+            bohrSim.orbitScale = mode;
+            if (descEl) descEl.innerHTML = scaleDesc[mode];
+        });
     });
 
     // Init

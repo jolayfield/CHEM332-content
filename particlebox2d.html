@@ -30,11 +30,15 @@
     <div class="sim-canvas-wrap dark">
       <canvas id="pbox2d-canvas"></canvas>
     </div>
+    <div class="fig-desc">
+      Box sides L<sub>x</sub>, L<sub>y</sub> are given in units of a reference length L, so
+      E = (h²/8mL²)(n<sub>x</sub>²/L<sub>x</sub>² + n<sub>y</sub>²/L<sub>y</sub>²).
+    </div>
 
     <div class="readouts">
       <div>
         <div class="k">Energy E</div>
-        <div class="v" id="energy-val">2.0 E₁</div>
+        <div class="v" id="energy-val">2.00<span class="unit">h²/8mL²</span></div>
       </div>
       <div>
         <div class="k">Nodal X</div>
@@ -66,7 +70,7 @@
       <div class="control-group">
         <div class="control-row">
           <label for="box-lx">Box Width L<sub>x</sub></label>
-          <span class="value-display" id="lx-val">1.0</span>
+          <span class="value-display" id="lx-val">L<sub>x</sub> = 1.0 L</span>
         </div>
         <input type="range" id="box-lx" class="qc-slider" min="0.5" max="3.0" value="1.0" step="0.1">
       </div>
@@ -74,7 +78,7 @@
       <div class="control-group">
         <div class="control-row">
           <label for="box-ly">Box Height L<sub>y</sub></label>
-          <span class="value-display" id="ly-val">1.0</span>
+          <span class="value-display" id="ly-val">L<sub>y</sub> = 1.0 L</span>
         </div>
         <input type="range" id="box-ly" class="qc-slider" min="0.5" max="3.0" value="1.0" step="0.1">
       </div>
@@ -89,7 +93,7 @@
 
       <div class="stat-item" style="border:none;padding:0;margin-top:8px">
         <span class="stat-label">Degeneracy</span>
-        <span class="stat-value" id="degeneracy-val">—</span>
+        <span class="stat-value" id="degeneracy-val">Non-degenerate</span>
       </div>
     </div>
   </div>
