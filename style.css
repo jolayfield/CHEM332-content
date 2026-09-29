@@ -190,6 +190,8 @@ body {
 .nav-bookmark:active { color: var(--ink); }
 
 .nav-bookmark { font-size: 18px; letter-spacing: 0; text-transform: none; }
+.nav-bookmark.is-done { color: var(--accent); }
+a.nav-menu { text-decoration: none; }
 
 /* ─── 02 Breadcrumb ─── */
 .breadcrumb {
@@ -267,6 +269,15 @@ body {
   margin-left: 3px;
 }
 
+/* Readout rows with many values wrap into a grid instead of overflowing */
+.readouts.readouts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  row-gap: var(--s-3);
+}
+.readouts.readouts-grid > div { min-width: 0; overflow-wrap: anywhere; }
+.readouts.readouts-grid .v { font-size: 17px; }
+
 /* ─── 06 Slider ─── */
 input[type="range"].qc-slider {
   -webkit-appearance: none;
@@ -299,21 +310,21 @@ input[type="range"].qc-slider::-moz-range-thumb {
 input[type="range"].qc-slider.spectrum {
   height: 8px;
   background: linear-gradient(90deg,
-    #ffffff  0%,      /* 250 nm — UV white */
-    #ffffff  21.5%,   /* 379 nm — end of UV */
-    #8800cc  22%,     /* 382 nm — deep violet */
-    #4400ff  26%,     /* 406 nm — violet-blue */
-    #0000ff  32%,     /* 442 nm — blue */
-    #0088ff  38%,     /* 478 nm — blue-cyan */
-    #00ffff  40%,     /* 490 nm — cyan */
-    #00ff00  43.5%,   /* 511 nm — green */
-    #aaff00  51%,     /* 556 nm — yellow-green */
-    #ffff00  55%,     /* 580 nm — yellow */
-    #ff8800  60%,     /* 610 nm — orange */
-    #ff0000  65.5%,   /* 643 nm — red */
-    #cc0000  88%,     /* 778 nm — deep red / end of visible */
-    #000000  89%,     /* 784 nm — IR black */
-    #000000  100%     /* 850 nm — IR black */
+    #ffffff  0%,     /* 200 nm — UV white */
+    #ffffff  27.5%,  /* 379 nm — end of UV */
+    #8800cc  28.0%,  /* 382 nm — deep violet */
+    #4400ff  31.7%,  /* 406 nm — violet-blue */
+    #0000ff  37.2%,  /* 442 nm — blue */
+    #0088ff  42.8%,  /* 478 nm — blue-cyan */
+    #00ffff  44.6%,  /* 490 nm — cyan */
+    #00ff00  47.8%,  /* 511 nm — green */
+    #aaff00  54.8%,  /* 556 nm — yellow-green */
+    #ffff00  58.5%,  /* 580 nm — yellow */
+    #ff8800  63.1%,  /* 610 nm — orange */
+    #ff0000  68.2%,  /* 643 nm — red */
+    #cc0000  88.9%,  /* 778 nm — deep red / end of visible */
+    #000000  89.8%,  /* 784 nm — IR black */
+    #000000  100%    /* 850 nm — IR black */
   );
 }
 
@@ -564,6 +575,8 @@ a.toc-row, .toc-row {
 .dual-chart { display: flex; flex-direction: column; gap: var(--s-4); }
 .dual-chart > div { position: relative; }
 .dual-chart canvas { width: 100%; height: 200px; display: block; }
+/* Chart.js canvases size to their fixed-height container; don't inherit the sim viewport min-height */
+.sim-canvas-wrap .dual-chart canvas { min-height: 0; }
 
 /* Control panel */
 .control-panel {
@@ -813,6 +826,10 @@ select:focus {
   padding-bottom: var(--s-2);
   border-bottom: 1px solid var(--line);
 }
+/* Let panels shrink below their content width; wide equations and tables scroll inside the panel */
+.info-grid .glass-panel { min-width: 0; }
+.info-grid .katex-display,
+.info-grid table { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 .info-grid p { font-size: 14px; color: var(--ink-2); line-height: 1.65; margin-bottom: var(--s-2); }
 .info-grid p:last-child { margin-bottom: 0; }
 .info-grid table { font-size: 13px; }
@@ -1094,7 +1111,7 @@ select:focus {
   .hyb-info-panel { grid-template-columns: 1fr; }
   .hyb-info-panel .glass-panel { border-right: 1px solid var(--line) !important; border-bottom: none; }
   .hyb-info-panel .glass-panel:last-child { border-bottom: 1px solid var(--line); }
-  .info-grid { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: minmax(0, 1fr); }
   .info-grid .glass-panel { border-right: 1px solid var(--line) !important; }
 }
 

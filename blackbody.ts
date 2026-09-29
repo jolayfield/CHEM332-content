@@ -175,15 +175,18 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
     ctx.fillRect(xVisibleMin, 0, xVisibleMax - xVisibleMin, height);
 
     // Mark peak wavelength
-    const xPeak = (width * 0.1) + (width * 0.8) * ((peakWavelength - wavelengthMin) / (wavelengthMax - wavelengthMin));
-    ctx.strokeStyle = '#ff6b6b';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(xPeak, 0);
-    ctx.lineTo(xPeak, height);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    // Skip the marker when the peak lies beyond the plotted range (T below ~1160 K)
+    if (peakWavelength <= wavelengthMax) {
+      const xPeak = (width * 0.1) + (width * 0.8) * ((peakWavelength - wavelengthMin) / (wavelengthMax - wavelengthMin));
+      ctx.strokeStyle = '#ff6b6b';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(xPeak, 0);
+      ctx.lineTo(xPeak, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   } else {
     // Frequency mode — x-axis runs from 0 to frequencyMax
     const frequencyMax = c / wavelengthMin;
@@ -275,8 +278,10 @@ function drawAxes(ctx: CanvasRenderingContext2D, width: number, height: number, 
   let positions: number[];
 
   if (mode === 'wavelength') {
-    labels = ['100', '500', '1000', '1500', '2000', '2500'];
-    positions = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+    const ticksNm = [100, 500, 1000, 1500, 2000, 2500];
+    labels = ticksNm.map(String);
+    // Axis is linear in wavelength from wavelengthMin to wavelengthMax
+    positions = ticksNm.map(nm => (nm * 1e-9 - wavelengthMin) / (wavelengthMax - wavelengthMin));
   } else {
     // Frequency mode: axis runs 0 → frequencyMax
     const frequencyMax = c / wavelengthMin;

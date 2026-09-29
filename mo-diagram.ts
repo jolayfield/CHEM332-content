@@ -11,6 +11,7 @@ export interface EnergyLevel {
     side?: 'left' | 'right' | 'center';
     electrons: number; // 0, 1, or 2
     symmetry?: string; // e.g., '1σg', '1σu*', etc.
+    character?: 'bonding' | 'antibonding' | 'nonbonding';
 }
 
 export interface InteractionLine {
@@ -48,10 +49,13 @@ export class MODiagram {
     }
 
     private getY(energy: number): number {
-        // Map energy (usually -10 to 10 or similar) to canvas Y
-        // For diatomic MOs, we'll assume a range
-        const minE = -20;
-        const maxE = 20;
+        // Auto-range to the current molecule so every diagram fills the canvas
+        const energies = this.levels.map(l => l.energy);
+        const lo = energies.length ? Math.min(...energies) : -20;
+        const hi = energies.length ? Math.max(...energies) : 20;
+        const margin = Math.max(1, (hi - lo) * 0.06);
+        const minE = lo - margin;
+        const maxE = hi + margin;
         const height = this.canvas.height / (window.devicePixelRatio || 1) - this.padding * 2;
         const normalized = (energy - minE) / (maxE - minE);
         return this.padding + height * (1 - normalized);
@@ -92,7 +96,9 @@ export class MODiagram {
 
         for (const [_, group] of energyGroups) {
             group.forEach((level, index) => {
-                const offset = (index - (group.length - 1) / 2) * 20; // 20px spacing
+                // Space degenerate levels by a full bar width so bars and electrons don't overprint
+                const spacing = this.barWidth(level) + 10;
+                const offset = (index - (group.length - 1) / 2) * spacing;
                 levelOffsets.set(level.id, offset);
             });
         }
@@ -151,11 +157,17 @@ export class MODiagram {
         ctx.restore();
     }
 
+    private barWidth(level: EnergyLevel): number {
+        // Narrower bars on small screens so three degenerate 2p AOs still fit
+        const width = this.canvas.width / (window.devicePixelRatio || 1);
+        return level.type === 'molecular' ? Math.min(60, width * 0.09) : Math.min(40, width * 0.07);
+    }
+
     private drawLevel(level: EnergyLevel, offset: number) {
         const ctx = this.ctx;
         const x = this.getX(level.side || 'center') + offset;
         const y = this.getY(level.energy);
-        const barWidth = level.type === 'molecular' ? 60 : 40;
+        const barWidth = this.barWidth(level);
 
         // Draw the energy bar
         ctx.strokeStyle = level.type === 'molecular' ? '#6699ff' : '#aaa';

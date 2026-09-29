@@ -3,129 +3,50 @@ import { initializeCapacitor } from './src/app-init';
 import { initializeAppLifecycle } from './src/app-lifecycle';
 import { initializeStorage } from './src/storage-manager';
 import { initializeTheme } from './src/theme-manager';
+import { CHAPTERS, ALL_SIMS, type Chapter, type SimEntry } from './src/chapters';
+import { loadProgress, type Progress } from './src/progress';
 
 console.log('QuantumChem Landing Page Loaded');
 
 // ─── Data model ──────────────────────────────────────────────────────────────
 
-interface SimEntry {
-  id: string;
-  title: string;
-  section: string;
-  href: string;
-  done: boolean;
+interface ChapterView extends Chapter {
+  sims: (SimEntry & { done: boolean })[];
 }
 
-interface Chapter {
-  num: string;
-  title: string;
-  weeks: string;
-  sims: SimEntry[];
-}
-
-interface Progress {
-  lastSim: string;
-  bookmark: string;
-  step: number;
-  total: number;
-  section: string;
-  title: string;
-  done: Record<string, boolean>;
-}
-
-const STORAGE_KEY = 'qc.progress';
-
-const DEFAULT_PROGRESS: Progress = {
-  lastSim: 'photoelectric',
-  bookmark: 'Introduction',
-  step: 0,
-  total: 12,
-  section: '1.1',
-  title: 'The Photoelectric Effect',
-  done: {},
-};
-
-function loadProgress(): Progress {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...DEFAULT_PROGRESS, ...JSON.parse(raw) };
-  } catch { /* ignore */ }
-  return { ...DEFAULT_PROGRESS };
-}
-
-// ─── Chapter / sim definitions ────────────────────────────────────────────────
-
-function buildChapters(progress: Progress): Chapter[] {
-  const done = progress.done ?? {};
-  return [
-    {
-      num: '01',
-      title: 'Failure of Classical Mechanics',
-      weeks: 'Weeks 1–2',
-      sims: [
-        { id: 'photoelectric', title: 'Photoelectric Effect',   section: '1.1', href: 'photoelectric.html', done: !!done['photoelectric'] },
-        { id: 'blackbody',     title: 'Black Body Radiation',   section: '1.2', href: 'blackbody.html',     done: !!done['blackbody']     },
-      ],
-    },
-    {
-      num: '02',
-      title: 'Idealized Quantum Systems',
-      weeks: 'Weeks 3–4',
-      sims: [
-        { id: 'particlebox',   title: 'Particle in a Box (1D)', section: '2.1', href: 'particlebox.html',   done: !!done['particlebox']   },
-        { id: 'particlebox2d', title: 'Particle in a Box (2D)', section: '2.2', href: 'particlebox2d.html', done: !!done['particlebox2d'] },
-        { id: 'tunneling',     title: 'Quantum Tunneling',      section: '2.3', href: 'barrier.html',       done: !!done['tunneling']     },
-      ],
-    },
-    {
-      num: '03',
-      title: 'Molecular Spectroscopy',
-      weeks: 'Weeks 5–6',
-      sims: [
-        { id: 'ir-spectra',    title: 'IR Vibrational Spectra',        section: '3.1', href: 'ir-spectra.html',    done: !!done['ir-spectra']    },
-        { id: 'rot-spectra',   title: 'Rotational Spectra',            section: '3.2', href: 'rot-spectra.html',   done: !!done['rot-spectra']   },
-        { id: 'vibrot-spectra',title: 'Vibrational-Rotational Spectra',section: '3.3', href: 'vibrot-spectra.html',done: !!done['vibrot-spectra'] },
-      ],
-    },
-    {
-      num: '04',
-      title: 'Atomic Systems',
-      weeks: 'Weeks 7–8',
-      sims: [
-        { id: 'bohr',          title: 'Bohr Model',         section: '4.1', href: 'bohr.html',           done: !!done['bohr']          },
-        { id: 'orbitals',      title: 'Atomic Orbitals',    section: '4.2', href: 'atomic-orbitals.html', done: !!done['orbitals']      },
-        { id: 'hybridization', title: 'Orbital Hybridization', section: '4.3', href: 'hybridization.html', done: !!done['hybridization'] },
-      ],
-    },
-    {
-      num: '05',
-      title: 'Molecular Systems',
-      weeks: 'Weeks 9–10',
-      sims: [
-        { id: 'mo-schemes', title: 'Diatomic MO Schemes', section: '5.1', href: 'mo-scheme.html', done: !!done['mo-schemes'] },
-      ],
-    },
-  ];
+function buildChapters(progress: Progress): ChapterView[] {
+  return CHAPTERS.map(c => ({
+    ...c,
+    sims: c.sims.map(s => ({ ...s, done: !!progress.done[s.id] })),
+  }));
 }
 
 // ─── Render helpers ───────────────────────────────────────────────────────────
 
 function renderResume(p: Progress): string {
-  const pct = p.total > 0 ? Math.round((p.step / p.total) * 100) : 0;
-  const ticks = Array.from({ length: p.total }, (_, i) =>
-    `<div class="tick${i < p.step ? ' done' : ''}"></div>`
+  const total = ALL_SIMS.length;
+  const doneCount = ALL_SIMS.filter(s => p.done[s.id]).length;
+  const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+  const ticks = ALL_SIMS.map(s =>
+    `<div class="tick${p.done[s.id] ? ' done' : ''}"></div>`
   ).join('');
+  const last = ALL_SIMS.find(s => s.id === p.lastSim);
+  const target = last ?? ALL_SIMS[0];
+  const heading = last ? 'Continue where you left off' : 'Start here';
+  const sub = last
+    ? 'Mark a simulation done with the ☆ in its top bar to track your progress.'
+    : 'Begin with the experiments that broke classical physics.';
   return `
-    <div class="resume-inner">
-      <div class="eyebrow">Continue reading</div>
-      <div class="resume-title">§ ${p.section} · ${p.title}</div>
-      <div class="resume-sub">You stopped on &ldquo;${p.bookmark}.&rdquo;</div>
+    <a class="resume-inner" href="${target.href}" style="display:block;color:inherit;text-decoration:none">
+      <div class="eyebrow">${heading}</div>
+      <div class="resume-title">§ ${target.section} · ${target.title}</div>
+      <div class="resume-sub">${sub}</div>
       <div class="qc-prog">${ticks}</div>
-      <div class="byline" style="margin-top:8px">${p.step} / ${p.total} &nbsp;·&nbsp; ${pct}% complete</div>
-    </div>`;
+      <div class="byline" style="margin-top:8px">${doneCount} / ${total} done &nbsp;·&nbsp; ${pct}% complete</div>
+    </a>`;
 }
 
-function renderProgressStrip(chapters: Chapter[]): string {
+function renderProgressStrip(chapters: ChapterView[]): string {
   return chapters.map(c => {
     const doneCount = c.sims.filter(s => s.done).length;
     const pct = c.sims.length > 0 ? (doneCount / c.sims.length) * 100 : 0;
@@ -135,7 +56,7 @@ function renderProgressStrip(chapters: Chapter[]): string {
   }).join('');
 }
 
-function renderTOC(chapters: Chapter[]): string {
+function renderTOC(chapters: ChapterView[]): string {
   return chapters.map(c => {
     const doneCount = c.sims.filter(s => s.done).length;
     const ticks = c.sims.map(s =>

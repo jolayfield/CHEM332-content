@@ -65,9 +65,8 @@ export class BarrierSimulation {
         const a = this.barrierWidth;
 
         if (Math.abs(E - V0) < 0.01) {
-            // E ≈ V₀: T = 1 / (1 + m*a²*V₀/(2ℏ²))
-            // Simplified: use limit formula
-            const factor = (a * V0) * (a * V0) * 0.26; // approximate scaling
+            // E ≈ V₀: T = 1 / (1 + m*a²*V₀/(2ℏ²)); with √(2m)/ℏ = 5.12 this is (5.12·a)²·V₀/4
+            const factor = (5.12 * a) * (5.12 * a) * V0 / 4;
             return 1.0 / (1.0 + factor);
         }
 

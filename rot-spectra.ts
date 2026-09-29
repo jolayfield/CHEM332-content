@@ -189,20 +189,13 @@ function update() {
     const Jmax_pop = jMostPopulated(B, temperature);
     const I_si = currentMol.I * 1e-47;
     statsPanel.innerHTML = `
-        <div class="stat-item"><span class="stat-label">Molecule</span>
-            <span class="stat-value">${currentMol.formula}</span></div>
-        <div class="stat-item"><span class="stat-label">B (rotational constant)</span>
-            <span class="stat-value">${B.toFixed(3)} cm⁻¹</span></div>
-        <div class="stat-item"><span class="stat-label">Bond length (r<sub>e</sub>)</span>
-            <span class="stat-value">${currentMol.re} Å</span></div>
-        <div class="stat-item"><span class="stat-label">Reduced mass (μ)</span>
-            <span class="stat-value">${currentMol.mu.toFixed(3)} amu</span></div>
-        <div class="stat-item"><span class="stat-label">Moment of inertia (I)</span>
-            <span class="stat-value">${currentMol.I.toFixed(2)} × 10⁻⁴⁷ kg·m²</span></div>
-        <div class="stat-item"><span class="stat-label">Most populated J at ${temperature} K</span>
-            <span class="stat-value">J = ${Jmax_pop}</span></div>
-        <div class="stat-item"><span class="stat-label">Line spacing (2B)</span>
-            <span class="stat-value">${(2 * B).toFixed(3)} cm⁻¹</span></div>
+        <div><div class="k">Molecule</div><div class="v">${currentMol.formula}</div></div>
+        <div><div class="k">B (rotational constant)</div><div class="v">${B.toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">Bond length (r<sub>e</sub>)</div><div class="v">${currentMol.re}<span class="unit">Å</span></div></div>
+        <div><div class="k">Reduced mass (μ)</div><div class="v">${currentMol.mu.toFixed(3)}<span class="unit">amu</span></div></div>
+        <div><div class="k">Moment of inertia (I)</div><div class="v">${currentMol.I.toFixed(2)}<span class="unit">× 10⁻⁴⁷ kg·m²</span></div></div>
+        <div><div class="k">Most populated J at ${temperature} K</div><div class="v">J = ${Jmax_pop}</div></div>
+        <div><div class="k">Line spacing (2B)</div><div class="v">${(2 * B).toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
     `;
 
     // Energy levels table

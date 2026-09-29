@@ -262,18 +262,12 @@ function update() {
     const pops = Array.from({ length: jMax + 1 }, (_, J) => boltzmann(J, mol.B0, temperature));
     const Jmax = pops.indexOf(Math.max(...pops));
     statsPanel.innerHTML = `
-        <div class="stat-item"><span class="stat-label">ν̃<sub>e</sub> (vib. freq.)</span>
-            <span class="stat-value">${mol.nu_e} cm⁻¹</span></div>
-        <div class="stat-item"><span class="stat-label">B₀ (ground state)</span>
-            <span class="stat-value">${mol.B0.toFixed(4)} cm⁻¹</span></div>
-        <div class="stat-item"><span class="stat-label">B₁ (v=1 state)</span>
-            <span class="stat-value">${mol.B1.toFixed(4)} cm⁻¹</span></div>
-        <div class="stat-item"><span class="stat-label">αe = B₀ − B₁</span>
-            <span class="stat-value">${(mol.B0 - mol.B1).toFixed(4)} cm⁻¹</span></div>
-        <div class="stat-item"><span class="stat-label">Most populated J</span>
-            <span class="stat-value">J = ${Jmax} at ${temperature} K</span></div>
-        <div class="stat-item"><span class="stat-label">P/R spacing (~2B₀)</span>
-            <span class="stat-value">${(2 * mol.B0).toFixed(3)} cm⁻¹</span></div>
+        <div><div class="k">ν̃<sub>e</sub> (vib. freq.)</div><div class="v">${mol.nu_e}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">B₀ (ground state)</div><div class="v">${mol.B0.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">B₁ (v=1 state)</div><div class="v">${mol.B1.toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">αe = B₀ − B₁</div><div class="v">${(mol.B0 - mol.B1).toFixed(4)}<span class="unit">cm⁻¹</span></div></div>
+        <div><div class="k">Most populated J</div><div class="v">J = ${Jmax} at ${temperature} K</div></div>
+        <div><div class="k">P/R spacing (~2B₀)</div><div class="v">${(2 * mol.B0).toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
     `;
 
     // Branch note
