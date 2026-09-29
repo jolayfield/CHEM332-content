@@ -32,6 +32,9 @@
       <div class="dual-chart" style="padding:0 16px 16px">
         <div style="position:relative;height:220px">
           <canvas id="rot-spectrum-chart" style="width:100%;height:220px;display:block"></canvas>
+          <div id="spec-empty-note" style="position:absolute;inset:0 0 40px 48px;display:none;align-items:center;justify-content:center;text-align:center;padding:0 24px;color:rgba(255,255,255,0.8);font-size:13px;line-height:1.5;pointer-events:none">
+            N₂ is nonpolar: no permanent dipole, so no microwave absorption.<br>Its rotational constant is measured by Raman spectroscopy.
+          </div>
         </div>
         <div class="fig-caption" style="padding:8px 0 4px">Figure 3.3 · Boltzmann Population Distribution</div>
         <div style="position:relative;height:180px">
@@ -43,8 +46,8 @@
     <div class="readouts readouts-grid" id="stats-panel">
       <!-- Rendered dynamically by rot-spectra.ts -->
       <div><div class="k">Molecule</div><div class="v" style="font-size:16px;padding-top:2px">HCl</div></div>
-      <div><div class="k">B (cm⁻¹)</div><div class="v">—</div></div>
-      <div><div class="k">r<sub>e</sub> (Å)</div><div class="v">—</div></div>
+      <div><div class="k">B₀ (rotational constant)</div><div class="v">—</div></div>
+      <div><div class="k">Bond length r₀ (from B₀)</div><div class="v">—</div></div>
     </div>
 
     <div class="control-panel">
@@ -57,6 +60,15 @@
           <button class="qc-chip mol-chip" data-mol="co">CO</button>
           <button class="qc-chip mol-chip" data-mol="n2">N₂</button>
           <button class="qc-chip mol-chip" data-mol="no">NO</button>
+        </div>
+        <div id="mol-note" class="branch-note" style="display:none"></div>
+      </div>
+
+      <div class="control-group">
+        <label>Axis</label>
+        <div class="chip-group">
+          <button class="qc-chip axis-chip on" data-axis="fit">Fit to molecule</button>
+          <button class="qc-chip axis-chip" data-axis="common">Common scale (0–700 cm⁻¹)</button>
         </div>
       </div>
 
@@ -79,7 +91,7 @@
       <div class="control-group">
         <label>Energy Levels</label>
         <div class="levels-header">
-          <span>J</span><span>E (cm⁻¹)</span><span>Population</span>
+          <span>J</span><span>E (cm⁻¹)</span><span>% of molecules</span>
         </div>
         <div id="levels-panel"></div>
       </div>
@@ -98,19 +110,21 @@
         <h3>Selection Rule &amp; Line Spacing</h3>
         <p>Rotational transitions obey $\Delta J = \pm 1$. Each line corresponds to $J \to J+1$:</p>
         <div class="math-block">$$\tilde{\nu}_{J\to J+1} = 2B(J+1)$$</div>
-        <p>Lines are equally spaced by $2B$, so measuring spacing gives $B$ and thus the bond length.</p>
+        <p>Lines are equally spaced by $2B$, so measuring spacing gives $B$ and thus the bond length. A pure rotational spectrum requires a <strong>permanent dipole moment</strong>.</p>
       </div>
       <div class="glass-panel">
         <h3>Boltzmann Populations</h3>
         <p>The population of level $J$ at temperature $T$ is:</p>
-        <div class="math-block">$$N_J \propto (2J+1)\, e^{-hcBJ(J+1)/k_BT}$$</div>
+        <div class="math-block">$$\frac{N_J}{N} = \frac{(2J+1)\, e^{-hcBJ(J+1)/k_BT}}{q_{\text{rot}}}, \quad q_{\text{rot}} = \sum_J (2J+1)\, e^{-hcBJ(J+1)/k_BT}$$</div>
         <p>The most populated level: $J_{\max} \approx \sqrt{k_BT / 2hcB} - \tfrac{1}{2}$.</p>
+        <p>Line intensities follow the population of the lower level, weighted by the line strength and by $\tilde{\nu}\,(1 - e^{-hc\tilde{\nu}/k_BT})$ (absorption minus stimulated emission), so the intensity maximum sits at somewhat higher $J$ than $J_{\max}$.</p>
       </div>
       <div class="glass-panel">
         <h3>Determining Bond Lengths</h3>
         <p>From a measured $B$ (in cm⁻¹), the bond length is:</p>
         <div class="math-block">$$r_e = \sqrt{\frac{h}{8\pi^2 c \mu B}}$$</div>
-        <p>Heavy molecules (CO, N₂) have small $B$ and dense line patterns; light hydrides (HF, HCl) have large $B$ and widely spaced lines.</p>
+        <p>Heavy molecules (CO, NO) have small $B$ and dense line patterns; light hydrides (HF, HCl) have large $B$ and widely spaced lines — switch to the common axis scale to compare. Homonuclear N₂ has no microwave spectrum; its $B$ comes from rotational Raman spectroscopy.</p>
+        <p>Using $B_0$ gives the vibrationally averaged $r_0$; the equilibrium $r_e$ uses $B_e = B_0 + \alpha_e/2$.</p>
       </div>
     </div>
   </div>

@@ -1,3 +1,46 @@
+/** Rydberg constant for hydrogen (m⁻¹) */
+export const R_H = 1.09678e7;
+
+/**
+ * Photon wavelength (nm) for an ni ↔ nf transition in hydrogen:
+ * 1/λ = R_H (1/n_lower² − 1/n_upper²). Returns Infinity when ni === nf.
+ */
+export function transitionWavelengthNm(ni: number, nf: number): number {
+    const invLambda = R_H * Math.abs(1 / (nf * nf) - 1 / (ni * ni)); // m⁻¹
+    return invLambda === 0 ? Infinity : 1e9 / invLambda;
+}
+
+/** Visible window used for coloring photons (nm) */
+export const VISIBLE_MIN_NM = 380;
+export const VISIBLE_MAX_NM = 750;
+
+/**
+ * Approximate sRGB color for a visible wavelength (380–750 nm), after
+ * Dan Bruton's piecewise-linear fit, with intensity roll-off near the
+ * edges of human vision. Returns null outside the visible range.
+ */
+export function wavelengthToColor(nm: number): string | null {
+    if (nm < VISIBLE_MIN_NM || nm > VISIBLE_MAX_NM) return null;
+    let r = 0, g = 0, b = 0;
+    if (nm < 440)      { r = -(nm - 440) / (440 - 380); b = 1; }
+    else if (nm < 490) { g = (nm - 440) / (490 - 440); b = 1; }
+    else if (nm < 510) { g = 1; b = -(nm - 510) / (510 - 490); }
+    else if (nm < 580) { r = (nm - 510) / (580 - 510); g = 1; }
+    else if (nm < 645) { r = 1; g = -(nm - 645) / (645 - 580); }
+    else               { r = 1; }
+
+    // Dim toward the UV / IR limits of vision (floor keeps lines visible on dark bg)
+    let f = 1;
+    if (nm < 420) f = 0.3 + 0.7 * (nm - 380) / (420 - 380);
+    else if (nm > 700) f = 0.3 + 0.7 * (750 - nm) / (750 - 700);
+    f = Math.max(f, 0.55);
+
+    const to255 = (c: number) => Math.round(255 * Math.pow(c * f, 0.8));
+    return `rgb(${to255(r)},${to255(g)},${to255(b)})`;
+}
+
+export type OrbitScale = 'true' | 'schematic';
+
 export class BohrSimulation {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -11,13 +54,19 @@ export class BohrSimulation {
     waitingForAbsorption: boolean = false; // New state for absorption
 
     electronAngle: number = 0;
-    electronSpeed: number = 0.035; // Halfway speed
 
-    // Photons: { x, y, vx, vy, color, life, totalLife, waviness, type: 'emission'|'absorption' }
+    // Photons: { x, y, vx, vy, color, visible, band, life, totalLife, waviness, type: 'emission'|'absorption' }
     photons: any[] = [];
 
+    // Resolves the Promise returned by transitionTo() once the electron settles
+    private onTransitionDone: ((completed: boolean) => void) | null = null;
+
+    // Orbit radius mode: 'true' → r ∝ n², 'schematic' → evenly spaced (not to scale)
+    orbitScale: OrbitScale = 'true';
+
     // Constants
-    baseRadiusScale: number = 30;
+    maxN: number = 6;
+    outerRadius: number = 120; // radius of the n = maxN orbit (px), set on resize
     gridCanvas: HTMLCanvasElement | null = null;
     elementSymbol: string = 'H';
     elementZ: number = 1;
@@ -44,7 +93,8 @@ export class BohrSimulation {
             this.canvas.height = this.canvas.parentElement.clientHeight;
             this.width = this.canvas.width;
             this.height = this.canvas.height;
-            this.baseRadiusScale = Math.min(this.width, this.height) / 20;
+            // Outermost orbit fits the smaller canvas dimension with a margin for labels
+            this.outerRadius = Math.max(40, Math.min(this.width, this.height) / 2 - 22);
             this.buildGrid();
         }
     }
@@ -67,16 +117,38 @@ export class BohrSimulation {
     }
 
     getRadius(n: number): number {
-        // Quantized radius r_n = n^2 * r1
-        // Scaling to fit screen: r = scale * n^1.2 (for visualization, n^2 grows too fast)
-        return this.baseRadiusScale * (n * 1.5);
+        const N = this.maxN;
+        // True scale: r_n = n² a₀ / Z, normalized so the n = maxN orbit fills the canvas
+        if (this.orbitScale === 'true') return this.outerRadius * (n * n) / (N * N);
+        // Schematic: evenly spaced orbits (NOT to scale)
+        return this.outerRadius * n / N;
     }
 
-    transitionTo(finalN: number) {
-        if (this.targetN !== null || this.waitingForAbsorption) return; // Busy
-        if (finalN === this.n) return;
+    /**
+     * Angular speed (rad/frame) of the electron in orbit n.
+     * Bohr theory: v ∝ 1/n and r ∝ n², so ω = v/r ∝ 1/n³. Taken literally the
+     * n = 6 electron would be 216× slower than n = 1 and look frozen, so the
+     * speed is clamped to a minimum that still reads as motion.
+     */
+    getAngularSpeed(n: number): number {
+        return Math.max(0.1 / (n * n * n), 0.005);
+    }
+
+    get busy(): boolean {
+        return this.targetN !== null || this.waitingForAbsorption;
+    }
+
+    /**
+     * Start a transition to finalN. Resolves true when the electron has
+     * settled in the new orbit, or false immediately if the request was
+     * rejected (already busy, or finalN equals the current level).
+     */
+    transitionTo(finalN: number): Promise<boolean> {
+        if (this.busy) return Promise.resolve(false);
+        if (finalN === this.n) return Promise.resolve(false);
 
         this.targetN = finalN;
+        const done = new Promise<boolean>(resolve => { this.onTransitionDone = resolve; });
 
         // Emission (High -> Low): Electron jumps immediately, photon emitted during/after? 
         // Typically emission is instantaneous with jump.
@@ -91,26 +163,23 @@ export class BohrSimulation {
             this.waitingForAbsorption = true; // Wait for photon to hit
             this.transitionProgress = 0;
         }
+        return done;
     }
 
-    getPhotonColor(ni: number, nf: number): string {
-        const lower = Math.min(ni, nf);
-        const upper = Math.max(ni, nf);
-
-        if (lower === 1) return '#AA00FF'; // Lyman (UV)
-        if (lower === 2) {
-            // Balmer
-            if (upper === 3) return '#F44336'; // Red
-            if (upper === 4) return '#03A9F4'; // Cyan
-            if (upper === 5) return '#3F51B5'; // Blue
-            return '#673AB7'; // Violet
-        }
-        if (lower === 3) return '#D32F2F'; // Paschen (IR)
-        return '#FFFFFF'; // Unknown/Other
+    /**
+     * Photon appearance from its true wavelength. Visible lines get their
+     * spectral color; UV (Lyman) and IR (Paschen, Brackett, Pfund) photons
+     * are invisible, so they are drawn neutral grey + dashed and labelled.
+     */
+    getPhotonStyle(ni: number, nf: number): { color: string; visible: boolean; band: string } {
+        const nm = transitionWavelengthNm(ni, nf);
+        const color = wavelengthToColor(nm);
+        if (color) return { color, visible: true, band: '' };
+        return { color: 'rgba(200,200,210,0.75)', visible: false, band: nm < VISIBLE_MIN_NM ? 'UV' : 'IR' };
     }
 
     absorbPhoton(ni: number, nf: number) {
-        const color = this.getPhotonColor(ni, nf);
+        const style = this.getPhotonStyle(ni, nf);
         const r = this.getRadius(ni); // Target radius (current orbit)
 
         // Calculate time to impact
@@ -125,8 +194,7 @@ export class BohrSimulation {
         const framesToImpact = distToTravel / speed;
 
         // Where will the electron be in framesToImpact?
-        // angular velocity = 0.035 / n
-        const angularVelocity = 0.035 / ni;
+        const angularVelocity = this.getAngularSpeed(ni);
         // Electron moves counter-clockwise (positive angle)
         const futureAngle = this.electronAngle + angularVelocity * framesToImpact;
 
@@ -149,7 +217,7 @@ export class BohrSimulation {
             y: sy,
             vx: (dx / dist) * speed,
             vy: (dy / dist) * speed,
-            color: color,
+            ...style,
             life: 1000,
             totalLife: 1000,
             waviness: 0,
@@ -158,7 +226,7 @@ export class BohrSimulation {
     }
 
     emitPhoton(ni: number, nf: number) {
-        const color = this.getPhotonColor(ni, nf);
+        const style = this.getPhotonStyle(ni, nf);
 
         // Spawn at electron position
         const radius = this.getRadius(this.n);
@@ -174,7 +242,7 @@ export class BohrSimulation {
             y: ey,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
-            color: color,
+            ...style,
             life: 200,
             totalLife: 200,
             waviness: 0,
@@ -198,10 +266,13 @@ export class BohrSimulation {
                 this.n = this.targetN;
                 this.targetN = null;
                 this.transitionProgress = 0;
+                const cb = this.onTransitionDone;
+                this.onTransitionDone = null;
+                cb?.(true);
             }
         }
 
-        this.electronAngle += 0.035 / currentEffectiveN; // Halfway speed
+        this.electronAngle += this.getAngularSpeed(currentEffectiveN);
 
         // Photons
         for (let i = this.photons.length - 1; i >= 0; i--) {
@@ -246,7 +317,11 @@ export class BohrSimulation {
         const cy = this.height / 2;
 
         // Draw Orbits
-        for (let i = 1; i <= 6; i++) {
+        // n= labels sit just right of each orbit; in true-scale mode the inner
+        // orbits are tightly packed, so skip labels that would overlap.
+        const labelMinGap = 24;
+        let lastLabelX = Infinity;
+        for (let i = this.maxN; i >= 1; i--) {
             const r = this.getRadius(i);
             const isActive = (i === this.n) || (!this.waitingForAbsorption && i === this.targetN);
             const isTarget = this.waitingForAbsorption && i === this.targetN;
@@ -270,25 +345,35 @@ export class BohrSimulation {
             ctx.setLineDash([]);
 
             // n= label
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.font = '600 9px Lato, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(`n=${i}`, cx + r + 4, cy + 4);
+            const lx = cx + r + 4;
+            if (lastLabelX - lx >= labelMinGap && r > 10) {
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.font = '600 9px Lato, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`n=${i}`, lx, cy + 4);
+                lastLabelX = lx;
+            }
         }
 
+        // Nucleus: shrink so it never hides the n = 1 orbit in true-scale mode
+        const r1 = this.getRadius(1);
+        const nucleusR = Math.min(6, r1 * 0.6);
+
         // Nucleus glow ring
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(255,179,71,0.35)';
-        ctx.lineWidth = 0.6;
-        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-        ctx.stroke();
+        if (r1 > 14) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255,179,71,0.35)';
+            ctx.lineWidth = 0.6;
+            ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+            ctx.stroke();
+        }
 
         // Nucleus
         ctx.beginPath();
         ctx.fillStyle = '#ffb347';
         ctx.shadowColor = '#ffb347';
         ctx.shadowBlur = 8;
-        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.arc(cx, cy, nucleusR, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -310,7 +395,7 @@ export class BohrSimulation {
         ctx.fillStyle = '#7cc4ff';
         ctx.shadowColor = '#7cc4ff';
         ctx.shadowBlur = 15;
-        ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+        ctx.arc(ex, ey, Math.min(5, Math.max(2.5, r1 * 0.8)), 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -320,14 +405,20 @@ export class BohrSimulation {
         ctx.textAlign = 'left';
         ctx.fillText(`Z = ${this.elementZ} · ${this.elementSymbol.toUpperCase()}`, 12, this.height - 10);
 
+        // Bottom-right scale label
+        ctx.textAlign = 'right';
+        ctx.fillText(this.orbitScale === 'true' ? 'TRUE SCALE · r ∝ n²' : 'SCHEMATIC · NOT TO SCALE',
+            this.width - 12, this.height - 10);
+
         // Draw Photons (Sine wave packet)
         this.photons.forEach(p => {
             ctx.beginPath();
             ctx.strokeStyle = p.color;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = p.visible ? 3 : 2;
             ctx.shadowColor = p.color;
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = p.visible ? 8 : 0;
             ctx.lineCap = 'round';
+            ctx.setLineDash(p.visible ? [] : [4, 4]);
 
             // Draw a sine wave segment oriented along velocity
             const angle = Math.atan2(p.vy, p.vx);
@@ -350,7 +441,16 @@ export class BohrSimulation {
 
             ctx.stroke();
             ctx.restore();
+            ctx.setLineDash([]);
             ctx.shadowBlur = 0;
+
+            // UV / IR tag for invisible photons
+            if (!p.visible) {
+                ctx.fillStyle = 'rgba(255,255,255,0.75)';
+                ctx.font = '600 10px Lato, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.band, p.x, p.y - 12);
+            }
         });
     }
 
