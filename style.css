@@ -401,6 +401,10 @@ a.toc-row, .toc-row {
 }
 .toc-row.sim-row .title { font-size: 15px; }
 
+/* Related lecture notes, appended to each simulation page */
+.related-lectures { margin: var(--s-6) 0 var(--s-10); }
+.related-lectures .fig-caption { margin: 0; }
+
 /* ─── HOME SCREEN ─── */
 .toc-heading {
   padding: var(--s-6) var(--s-5) var(--s-3);

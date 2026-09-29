@@ -178,10 +178,10 @@ function drawAxes(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  xMin: number,
-  xMax: number,
-  yMin: number,
-  yMax: number
+  _xMin: number,
+  _xMax: number,
+  _yMin: number,
+  _yMax: number
 ): void {
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim();
   ctx.fillStyle = textColor;

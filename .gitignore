@@ -35,3 +35,6 @@ android/app/release/
 
 # Android signing keystore (never commit!)
 android/keystore/
+
+# Archive copies of committed folders
+*.zip
