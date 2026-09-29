@@ -1,3 +1,4 @@
+import { createHiDPIOffscreen, fitCanvasToParent } from './src/hidpi';
 
 interface Photon {
     x: number;
@@ -75,10 +76,9 @@ export class Simulation {
     handleResize(): void {
         const parent = this.canvas.parentElement;
         if (parent) {
-            this.canvas.width = parent.clientWidth;
-            this.canvas.height = parent.clientHeight;
-            this.width = this.canvas.width;
-            this.height = this.canvas.height;
+            const { width, height } = fitCanvasToParent(this.canvas);
+            this.width = width;
+            this.height = height;
 
             this.plateX = Math.round(this.width * 0.08);
             this.plateY = Math.round(this.height * 0.25);
@@ -117,12 +117,9 @@ export class Simulation {
 
     buildGrid(): void {
         const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
-        const gc = document.createElement('canvas');
-        gc.width = this.width;
-        gc.height = this.height;
-        const gctx = gc.getContext('2d')!;
+        const { canvas: gc, ctx: gctx } = createHiDPIOffscreen(this.width, this.height);
         gctx.fillStyle = canvasBg;
-        gctx.fillRect(0, 0, gc.width, gc.height);
+        gctx.fillRect(0, 0, this.width, this.height);
         gctx.strokeStyle = 'rgba(255,255,255,0.05)';
         gctx.lineWidth = 0.5;
         gctx.beginPath();
@@ -252,7 +249,7 @@ export class Simulation {
         ctx.fillRect(0, 0, this.width, this.height);
 
         // Pre-rendered grid (one drawImage instead of N line draws)
-        if (this.gridCanvas) ctx.drawImage(this.gridCanvas, 0, 0);
+        if (this.gridCanvas) ctx.drawImage(this.gridCanvas, 0, 0, this.width, this.height);
 
         // Vertical metal plate (cathode)
         ctx.fillStyle = '#8a8f99';

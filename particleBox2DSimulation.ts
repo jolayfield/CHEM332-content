@@ -1,3 +1,5 @@
+import { fitCanvasToParent } from './src/hidpi';
+
 /**
  * 2D Particle in a Box — Contour / Heatmap Renderer
  *
@@ -74,10 +76,9 @@ export class ParticleBox2DSimulation {
 
     handleResize() {
         if (this.canvas.parentElement) {
-            this.canvas.width = this.canvas.parentElement.clientWidth;
-            this.canvas.height = this.canvas.parentElement.clientHeight;
-            this.width = this.canvas.width;
-            this.height = this.canvas.height;
+            const { width, height } = fitCanvasToParent(this.canvas);
+            this.width = width;
+            this.height = height;
             this.lastParams = ''; // force recompute
             this.draw();
         }

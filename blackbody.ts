@@ -1,6 +1,7 @@
 import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { setupMobileMenu } from './src/mobile-menu';
+import { fitCanvas } from './src/hidpi';
 
 /**
  * Setup theme toggle button click handler
@@ -82,8 +83,9 @@ function drawSpectrum(canvas: HTMLCanvasElement, temperature: number, mode: 'wav
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  const width = canvas.width;
-  const height = canvas.height;
+  // Drawing is in CSS pixels; the context is pre-scaled for high-density screens
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
 
   // Clear canvas
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f4f1ec';
@@ -330,10 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let spectrumMode: 'wavelength' | 'frequency' = 'wavelength';
 
+  const CANVAS_HEIGHT = 400;
+
   // Set canvas size
   if (canvas) {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 400;
+    fitCanvas(canvas, canvas.offsetWidth, CANVAS_HEIGHT);
   }
 
   const updateDisplay = () => {
@@ -383,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       if (canvas) {
-        canvas.width = canvas.offsetWidth;
+        fitCanvas(canvas, canvas.offsetWidth, CANVAS_HEIGHT);
         updateDisplay();
       }
     }, 150);

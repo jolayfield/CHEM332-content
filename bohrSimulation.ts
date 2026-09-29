@@ -1,3 +1,5 @@
+import { createHiDPIOffscreen, fitCanvasToParent } from './src/hidpi';
+
 /** Rydberg constant for hydrogen (m⁻¹) */
 export const R_H = 1.09678e7;
 
@@ -89,10 +91,9 @@ export class BohrSimulation {
 
     handleResize() {
         if (this.canvas.parentElement) {
-            this.canvas.width = this.canvas.parentElement.clientWidth;
-            this.canvas.height = this.canvas.parentElement.clientHeight;
-            this.width = this.canvas.width;
-            this.height = this.canvas.height;
+            const { width, height } = fitCanvasToParent(this.canvas);
+            this.width = width;
+            this.height = height;
             // Outermost orbit fits the smaller canvas dimension with a margin for labels
             this.outerRadius = Math.max(40, Math.min(this.width, this.height) / 2 - 22);
             this.buildGrid();
@@ -101,12 +102,9 @@ export class BohrSimulation {
 
     buildGrid() {
         const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
-        const gc = document.createElement('canvas');
-        gc.width = this.width;
-        gc.height = this.height;
-        const gctx = gc.getContext('2d')!;
+        const { canvas: gc, ctx: gctx } = createHiDPIOffscreen(this.width, this.height);
         gctx.fillStyle = canvasBg;
-        gctx.fillRect(0, 0, gc.width, gc.height);
+        gctx.fillRect(0, 0, this.width, this.height);
         gctx.strokeStyle = 'rgba(255,255,255,0.05)';
         gctx.lineWidth = 0.5;
         gctx.beginPath();
@@ -306,7 +304,7 @@ export class BohrSimulation {
 
         // Dark background + grid
         if (this.gridCanvas) {
-            ctx.drawImage(this.gridCanvas, 0, 0);
+            ctx.drawImage(this.gridCanvas, 0, 0, this.width, this.height);
         } else {
             const canvasBg = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#0a0612';
             ctx.fillStyle = canvasBg;

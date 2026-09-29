@@ -1,3 +1,5 @@
+import { fitCanvasToParent } from './src/hidpi';
+
 // Draws a T(E) curve for fixed V₀ and a, with current E marked
 export class TransmissionGraph {
     canvas: HTMLCanvasElement;
@@ -24,10 +26,9 @@ export class TransmissionGraph {
 
     handleResize() {
         if (this.canvas.parentElement) {
-            this.canvas.width = this.canvas.parentElement.clientWidth;
-            this.canvas.height = this.canvas.parentElement.clientHeight || 200;
-            this.width = this.canvas.width;
-            this.height = this.canvas.height;
+            const { width, height } = fitCanvasToParent(this.canvas, 200);
+            this.width = width;
+            this.height = height;
             this.draw();
         }
     }
