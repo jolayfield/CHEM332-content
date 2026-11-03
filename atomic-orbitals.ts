@@ -11,6 +11,7 @@ import {
     realOrbitalName
 } from './orbitals-math';
 import './style.css';
+import { setupCameraControls, describeWebGLCanvas } from './src/camera-keys';
 
 /**
  * Renders a LaTeX string into a single element (only the readouts that change,
@@ -58,6 +59,16 @@ container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// Keyboard, button, and preset control; text alternative for the WebGL canvas
+setupCameraControls({
+    container,
+    camera,
+    controls,
+    label: '3D view of a hydrogen-like orbital. Use the arrow keys to rotate and plus and minus to zoom, or the buttons below.',
+    obliquePosition: new THREE.Vector3(5, 10, 30),
+}, resetBtn);
+describeWebGLCanvas(renderer.domElement, 'desc-3d-view', '3D probability density of a hydrogen-like orbital for the chosen n, l, m and atomic number Z. The shaded lobes show where the electron is likely to be; colour shows the sign of the wavefunction. Arrow keys rotate and plus and minus zoom.');
 
 // Lighting for Surfaces
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
