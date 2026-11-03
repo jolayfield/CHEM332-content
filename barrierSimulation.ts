@@ -1,3 +1,5 @@
+import { fitCanvasToParent } from './src/hidpi';
+
 export class BarrierSimulation {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -38,10 +40,9 @@ export class BarrierSimulation {
 
     handleResize() {
         if (this.canvas.parentElement) {
-            this.canvas.width = this.canvas.parentElement.clientWidth;
-            this.canvas.height = this.canvas.parentElement.clientHeight;
-            this.width = this.canvas.width;
-            this.height = this.canvas.height;
+            const { width, height } = fitCanvasToParent(this.canvas);
+            this.width = width;
+            this.height = height;
             this.updateLayout();
         }
     }
