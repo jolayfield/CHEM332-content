@@ -57,3 +57,56 @@ export function summarizeBox1D(sliderN: number, pinned: PinnedState[]): Summary 
   const full = `${short}${beat}`;
   return { short, full };
 }
+
+/** Interior nodal lines along one axis of length L: k·L/n for k = 1..n-1. */
+function nodalLines(n: number, length: number): string {
+  const pos = nodePositions(n).map(p => p * length);
+  return pos.length === 0 ? 'none' : pos.map(p => `${p.toFixed(2).replace(/\.?0+$/, '')} L`).join(', ');
+}
+
+export interface Degenerate2D {
+  g: number;
+  partners: [number, number][];
+}
+
+/**
+ * Summary of a particle in a two-dimensional box. The degenerate partners come
+ * from the caller (findDegenerateStates) so this stays pure.
+ */
+export function summarizeBox2D(
+  nx: number, ny: number, Lx: number, Ly: number, energy: number, degeneracy: Degenerate2D,
+): Summary {
+  const dimensions = `State (${nx}, ${ny}) in a box ${Lx.toFixed(1)} L by ${Ly.toFixed(1)} L`;
+  const degen = degeneracy.g === 1
+    ? 'Not degenerate.'
+    : `${degeneracy.g}-fold degenerate with ${degeneracy.partners
+        .filter(([a, b]) => !(a === nx && b === ny))
+        .map(([a, b]) => `(${a}, ${b})`).join(', ')}.`;
+  const short = `${dimensions}. Energy ${energy.toFixed(2)} in units of h squared over 8 m L squared. ${degen}`;
+  const full = `${short} Nodal lines at x = ${nodalLines(nx, Lx)}, and at y = ${nodalLines(ny, Ly)}. Nodal lines split the box into ${nx * ny} cells.`;
+  return { short, full };
+}
+
+export interface MOState {
+  name: string;
+  /** Occupied orbital labels in energy order with their electron counts */
+  occupancy: { label: string; electrons: number }[];
+  bondOrder: number;
+  unpaired: number;
+  homo: string;
+  lumo: string;
+}
+
+/** Summary of a diatomic molecular orbital diagram. */
+export function summarizeMO(state: MOState): Summary {
+  const occupied = state.occupancy
+    .filter(o => o.electrons > 0)
+    .map(o => `${o.label} with ${o.electrons === 2 ? 'two' : 'one'} ${o.electrons === 2 ? 'electrons' : 'electron'}`)
+    .join(', ');
+  const magnetism = state.unpaired > 0
+    ? `Paramagnetic, with ${state.unpaired} unpaired ${state.unpaired === 1 ? 'electron' : 'electrons'}.`
+    : 'Diamagnetic, with no unpaired electrons.';
+  const short = `${state.name}: bond order ${state.bondOrder}. ${magnetism}`;
+  const full = `${short} Highest occupied orbital ${state.homo}; lowest unoccupied orbital ${state.lumo}. Filled in energy order: ${occupied || 'none'}.`;
+  return { short, full };
+}
