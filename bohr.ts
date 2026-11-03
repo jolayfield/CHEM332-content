@@ -136,8 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
             announce(`Initial and final level are both ${ni}. No transition.`);
             return;
         }
-        const dE = deltaEStat?.textContent ?? '';
-        const wl = wlStat?.textContent ?? '';
+        // Put a space between each number and its unit so speech reads "0.66 eV"
+        const spoken = (el: HTMLElement | null) => (el?.textContent ?? '').replace(/(\d)([a-zA-Zµ])/g, '$1 $2');
+        const dE = spoken(deltaEStat);
+        const wl = spoken(wlStat);
         const series = seriesStat?.textContent ?? '';
         announce(`Initial n ${ni}, final n ${nf}. Energy ${dE}, wavelength ${wl}, ${series}.`);
     };
