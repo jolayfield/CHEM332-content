@@ -3,6 +3,8 @@ import katex from 'katex';
 // @ts-expect-error — katex's auto-render module ships without type declarations
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
+import './src/chart-theme';
+import { INK_ON_DARK } from './src/canvas-theme';
 
 function refreshMath() {
     (window as any).katex = katex;
@@ -133,22 +135,22 @@ const chart = new Chart<'line', XY[]>(ctx, {
         scales: {
             x: {
                 type: 'linear',
-                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 11 }, color: 'rgba(255,255,255,0.5)' },
-                ticks: { maxTicksLimit: 10, color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 12 }, color: INK_ON_DARK.secondary },
+                ticks: { maxTicksLimit: 10, color: INK_ON_DARK.secondary, font: { size: 11 } },
                 grid: { color: 'rgba(255,255,255,0.1)' },
                 border: { color: 'rgba(255,255,255,0.2)' },
             },
             y: {
-                title: { display: true, text: 'Transmittance (%)', font: { size: 11 }, color: 'rgba(255,255,255,0.5)' },
+                title: { display: true, text: 'Transmittance (%)', font: { size: 12 }, color: INK_ON_DARK.secondary },
                 min: 0,
                 max: 105,
-                ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+                ticks: { color: INK_ON_DARK.secondary, font: { size: 11 } },
                 grid: { color: 'rgba(255,255,255,0.1)' },
                 border: { color: 'rgba(255,255,255,0.2)' },
             }
         },
         plugins: {
-            legend: { display: true, position: 'top', labels: { color: 'rgba(255,255,255,0.7)', font: { size: 11 } } },
+            legend: { display: true, position: 'top', labels: { color: INK_ON_DARK.primary, font: { size: 11 } } },
             tooltip: {
                 callbacks: {
                     title: (items) => `${(items[0].parsed.x ?? 0).toFixed(2)} cm⁻¹`,

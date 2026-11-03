@@ -1,3 +1,4 @@
+import { canvasFont, INK_ON_PAPER } from './src/canvas-theme';
 import { fitCanvasToParent } from './src/hidpi';
 
 export class ParticleBoxSimulation {
@@ -135,8 +136,8 @@ export class ParticleBoxSimulation {
         ctx.fillRect(this.boxRight, this.boxTop, 40, boxH);
 
         // V=∞ labels
-        ctx.fillStyle = '#636e72';
-        ctx.font = 'bold 14px Arial';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
+        ctx.font = canvasFont(14, 'bold');
         ctx.textAlign = 'center';
         ctx.fillText('V = ∞', this.boxLeft - 20, this.boxTop + 20);
         ctx.fillText('V = ∞', this.boxRight + 20, this.boxTop + 20);
@@ -149,15 +150,15 @@ export class ParticleBoxSimulation {
         this.drawWavefunction(ctx, numPoints, amplitude);
 
         // Draw x-axis labels
-        ctx.fillStyle = '#636e72';
-        ctx.font = '12px Arial';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'center';
         ctx.fillText('0', this.boxLeft, this.boxBottom + 35);
         ctx.fillText('L', this.boxRight, this.boxBottom + 35);
 
         // Draw title
-        ctx.fillStyle = '#2d3436';
-        ctx.font = 'bold 14px Merriweather';
+        ctx.fillStyle = INK_ON_PAPER.primary;
+        ctx.font = canvasFont(15, 'bold', 'Lora');
         ctx.textAlign = 'center';
 
         // Create a list of all active states for drawing: pinned + preview
@@ -376,7 +377,7 @@ export class ParticleBoxEnergyDiagram {
         const paddingLeft = 50;
         const lineWidth = this.width - 70;
 
-        ctx.font = '12px Arial';
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
 
@@ -386,15 +387,16 @@ export class ParticleBoxEnergyDiagram {
             const isActive = this.activeStates.includes(n);
 
             ctx.beginPath();
-            ctx.strokeStyle = isActive ? '#9c27b0' : '#ddd';
+            // Inactive levels use --ink-3 so the lines stay visible (≥ 3:1 on paper)
+            ctx.strokeStyle = isActive ? '#9c27b0' : '#7b7681';
             ctx.lineWidth = isActive ? 2.5 : 1;
             ctx.moveTo(paddingLeft, y);
             ctx.lineTo(paddingLeft + lineWidth, y);
             ctx.stroke();
 
             // Label
-            ctx.fillStyle = isActive ? '#9c27b0' : '#999';
-            ctx.font = isActive ? 'bold 12px Arial' : '12px Arial';
+            ctx.fillStyle = isActive ? '#9c27b0' : INK_ON_PAPER.secondary;
+            ctx.font = isActive ? canvasFont(12, 'bold') : canvasFont(12);
             ctx.fillText(`n=${n}`, paddingLeft - 5, y);
 
             // Energy value (E_n = n² in units of E₁)

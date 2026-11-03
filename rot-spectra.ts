@@ -3,6 +3,8 @@ import katex from 'katex';
 // @ts-expect-error — katex's auto-render module ships without type declarations
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
+import './src/chart-theme';
+import { INK_ON_DARK } from './src/canvas-theme';
 
 function refreshMath() {
     (window as any).katex = katex;
@@ -83,7 +85,8 @@ const molNote        = document.getElementById('mol-note')!;
 const ctxSpec  = (document.getElementById('rot-spectrum-chart') as HTMLCanvasElement).getContext('2d')!;
 const ctxLevels = (document.getElementById('rot-levels-chart')  as HTMLCanvasElement).getContext('2d')!;
 
-const dimWhite = 'rgba(255,255,255,0.5)';
+// Axis text on the dark canvas (≥ 4.5:1 contrast)
+const axisInk = INK_ON_DARK.secondary;
 const gridLine  = 'rgba(255,255,255,0.1)';
 const axisBorder = 'rgba(255,255,255,0.2)';
 
@@ -126,16 +129,16 @@ const specChart = new Chart<'line', XY[]>(ctxSpec, {
             x: {
                 type: 'linear',
                 min: 0,
-                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 11 }, color: dimWhite },
-                ticks: { color: dimWhite, font: { size: 10 }, maxTicksLimit: 12 },
+                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 12 }, color: axisInk },
+                ticks: { color: axisInk, font: { size: 11 }, maxTicksLimit: 12 },
                 grid: { color: gridLine },
                 border: { color: axisBorder },
             },
             y: {
-                title: { display: true, text: 'Absorption intensity (rel.)', font: { size: 11 }, color: dimWhite },
+                title: { display: true, text: 'Absorption intensity (rel.)', font: { size: 12 }, color: axisInk },
                 min: 0,
                 max: 1.1,
-                ticks: { color: dimWhite, font: { size: 10 } },
+                ticks: { color: axisInk, font: { size: 11 } },
                 grid: { color: gridLine },
                 border: { color: axisBorder },
             }
@@ -176,15 +179,15 @@ const levelsChart = new Chart<'bar', number[], string>(ctxLevels, {
         indexAxis: 'y',
         scales: {
             x: {
-                title: { display: true, text: 'Relative Population (2J+1)e^(−E_J/kT)', font: { size: 11 }, color: dimWhite },
+                title: { display: true, text: 'Relative Population (2J+1)e^(−E_J/kT)', font: { size: 12 }, color: axisInk },
                 min: 0,
-                ticks: { color: dimWhite, font: { size: 10 } },
+                ticks: { color: axisInk, font: { size: 11 } },
                 grid: { color: gridLine },
                 border: { color: axisBorder },
             },
             y: {
-                title: { display: true, text: 'J level', font: { size: 11 }, color: dimWhite },
-                ticks: { color: dimWhite, font: { size: 10 } },
+                title: { display: true, text: 'J level', font: { size: 12 }, color: axisInk },
+                ticks: { color: axisInk, font: { size: 11 } },
                 grid: { color: gridLine },
                 border: { color: axisBorder },
             }

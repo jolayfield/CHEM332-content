@@ -1,5 +1,6 @@
 
 import Chart from 'chart.js/auto';
+import './src/chart-theme';
 
 export class KEGraph {
     canvas: HTMLCanvasElement;
@@ -26,7 +27,8 @@ export class KEGraph {
         this.canvas = canvas;
         const _style = getComputedStyle(document.documentElement);
         const _accent = _style.getPropertyValue('--accent').trim() || '#340E51';
-        const _ink3  = _style.getPropertyValue('--ink-3').trim()  || '#7b7681';
+        // Axis text uses --ink-2: --ink-3 is only 3.9:1 on the paper background
+        const _axisInk  = _style.getPropertyValue('--ink-2').trim()  || '#4b4554';
         const _line  = _style.getPropertyValue('--line').trim()   || '#d9d2c5';
         this.chart = new Chart(canvas, {
             type: 'line',
@@ -76,13 +78,13 @@ export class KEGraph {
                         title: {
                             display: true,
                             text: 'Wavelength \u03BB (nm)',
-                            color: _ink3
+                            color: _axisInk
                         },
                         grid: {
                             color: _line
                         },
                         ticks: {
-                            color: _ink3,
+                            color: _axisInk,
                             stepSize: 100
                         },
                         min: 200,
@@ -92,14 +94,14 @@ export class KEGraph {
                         title: {
                             display: true,
                             text: 'Max Kinetic Energy (eV)',
-                            color: _ink3
+                            color: _axisInk
                         },
                         grid: {
-                            color: (ctx) => ctx.tick.value === 0 ? _ink3 : _line,
+                            color: (ctx) => ctx.tick.value === 0 ? _axisInk : _line,
                             lineWidth: (ctx) => ctx.tick.value === 0 ? 1.5 : 1
                         },
                         ticks: {
-                            color: _ink3,
+                            color: _axisInk,
                             callback: function (val) {
                                 return Number(val) < 0 ? '' : val;
                             }

@@ -3,6 +3,8 @@ import katex from 'katex';
 // @ts-expect-error — katex's auto-render module ships without type declarations
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
+import './src/chart-theme';
+import { INK_ON_DARK } from './src/canvas-theme';
 
 function refreshMath() {
     (window as any).katex = katex;
@@ -96,7 +98,8 @@ const selectionNote   = document.getElementById('selection-note')!;
 
 // ─── Chart setup ─────────────────────────────────────────────────────────────
 const ctx = (document.getElementById('ir-chart') as HTMLCanvasElement).getContext('2d')!;
-const dimWhite = 'rgba(255,255,255,0.5)';
+// Axis text on the dark canvas (≥ 4.5:1 contrast)
+const axisInk = INK_ON_DARK.secondary;
 const gridLine = 'rgba(255,255,255,0.1)';
 
 const chart = new Chart<'line', number[], number>(ctx, {
@@ -119,16 +122,16 @@ const chart = new Chart<'line', number[], number>(ctx, {
             x: {
                 type: 'linear',
                 reverse: true,
-                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 11 }, color: dimWhite },
+                title: { display: true, text: 'Wavenumber (cm⁻¹)', font: { size: 12 }, color: axisInk },
                 min: 400, max: 4000,
-                ticks: { stepSize: 400, color: dimWhite, font: { size: 10 } },
+                ticks: { stepSize: 400, color: axisInk, font: { size: 11 } },
                 grid: { color: gridLine },
                 border: { color: 'rgba(255,255,255,0.2)' },
             },
             y: {
-                title: { display: true, text: 'Transmittance (%)', font: { size: 11 }, color: dimWhite },
+                title: { display: true, text: 'Transmittance (%)', font: { size: 12 }, color: axisInk },
                 min: 0, max: 105,
-                ticks: { color: dimWhite, font: { size: 10 } },
+                ticks: { color: axisInk, font: { size: 11 } },
                 grid: { color: gridLine },
                 border: { color: 'rgba(255,255,255,0.2)' },
             }

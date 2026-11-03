@@ -1,3 +1,4 @@
+import { canvasFont, INK_ON_DARK } from './src/canvas-theme';
 import { createHiDPIOffscreen, fitCanvasToParent } from './src/hidpi';
 
 /** Rydberg constant for hydrogen (m⁻¹) */
@@ -317,7 +318,7 @@ export class BohrSimulation {
         // Draw Orbits
         // n= labels sit just right of each orbit; in true-scale mode the inner
         // orbits are tightly packed, so skip labels that would overlap.
-        const labelMinGap = 24;
+        const labelMinGap = 28;
         let lastLabelX = Infinity;
         for (let i = this.maxN; i >= 1; i--) {
             const r = this.getRadius(i);
@@ -345,8 +346,8 @@ export class BohrSimulation {
             // n= label
             const lx = cx + r + 4;
             if (lastLabelX - lx >= labelMinGap && r > 10) {
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                ctx.font = '600 9px Lato, sans-serif';
+                ctx.fillStyle = INK_ON_DARK.muted;
+                ctx.font = canvasFont(11, 600);
                 ctx.textAlign = 'left';
                 ctx.fillText(`n=${i}`, lx, cy + 4);
                 lastLabelX = lx;
@@ -398,8 +399,8 @@ export class BohrSimulation {
         ctx.shadowBlur = 0;
 
         // Bottom-left element label
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.font = '600 9px Lato, sans-serif';
+        ctx.fillStyle = INK_ON_DARK.secondary;
+        ctx.font = canvasFont(11, 600);
         ctx.textAlign = 'left';
         ctx.fillText(`Z = ${this.elementZ} · ${this.elementSymbol.toUpperCase()}`, 12, this.height - 10);
 
@@ -444,8 +445,8 @@ export class BohrSimulation {
 
             // UV / IR tag for invisible photons
             if (!p.visible) {
-                ctx.fillStyle = 'rgba(255,255,255,0.75)';
-                ctx.font = '600 10px Lato, sans-serif';
+                ctx.fillStyle = INK_ON_DARK.secondary;
+                ctx.font = canvasFont(11, 600);
                 ctx.textAlign = 'center';
                 ctx.fillText(p.band, p.x, p.y - 12);
             }

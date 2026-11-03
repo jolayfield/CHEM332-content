@@ -1,4 +1,5 @@
 import { fitCanvasToParent } from './src/hidpi';
+import { canvasFont, INK_ON_PAPER } from './src/canvas-theme';
 
 // Draws a T(E) curve for fixed V₀ and a, with current E marked
 export class TransmissionGraph {
@@ -78,8 +79,8 @@ export class TransmissionGraph {
         ctx.stroke();
 
         // Axis labels
-        ctx.fillStyle = '#636e72';
-        ctx.font = '11px Arial';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'center';
         ctx.fillText('E (eV)', padding.left + plotW / 2, this.height - 5);
         ctx.save();
@@ -93,7 +94,7 @@ export class TransmissionGraph {
         ctx.textBaseline = 'middle';
         [0, 0.5, 1].forEach(t => {
             const y = padding.top + plotH * (1 - t);
-            ctx.fillStyle = '#999';
+            ctx.fillStyle = INK_ON_PAPER.secondary;
             ctx.fillText(t.toFixed(1), padding.left - 5, y);
             ctx.beginPath();
             ctx.strokeStyle = '#eee';
@@ -107,7 +108,7 @@ export class TransmissionGraph {
         ctx.textBaseline = 'top';
         for (let e = 0; e <= maxE; e += 2) {
             const x = padding.left + (e / maxE) * plotW;
-            ctx.fillStyle = '#999';
+            ctx.fillStyle = INK_ON_PAPER.secondary;
             ctx.fillText(`${e}`, x, padding.top + plotH + 5);
         }
 
@@ -120,8 +121,8 @@ export class TransmissionGraph {
         ctx.lineTo(v0x, padding.top + plotH);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = '#ff5722';
-        ctx.font = '10px Arial';
+        ctx.fillStyle = INK_ON_PAPER.orange;
+        ctx.font = canvasFont(12, 'bold');
         ctx.textAlign = 'center';
         ctx.fillText('V₀', v0x, padding.top - 5);
 
@@ -157,8 +158,8 @@ export class TransmissionGraph {
         ctx.shadowBlur = 0;
 
         // Label
-        ctx.fillStyle = '#3d5afe';
-        ctx.font = 'bold 11px Arial';
+        ctx.fillStyle = INK_ON_PAPER.blue;
+        ctx.font = canvasFont(12, 'bold');
         ctx.textAlign = 'left';
         ctx.fillText(`T = ${currentT.toFixed(3)}`, markerX + 10, markerY - 5);
     }

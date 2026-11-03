@@ -1,4 +1,5 @@
 import { fitCanvasToParent } from './src/hidpi';
+import { canvasFont, INK_ON_DARK } from './src/canvas-theme';
 
 export class BarrierSimulation {
     canvas: HTMLCanvasElement;
@@ -149,7 +150,7 @@ export class BarrierSimulation {
 
         // V₀ label
         ctx.fillStyle = '#e64a19';
-        ctx.font = 'bold 13px Arial';
+        ctx.font = canvasFont(13, 'bold');
         ctx.textAlign = 'center';
         ctx.fillText(`V₀ = ${this.barrierHeight.toFixed(1)} eV`,
             (this.barrierLeft + this.barrierRight) / 2, barrierTop - 8);
@@ -167,14 +168,14 @@ export class BarrierSimulation {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#3d5afe';
-        ctx.font = '12px Arial';
+        ctx.fillStyle = INK_ON_DARK.blue;
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'left';
         ctx.fillText(`E = ${this.energy.toFixed(1)} eV`, this.regionLeft + 5, energyY - 8);
 
         // Region labels
-        ctx.fillStyle = '#636e72';
-        ctx.font = '11px Arial';
+        ctx.fillStyle = INK_ON_DARK.muted;
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'center';
         ctx.fillText('Region I', (this.regionLeft + this.barrierLeft) / 2, this.baseline + 25);
         ctx.fillText('Region II', (this.barrierLeft + this.barrierRight) / 2, this.baseline + 25);
@@ -297,7 +298,7 @@ export class BarrierSimulation {
         }
 
         // Wave legend
-        ctx.font = '11px Arial';
+        ctx.font = canvasFont(12);
         ctx.textAlign = 'left';
         const legendY = this.height - 30;
 
@@ -322,7 +323,7 @@ export class BarrierSimulation {
         // Title indicator
         const isTunneling = this.energy < this.barrierHeight;
         ctx.fillStyle = isTunneling ? '#ff5722' : '#4caf50';
-        ctx.font = 'bold 14px Merriweather';
+        ctx.font = canvasFont(14, 'bold', 'Lora');
         ctx.textAlign = 'center';
         ctx.fillText(
             isTunneling ? '⚡ Quantum Tunneling (E < V₀)' : '✓ Classical Transmission (E > V₀)',
@@ -330,7 +331,7 @@ export class BarrierSimulation {
         );
 
         // T and R values in top corners
-        ctx.font = 'bold 13px Arial';
+        ctx.font = canvasFont(13, 'bold');
         ctx.textAlign = 'left';
         ctx.fillStyle = '#4caf50';
         ctx.fillText(`T = ${T.toFixed(4)}`, this.regionLeft, 50);

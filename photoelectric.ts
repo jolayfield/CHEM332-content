@@ -3,6 +3,7 @@ import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { Simulation } from './simulation';
 import { KEGraph } from './graph';
+import { setReadout } from './src/readout';
 
 function setupThemeToggle(): void {
     const themeToggleBtn = document.querySelector('.theme-toggle') as HTMLElement;
@@ -58,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (intensityVal) intensityVal.textContent = `${intensity}%`;
         if (wavelengthVal) wavelengthVal.textContent = `${wavelength} nm`;
 
-        if (photonEnergyStat) photonEnergyStat.textContent = `${energy.toFixed(2)} eV`;
-        if (workFuncStat) workFuncStat.textContent = `${currentWorkFunc.toFixed(2)} eV`;
+        setReadout(photonEnergyStat, energy.toFixed(2), 'eV');
+        setReadout(workFuncStat, currentWorkFunc.toFixed(2), 'eV');
         if (maxKeStat) {
-            maxKeStat.textContent = `${maxKe.toFixed(2)} eV`;
+            setReadout(maxKeStat, maxKe.toFixed(2), 'eV');
             if (maxKe > 0) {
                 maxKeStat.style.color = '';
                 maxKeStat.style.textShadow = '';

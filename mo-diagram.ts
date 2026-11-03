@@ -3,6 +3,8 @@
  * Handles the logic and drawing of energy level diagrams for diatomic molecules.
  */
 
+import { canvasFont, INK_ON_PAPER } from './src/canvas-theme';
+
 export interface EnergyLevel {
     id: string;
     label: string;
@@ -133,7 +135,7 @@ export class MODiagram {
         const yStart = this.padding;
         const yEnd = (this.canvas.height / (window.devicePixelRatio || 1)) - this.padding;
 
-        ctx.strokeStyle = '#aaa';
+        ctx.strokeStyle = INK_ON_PAPER.secondary;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x, yEnd);
@@ -148,8 +150,8 @@ export class MODiagram {
         ctx.stroke();
 
         // Label
-        ctx.fillStyle = '#aaa';
-        ctx.font = '14px Inter, sans-serif';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
+        ctx.font = canvasFont(14);
         ctx.save();
         ctx.translate(x - 10, yStart + 50);
         ctx.rotate(-Math.PI / 2);
@@ -170,7 +172,7 @@ export class MODiagram {
         const barWidth = this.barWidth(level);
 
         // Draw the energy bar
-        ctx.strokeStyle = level.type === 'molecular' ? '#6699ff' : '#aaa';
+        ctx.strokeStyle = level.type === 'molecular' ? INK_ON_PAPER.accent : INK_ON_PAPER.secondary;
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x - barWidth / 2, y);
@@ -179,12 +181,12 @@ export class MODiagram {
 
         // Draw Labels
         ctx.fillStyle = ctx.strokeStyle;
-        ctx.font = 'bold 12px Inter, sans-serif';
+        ctx.font = canvasFont(13, 'bold');
         ctx.textAlign = 'center';
         ctx.fillText(level.label, x, y - 10);
 
         if (level.symmetry) {
-            ctx.font = 'italic 10px Inter, sans-serif';
+            ctx.font = `italic ${canvasFont(12, 'normal', 'Lora')}`;
             ctx.fillText(level.symmetry, x, y + 20);
         }
 
