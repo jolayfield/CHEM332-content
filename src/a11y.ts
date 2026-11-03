@@ -149,3 +149,12 @@ function syncChipState(group: HTMLElement): void {
     chip.tabIndex = checked ? 0 : -1;
   });
 }
+
+let lastAnnounced = '';
+
+/** Announce only when the text differs from the last announcement (no repeats on re-render). */
+export function announceIfChanged(text: string): void {
+  if (text === lastAnnounced) return;
+  lastAnnounced = text;
+  announce(text);
+}

@@ -4,6 +4,7 @@ import katex from 'katex';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
 import './src/chart-theme';
+import { announceIfChanged } from './src/a11y';
 import { INK_ON_DARK } from './src/canvas-theme';
 
 function refreshMath() {
@@ -222,6 +223,8 @@ function branchAbsorbance(
 const A_PEAK = 1.5;
 
 // ─── Update ───────────────────────────────────────────────────────────────────
+let userAction = false;
+
 function update() {
     const nu0 = bandOrigin(mol);
     const B0 = Bv(mol, 0);
@@ -289,6 +292,13 @@ function update() {
         <div><div class="k">Most populated J at ${temperature} K</div><div class="v">J = ${Jmax}</div></div>
         <div><div class="k">P/R spacing (~2B₀)</div><div class="v">${(2 * B0).toFixed(3)}<span class="unit">cm⁻¹</span></div></div>
     `;
+    if (userAction) {
+        userAction = false;
+        // Short spoken summary: molecule, B0, line spacing, most populated level (A1)
+        const v = Array.from(statsPanel.querySelectorAll<HTMLElement>('.v')).map(el => el.textContent?.trim() ?? '');
+        const picked = [v[0], v[1], v[2], v[v.length - 1]].filter(Boolean);
+        announceIfChanged(picked.join(', '));
+    }
 
     // Branch note
     if (mol.hasQBranch) {
@@ -307,6 +317,7 @@ function scheduleUpdate() {
 
 document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
     chip.addEventListener('click', () => {
+        userAction = true;
         document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         mol = MOLECULES[chip.dataset.mol!];
@@ -318,6 +329,7 @@ document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
 
 document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
     chip.addEventListener('click', () => {
+        userAction = true;
         document.querySelectorAll('.display-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         displayMode = chip.dataset.mode as 'transmission' | 'absorbance';
@@ -326,6 +338,7 @@ document.querySelectorAll<HTMLButtonElement>('.display-chip').forEach(chip => {
 });
 
 tempSlider.addEventListener('input', () => {
+    userAction = true;
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
     jMax = calculateJMax(Bv(mol, 0), temperature);
@@ -333,6 +346,7 @@ tempSlider.addEventListener('input', () => {
 });
 
 resSlider.addEventListener('input', () => {
+    userAction = true;
     resolution = parseFloat(resSlider.value);
     resVal.textContent = `${resolution.toFixed(1)} cm⁻¹`;
     scheduleUpdate();
