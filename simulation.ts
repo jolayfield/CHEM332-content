@@ -1,3 +1,4 @@
+import { canvasFont, INK_ON_DARK } from './src/canvas-theme';
 import { createHiDPIOffscreen, fitCanvasToParent } from './src/hidpi';
 
 interface Photon {
@@ -283,9 +284,9 @@ export class Simulation {
 
         ctx.globalAlpha = 1;
 
-        // Labels — Lato 600, wide tracking, dim white
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.font = '600 9px Lato, sans-serif';
+        // Labels — Lato 600, wide tracking
+        ctx.fillStyle = INK_ON_DARK.secondary;
+        ctx.font = canvasFont(11, 600);
         const ctxAny = ctx as any;
         if (ctxAny.letterSpacing !== undefined) ctxAny.letterSpacing = '0.22em';
 

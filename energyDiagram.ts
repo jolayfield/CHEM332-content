@@ -1,3 +1,4 @@
+import { canvasFont, INK_ON_PAPER } from './src/canvas-theme';
 import { fitCanvasToParent } from './src/hidpi';
 
 export class EnergyDiagram {
@@ -77,14 +78,14 @@ export class EnergyDiagram {
         ctx.lineTo(paddingLeft + lineW, yInf);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = '#666';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
         ctx.font = '12px Lato, sans-serif';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillText('n=∞', paddingLeft - 8, yInf);
         ctx.textAlign = 'left';
         ctx.fillText('0 eV', paddingLeft + lineW + 8, yInf);
-        ctx.font = 'italic 10px Lato, sans-serif';
+        ctx.font = `italic ${canvasFont(11)}`;
         ctx.textBaseline = 'bottom';
         ctx.fillText('ionization', paddingLeft + 4, yInf - 2);
 
@@ -103,7 +104,7 @@ export class EnergyDiagram {
             ctx.stroke();
 
             // n label (left)
-            ctx.fillStyle = (isActive || isTarget) ? '#340E51' : '#666';
+            ctx.fillStyle = (isActive || isTarget) ? '#340E51' : INK_ON_PAPER.secondary;
             ctx.font = (isActive || isTarget) ? 'bold 13px Lato, sans-serif' : '12px Lato, sans-serif';
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
@@ -165,14 +166,14 @@ export class EnergyDiagram {
         }
 
         // ── Title ──
-        ctx.fillStyle = '#636e72';
+        ctx.fillStyle = INK_ON_PAPER.secondary;
         ctx.font = '11px Lato, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText('E = −13.6 / n²  eV', this.width / 2, 5);
 
         // ── Scale disclosure ──
-        ctx.font = 'italic 10px Lato, sans-serif';
+        ctx.font = `italic ${canvasFont(11)}`;
         ctx.textBaseline = 'bottom';
         ctx.fillText('energy axis compressed (log |E| scale) — not linear in E', this.width / 2, this.height - 2);
     }

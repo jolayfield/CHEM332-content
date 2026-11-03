@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     speedInput.addEventListener('input', () => {
         const val = parseFloat(speedInput.value);
         sim.animationSpeed = val;
-        speedVal.textContent = val.toFixed(1);
+        speedVal.textContent = `${val.toFixed(1)}×`;
     });
 
     // Init

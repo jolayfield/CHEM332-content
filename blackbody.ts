@@ -2,6 +2,8 @@ import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { setupMobileMenu } from './src/mobile-menu';
 import { fitCanvas } from './src/hidpi';
+import { canvasFont } from './src/canvas-theme';
+import { setReadout } from './src/readout';
 
 /**
  * Setup theme toggle button click handler
@@ -260,7 +262,7 @@ function drawAxes(ctx: CanvasRenderingContext2D, width: number, height: number, 
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim();
   ctx.fillStyle = textColor;
   ctx.strokeStyle = textColor;
-  ctx.font = '12px sans-serif';
+  ctx.font = canvasFont(12);
 
   // X-axis
   ctx.lineWidth = 1;
@@ -346,11 +348,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update text displays
     temperatureVal.textContent = `${temperature} K`;
-    currentTempDisplay.textContent = `${temperature}`;
+    setReadout(currentTempDisplay, `${temperature}`, 'K');
 
     // Calculate and display peak wavelength
     const peakWavelength = wiensPeakWavelength(temperature);
-    peakWavelengthDisplay.textContent = (peakWavelength * 1e9).toFixed(1);
+    setReadout(peakWavelengthDisplay, (peakWavelength * 1e9).toFixed(1), 'nm');
 
     // Redraw spectrum
     if (canvas) {
