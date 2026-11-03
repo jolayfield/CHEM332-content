@@ -12,6 +12,7 @@ import {
     HybridOrbital
 } from './hybridization-math';
 import './style.css';
+import { setupCameraControls, describeWebGLCanvas } from './src/camera-keys';
 
 // ─── KaTeX ───────────────────────────────────────────────────────────────────
 /** Render math in `root` (whole page once at boot, then only the equation box) */
@@ -59,6 +60,16 @@ container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// Keyboard, button, and preset control; text alternative for the WebGL canvas
+setupCameraControls({
+    container,
+    camera,
+    controls,
+    label: '3D view of hybrid orbitals. Use the arrow keys to rotate and plus and minus to zoom, or the buttons below.',
+    obliquePosition: new THREE.Vector3(-7, 3.5, 7),
+}, resetBtn);
+describeWebGLCanvas(renderer.domElement, 'desc-3d-view', '3D view of the selected hybrid set: each hybrid has one large positive lobe and a smaller negative lobe, pointing along the tetrahedral, trigonal, or linear directions. Arrow keys rotate and plus and minus zoom.');
 
 // Lighting
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));

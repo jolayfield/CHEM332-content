@@ -1,6 +1,8 @@
 import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { ParticleBox2DSimulation, findDegenerateStates } from './particleBox2DSimulation';
+import { announce } from './src/a11y';
+import { summarizeBox2D, type Summary } from './src/summaries';
 
 
 /**
@@ -42,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const nodesYValEl = document.getElementById('nodes-y-val') as HTMLElement;
     const degeneracyValEl = document.getElementById('degeneracy-val') as HTMLElement;
 
+    let currentSummary: Summary = { short: '', full: '' };
+
     const updateUI = () => {
         const nx = parseInt(nxInput.value);
         const ny = parseInt(nyInput.value);
@@ -67,12 +71,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Degeneracy: every (nx', ny') in 1…15 with the same energy (incl. accidental)
         const states = findDegenerateStates(nx, ny, Lx, Ly);
         const g = states.length;
+        currentSummary = summarizeBox2D(nx, ny, Lx, Ly, energy, { g, partners: states });
+        announce(currentSummary.short);
         degeneracyValEl.textContent = g === 1
             ? 'Non-degenerate'
             : `${g}-fold: ${states.map(([a, b]) => `(${a},${b})`).join(' ')}`;
     };
 
     // Wire up listeners
+    const describeBtn = document.getElementById('describe-figure') as HTMLButtonElement | null;
+    const readFull = () => announce(currentSummary.full);
+    describeBtn?.addEventListener('click', readFull);
+    document.querySelector('.control-panel')?.addEventListener('keydown', (e: Event) => {
+        if ((e as KeyboardEvent).key === '?') {
+            e.preventDefault();
+            readFull();
+        }
+    });
+
     nxInput.addEventListener('input', updateUI);
     nyInput.addEventListener('input', updateUI);
     lxInput.addEventListener('input', updateUI);

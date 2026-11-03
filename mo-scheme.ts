@@ -1,5 +1,7 @@
 import { MODiagram, EnergyLevel, InteractionLine } from './mo-diagram';
 import './style.css';
+import { announce } from './src/a11y';
+import { summarizeMO, type Summary } from './src/summaries';
 
 interface MoleculeData {
     name: string;
@@ -216,7 +218,9 @@ const theoryNote = document.getElementById('theory-note')!;
 
 const diagram = new MODiagram(canvas);
 
-function updateMO() {
+let currentSummary: Summary = { short: '', full: '' };
+
+function updateMO(speak = false) {
     const molKey = currentMolKey;
     const mol = molecules[molKey];
     if (!mol) return;
@@ -248,6 +252,21 @@ function updateMO() {
     theoryNote.textContent = mol.description;
 
     diagram.setLevels(mol.levels, mol.interactions);
+
+    // Summary for the Describe figure button and the ? key; spoken only after a chip change
+    const unpaired = moLevels.reduce((acc, l) => acc + (l.electrons === 1 ? 1 : 0), 0);
+    const occupancy = [...moLevels]
+      .sort((a, b) => a.energy - b.energy)
+      .map(l => ({ label: l.symmetry ?? l.label, electrons: l.electrons }));
+    currentSummary = summarizeMO({
+      name: mol.name,
+      occupancy,
+      bondOrder,
+      unpaired,
+      homo,
+      lumo,
+    });
+    if (speak) announce(currentSummary.short);
 }
 
 document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
@@ -255,7 +274,17 @@ document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
         document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         currentMolKey = chip.dataset.mol!;
-        updateMO();
+        updateMO(true);
     });
 });
 updateMO();
+
+const describeBtn = document.getElementById('describe-figure') as HTMLButtonElement | null;
+const readFull = () => announce(currentSummary.full);
+describeBtn?.addEventListener('click', readFull);
+document.querySelector('.control-panel')?.addEventListener('keydown', (e: Event) => {
+    if ((e as KeyboardEvent).key === '?') {
+        e.preventDefault();
+        readFull();
+    }
+});

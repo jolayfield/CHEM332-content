@@ -6,6 +6,8 @@
 import { findSimByPath, lecturesFor } from './chapters';
 import type { Lecture } from './lectures';
 import { loadProgress, recordVisit, toggleDone } from './progress';
+import { setupSkipLink, applyReviewView, setupChipGroups } from './a11y';
+import { applyFigureDescriptions } from './figures';
 
 function renderBookmark(btn: HTMLButtonElement, done: boolean): void {
   btn.textContent = done ? '★' : '☆';
@@ -36,6 +38,11 @@ function renderRelatedLectures(lectures: Lecture[]): void {
       </a>`).join('')}`;
   container.appendChild(section);
 }
+
+setupSkipLink();
+applyReviewView();
+setupChipGroups();
+applyFigureDescriptions();
 
 const sim = findSimByPath(location.pathname);
 const bookmark = document.querySelector<HTMLButtonElement>('.nav-bookmark');

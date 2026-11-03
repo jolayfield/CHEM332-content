@@ -4,6 +4,7 @@ import katex from 'katex';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import './style.css';
 import './src/chart-theme';
+import { announceIfChanged } from './src/a11y';
 import { INK_ON_DARK } from './src/canvas-theme';
 
 function refreshMath() {
@@ -232,6 +233,8 @@ function jMostPopulated(B: number, T: number): number {
 }
 
 // ─── Update ───────────────────────────────────────────────────────────────────
+let userAction = false;
+
 function update() {
     const B = B0Of(currentMol);
     const polar = currentMol.polar;
@@ -296,6 +299,13 @@ function update() {
         <div><div class="k">Reduced mass (μ)</div><div class="v">${currentMol.mu.toFixed(3)}<span class="unit">amu</span></div></div>
         <div><div class="k">Most populated J at ${temperature} K</div><div class="v">J = ${Jmax_pop}</div></div>
     `;
+    if (userAction) {
+        userAction = false;
+        // Short spoken summary: molecule, B0, line spacing, most populated level (A1)
+        const v = Array.from(statsPanel.querySelectorAll<HTMLElement>('.v')).map(el => el.textContent?.trim() ?? '');
+        const picked = [v[0], v[1], v[2], v[v.length - 1]].filter(Boolean);
+        announceIfChanged(picked.join(', '));
+    }
 
     // Energy levels table — true fractional population N_J / q_rot
     levelsPanel.innerHTML = '';
@@ -318,6 +328,7 @@ function scheduleUpdate() {
 
 document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
     chip.addEventListener('click', () => {
+        userAction = true;
         document.querySelectorAll('.mol-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         currentMol = MOLECULES[chip.dataset.mol!];
@@ -328,6 +339,7 @@ document.querySelectorAll<HTMLButtonElement>('.mol-chip').forEach(chip => {
 
 document.querySelectorAll<HTMLButtonElement>('.axis-chip').forEach(chip => {
     chip.addEventListener('click', () => {
+        userAction = true;
         document.querySelectorAll('.axis-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
         axisMode = chip.dataset.axis === 'common' ? 'common' : 'fit';
@@ -336,12 +348,14 @@ document.querySelectorAll<HTMLButtonElement>('.axis-chip').forEach(chip => {
 });
 
 tempSlider.addEventListener('input', () => {
+    userAction = true;
     temperature = parseInt(tempSlider.value);
     tempVal.textContent = `${temperature} K`;
     scheduleUpdate();
 });
 
 jMaxSlider.addEventListener('input', () => {
+    userAction = true;
     jMax = parseInt(jMaxSlider.value);
     jMaxVal.textContent = `${jMax}`;
     scheduleUpdate();

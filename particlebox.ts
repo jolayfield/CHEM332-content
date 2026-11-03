@@ -1,6 +1,8 @@
 import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { ParticleBoxSimulation, ParticleBoxEnergyDiagram } from './particleBoxSimulation';
+import { announce } from './src/a11y';
+import { summarizeBox1D, type Summary } from './src/summaries';
 
 
 /**
@@ -77,9 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.style.borderRadius = '4px';
                 input.addEventListener('input', () => {
                     const idx = sim.pinnedStates.findIndex(s => s.n === state.n);
-                    if (idx !== -1) {
-                        sim.pinnedStates[idx].c = parseFloat(input.value) || 1.0;
+                    const value = parseFloat(input.value);
+                    if (idx !== -1 && Number.isFinite(value)) {
+                        sim.pinnedStates[idx].c = value;
                     }
+                    // Refresh the summary only; rebuilding the table would drop focus mid-typing
+                    refreshSummary();
                 });
                 cCell.appendChild(input);
             }
@@ -98,6 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeBtn.onclick = () => {
                     sim.pinnedStates = sim.pinnedStates.filter(s => s.n !== state.n);
                     updateUI();
+                    // The table was rebuilt; keep keyboard focus on a stable control
+                    addStateBtn.focus();
                 };
                 removeCell.appendChild(removeBtn);
             }
@@ -107,8 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let currentSummary: Summary = { short: '', full: '' };
+    const describeNow = () => {
+        currentSummary = summarizeBox1D(parseInt(nInput.value), sim.pinnedStates);
+        return currentSummary;
+    };
+    const refreshSummary = () => {
+        announce(describeNow().short);
+    };
+
     const updateUI = () => {
         const n = parseInt(nInput.value);
+        describeNow();
         sim.previewN = n;
 
         // Display mode
@@ -127,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update displays
         nVal.textContent = `n = ${n}`;
+        announce(currentSummary.short);
         if (isSuperposition) {
             energyValEl.textContent = 'Superposition';
             nodesValEl.textContent = 'N/A';
@@ -193,5 +211,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Init
+    const describeBtn = document.getElementById('describe-figure') as HTMLButtonElement | null;
+    const readFull = () => {
+        announce(describeNow().full);
+    };
+    describeBtn?.addEventListener('click', readFull);
+    document.querySelector('.control-panel')?.addEventListener('keydown', (e: Event) => {
+        if ((e as KeyboardEvent).key === '?') {
+            e.preventDefault();
+            readFull();
+        }
+    });
+
     updateUI();
 });

@@ -2,6 +2,7 @@ import './style.css';
 import { initializeTheme, toggleTheme } from './src/theme-manager';
 import { BohrSimulation, OrbitScale, transitionWavelengthNm } from './bohrSimulation';
 import { EnergyDiagram } from './energyDiagram';
+import { announce } from './src/a11y';
 
 
 /**
@@ -89,18 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!keepStats) updateStats(ni, nf);
 
-        niInput.disabled = busy;
+        // aria-disabled, not disabled: a disabled button drops keyboard focus when the
+        // transition ends. The click handler already ignores presses while busy or same-level.
+        niInput.setAttribute('aria-disabled', String(busy));
+        const inactive = busy || ni === nf;
+        btn.setAttribute('aria-disabled', String(inactive));
+        btn.style.opacity = inactive ? '0.5' : '1';
         if (busy) {
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
             btn.textContent = "Transitioning…";
         } else if (ni === nf) {
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
             btn.textContent = "Same Level";
         } else {
-            btn.disabled = false;
-            btn.style.opacity = '1';
             btn.textContent = ni > nf ? "Emit Photon" : "Absorb Photon";
         }
     };
@@ -127,6 +127,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     nfInput.addEventListener('input', () => updateUI());
+
+    // Speak the readouts once a slider settles: one announcement, no fixed figure summary (AE4)
+    const announceReadouts = () => {
+        const ni = parseInt(niInput.value);
+        const nf = parseInt(nfInput.value);
+        if (ni === nf) {
+            announce(`Initial and final level are both ${ni}. No transition.`);
+            return;
+        }
+        // Put a space between each number and its unit so speech reads "0.66 eV"
+        const spoken = (el: HTMLElement | null) => (el?.textContent ?? '').replace(/(\d)([a-zA-Zµ])/g, '$1 $2');
+        const dE = spoken(deltaEStat);
+        const wl = spoken(wlStat);
+        const series = seriesStat?.textContent ?? '';
+        announce(`Initial n ${ni}, final n ${nf}. Energy ${dE}, wavelength ${wl}, ${series}.`);
+    };
+    niInput.addEventListener('change', announceReadouts);
+    nfInput.addEventListener('change', announceReadouts);
 
     btn.addEventListener('click', async () => {
         const ni = parseInt(niInput.value);
