@@ -5,7 +5,8 @@ import { initializeStorage } from './src/storage-manager';
 import { initializeTheme } from './src/theme-manager';
 import { CHAPTERS, ALL_SIMS, chapterWeeks, type Chapter, type SimEntry } from './src/chapters';
 import { loadProgress, type Progress } from './src/progress';
-import { setupSkipLink, applyReviewView } from './src/a11y';
+import { setupSkipLink, applyReviewView, setupChipGroups } from './src/a11y';
+import { applyFigureDescriptions } from './src/figures';
 
 console.log('QuantumChem Landing Page Loaded');
 
@@ -90,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeTheme();
   setupSkipLink();
   applyReviewView();
+  setupChipGroups();
+  applyFigureDescriptions();
 
   const progress = loadProgress();
   const chapters = buildChapters(progress);

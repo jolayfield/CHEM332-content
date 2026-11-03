@@ -93,3 +93,59 @@ export function applyReviewView(): void {
   if (!isReviewView()) return;
   document.body.classList.add('review-view');
 }
+
+/**
+ * Chip groups: every `.chip-group` becomes an ARIA radio group. The page scripts
+ * keep toggling the `on` class; a MutationObserver mirrors it into `aria-checked`
+ * so no page script changes. Arrow keys move selection within a group (APG
+ * radio-group pattern with roving tabindex). Button clicks still drive the page.
+ */
+export function setupChipGroups(): void {
+  let labelId = 0;
+  document.querySelectorAll<HTMLElement>('.chip-group').forEach(group => {
+    const chips = Array.from(group.querySelectorAll<HTMLElement>('button'));
+    if (chips.length === 0) return;
+
+    // Visible group label: the preceding <label> in the same control group
+    const label = group.previousElementSibling?.tagName === 'LABEL'
+      ? group.previousElementSibling
+      : group.closest('.control-group')?.querySelector('label');
+    group.setAttribute('role', 'radiogroup');
+    if (label) {
+      if (!label.id) label.id = `chip-group-label-${++labelId}`;
+      group.setAttribute('aria-labelledby', label.id);
+    }
+
+    chips.forEach(chip => chip.setAttribute('role', 'radio'));
+    syncChipState(group);
+
+    new MutationObserver(() => syncChipState(group)).observe(group, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    group.addEventListener('keydown', (e: KeyboardEvent) => {
+      const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
+      if (!keys.includes(e.key)) return;
+      const current = chips.indexOf(document.activeElement as HTMLElement);
+      if (current < 0) return;
+      e.preventDefault();
+      const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
+      const next = chips[(current + step + chips.length) % chips.length];
+      next.focus();
+      next.click();
+    });
+  });
+}
+
+/** One selected chip per group: aria-checked and roving tabindex follow the `on` class. */
+function syncChipState(group: HTMLElement): void {
+  const chips = Array.from(group.querySelectorAll<HTMLElement>('button'));
+  let selected = chips.find(c => c.classList.contains('on')) ?? chips[0];
+  chips.forEach(chip => {
+    const checked = chip === selected;
+    chip.setAttribute('aria-checked', String(checked));
+    chip.tabIndex = checked ? 0 : -1;
+  });
+}

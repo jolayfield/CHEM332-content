@@ -3,7 +3,8 @@ import { setupMobileMenu } from './src/mobile-menu';
 import { initializeTheme } from './src/theme-manager';
 import { CHAPTERS, type Chapter } from './src/chapters';
 import { loadProgress } from './src/progress';
-import { setupSkipLink, applyReviewView } from './src/a11y';
+import { setupSkipLink, applyReviewView, setupChipGroups } from './src/a11y';
+import { applyFigureDescriptions } from './src/figures';
 
 function renderSimTOC(chapters: Chapter[]): string {
   const { done } = loadProgress();
@@ -32,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeTheme();
   setupSkipLink();
   applyReviewView();
+  setupChipGroups();
+  applyFigureDescriptions();
   setupMobileMenu();
 
   const tocEl = document.getElementById('sim-toc');
